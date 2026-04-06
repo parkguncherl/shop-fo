@@ -6,7 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="4f6e4ce5-2083-486f-90af-f3b12eb1a58b" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/design/productList.html" beforeDir="false" afterPath="$PROJECT_DIR$/design/productList.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -31,12 +30,12 @@
     &quot;assignee&quot;: &quot;parkguncherl&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/parkguncherl/shop-fo.git&quot;,
-    &quot;accountId&quot;: &quot;5a79e0c7-3c7c-4349-a60f-4ec641d238c0&quot;
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/parkguncherl/shop-fo.git",
+    "accountId": "488dd097-7f3e-4b36-ab91-ab6b269a7b6a"
   }
-}</component>
+}]]></component>
   <component name="McpProjectServerCommands">
     <commands />
     <urls />
@@ -46,6 +45,9 @@
   &quot;fromUser&quot;: false
 }</component>
   <component name="ProjectId" id="3BnKHLcVd4Apk1gZDaBN1m8epvs" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="1" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="showLibraryContents" value="true" />
   </component>
@@ -59,10 +61,11 @@
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
     "git-widget-placeholder": "main",
     "ignore.virus.scanning.warn.message": "true",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "D:/Work/shop-fo/design",
+    "last_opened_file_path": "/Users/pjs/Desktop/temporary/shop/shop-fo/styles/layout",
     "list.type.of.created.stylesheet": "SCSS",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -70,33 +73,24 @@
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
     "settings.editor.selected.configurable": "project.scopes",
-    "ts.external.directory.path": "C:\\Users\\pjs\\AppData\\Roaming\\JetBrains\\IntelliJIdea2025.3\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external",
+    "ts.external.directory.path": "/Applications/IntelliJ IDEA.app/Contents/plugins/javascript-plugin/jsLanguageServicesImpl/external",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/styles/layout" />
+      <recent name="$PROJECT_DIR$/components/layout/header" />
+      <recent name="$PROJECT_DIR$/app/(app)" />
       <recent name="D:\Work\shop-fo\design" />
       <recent name="D:\Work\shop-fo\app" />
-      <recent name="D:\Work\shop-fo" />
-      <recent name="D:\Work\shop-fo\style" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/app/(app)" />
       <recent name="D:\Work\shop-fo" />
     </key>
   </component>
   <component name="RunManager">
-    <configuration default="true" type="JetRunConfigurationType">
-      <module name="shop-fo" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
-      <module name="shop-fo" />
-      <option name="filePath" />
-      <method v="2" />
-    </configuration>
     <configuration default="true" type="PythonConfigurationType" factoryName="Python">
       <module name="shop-fo" />
       <option name="ENV_FILES" value="" />
@@ -169,6 +163,17 @@
       <option name="USE_PATTERN" value="false" />
       <method v="2" />
     </configuration>
+    <configuration default="true" type="JetRunConfigurationType">
+      <module name="shop-fo" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
+      <module name="shop-fo" />
+      <option name="filePath" />
+      <method v="2" />
+    </configuration>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
@@ -187,6 +192,7 @@
       <updated>1775119305981</updated>
       <workItem from="1775119307082" duration="1716000" />
       <workItem from="1775121125917" duration="1080000" />
+      <workItem from="1775455346191" duration="1185000" />
     </task>
     <servers />
   </component>

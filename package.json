@@ -1,0 +1,41 @@
+{
+  "name": "shop-frontend",
+  "version": "2.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build:dev": "NODE_OPTIONS=--max-old-space-size=2048 env-cmd -f .env.development next build",
+    "start:dev": "env-cmd -f .env.development next start -H 0.0.0.0 -p 3000",
+    "build:prod": "NODE_OPTIONS=--max-old-space-size=2048 env-cmd -f .env.production next build",
+    "start:prod": "env-cmd -f .env.production next start -H 0.0.0.0 -p 3000",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "eslint": "^10.2.0",
+    "next": "^16.1.5",
+    "next-auth": "^4.24.7",
+    "react": "^19.2.3"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.3.5",
+    "@eslint/js": "^10.0.1",
+    "@typescript-eslint/eslint-plugin": "^5.47.0",
+    "@typescript-eslint/parser": "^5.47.0",
+    "eslint-config-next": "16.1.5",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.5",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "typescript-eslint": "^8.57.1"
+  },
+  "resolutions": {
+    "@types/react": "18.0.26"
+  },
+  "overrides": {
+    "form-data": "^4.0.0",
+    "tough-cookie": "^4.1.3",
+    "get-pixels": {
+      "request": "^2.88.2"
+    }
+  }
+}
