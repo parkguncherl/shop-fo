@@ -1,0 +1,84 @@
+@use '../../../styles' as *;
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  cursor: pointer;
+
+  &:hover .imageWrap img {
+    transform: scale(1.04);
+  }
+}
+
+.imageWrap {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  border-radius: 8px;
+  background: $color-gray-100;
+
+  img {
+    object-fit: cover;
+    transition: transform 0.4s ease;
+  }
+}
+
+.badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  padding: 3px 8px;
+  background: $color-black;
+  color: $color-white;
+  font-size: 11px;
+  font-weight: 500;
+  border-radius: 4px;
+  z-index: 1;
+}
+
+.wishlistBtn {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  z-index: 1;
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.name {
+  font-size: 14px;
+  color: $color-gray-800;
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.priceRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.discount {
+  font-size: 14px;
+  font-weight: 700;
+  color: $color-red;
+}
+
+.price {
+  font-size: 15px;
+  font-weight: 700;
+  color: $color-black;
+}
+
+.originalPrice {
+  font-size: 13px;
+  color: $color-gray-400;
+  text-decoration: line-through;
+}

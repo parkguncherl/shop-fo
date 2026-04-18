@@ -6,6 +6,9 @@
   <component name="ChangeListManager">
     <list default="true" id="4f6e4ce5-2083-486f-90af-f3b12eb1a58b" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(app)/layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(app)/layout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pnpm-lock.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pnpm-lock.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -15,9 +18,10 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="TypeScript File" />
-        <option value="SCSS File" />
         <option value="HTML File" />
+        <option value="TypeScript File" />
+        <option value="TypeScript JSX File" />
+        <option value="SCSS File" />
       </list>
     </option>
   </component>
@@ -30,12 +34,12 @@
     &quot;assignee&quot;: &quot;parkguncherl&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/parkguncherl/shop-fo.git",
-    "accountId": "488dd097-7f3e-4b36-ab91-ab6b269a7b6a"
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/parkguncherl/shop-fo.git&quot;,
+    &quot;accountId&quot;: &quot;488dd097-7f3e-4b36-ab91-ab6b269a7b6a&quot;
   }
-}]]></component>
+}</component>
   <component name="McpProjectServerCommands">
     <commands />
     <urls />
@@ -64,8 +68,10 @@
     "codeWithMe.voiceChat.enabledByDefault": "false",
     "git-widget-placeholder": "main",
     "ignore.virus.scanning.warn.message": "true",
+    "js.debugger.nextJs.config.created.client": "true",
+    "js.debugger.nextJs.config.created.server": "true",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "/Users/pjs/Desktop/temporary/shop/shop-fo/styles/layout",
+    "last_opened_file_path": "C:/Work/shop-fo",
     "list.type.of.created.stylesheet": "SCSS",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -73,24 +79,24 @@
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
     "settings.editor.selected.configurable": "project.scopes",
-    "ts.external.directory.path": "/Applications/IntelliJ IDEA.app/Contents/plugins/javascript-plugin/jsLanguageServicesImpl/external",
+    "ts.external.directory.path": "C:\\Work\\shop-fo\\node_modules\\typescript\\lib",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Work\shop-fo" />
       <recent name="$PROJECT_DIR$/styles/layout" />
       <recent name="$PROJECT_DIR$/components/layout/header" />
       <recent name="$PROJECT_DIR$/app/(app)" />
       <recent name="D:\Work\shop-fo\design" />
-      <recent name="D:\Work\shop-fo\app" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/app/(app)" />
       <recent name="D:\Work\shop-fo" />
     </key>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="npm.Next.js: 서버 측">
     <configuration default="true" type="PythonConfigurationType" factoryName="Python">
       <module name="shop-fo" />
       <option name="ENV_FILES" value="" />
@@ -163,6 +169,9 @@
       <option name="USE_PATTERN" value="false" />
       <method v="2" />
     </configuration>
+    <configuration name="Next.js: 클라이언트 측에서 디버그" type="JavascriptDebugType" uri="http://localhost:3000/">
+      <method v="2" />
+    </configuration>
     <configuration default="true" type="JetRunConfigurationType">
       <module name="shop-fo" />
       <method v="2">
@@ -172,6 +181,16 @@
     <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
       <module name="shop-fo" />
       <option name="filePath" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Next.js: 서버 측" type="js.build_tools.npm">
+      <package-json value="$PROJECT_DIR$/package.json" />
+      <command value="run" />
+      <scripts>
+        <script value="dev" />
+      </scripts>
+      <node-interpreter value="project" />
+      <envs />
       <method v="2" />
     </configuration>
   </component>
@@ -193,6 +212,7 @@
       <workItem from="1775119307082" duration="1716000" />
       <workItem from="1775121125917" duration="1080000" />
       <workItem from="1775455346191" duration="1185000" />
+      <workItem from="1776545841085" duration="2809000" />
     </task>
     <servers />
   </component>
