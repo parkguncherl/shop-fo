@@ -1,10 +1,11 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { getSession } from 'next-auth/react';
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080';
+const BASE_URL = process.env.NEXT_PUBLIC_SMART_API_ENDPOINT;
+const env = process.env.NEXT_PUBLIC_APP_ENV;
 
 const api = axios.create({
-  baseURL: `${BASE_URL}/shop-fo`,
+  baseURL: BASE_URL,
   timeout: 10000,
   headers: { 'Content-Type': 'application/json' },
 });

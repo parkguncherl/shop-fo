@@ -28,76 +28,42 @@
   gap: 4px;
 }
 
-// ─── 카테고리 탭 ──────────────────────────────────────
-.categoryRow {
-  @include hidden-scrollbar;
-  display: flex;
-  gap: 6px;
-  overflow-x: auto;
-  padding-bottom: 12px;
-  border-bottom: 1px solid $color-gray-200;
-  margin-bottom: 16px;
-}
+// ─── 2컬럼 그리드 ─────────────────────────────────────
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px 12px;
 
-.catBtn {
-  @include reset-button;
-  flex-shrink: 0;
-  padding: 5px 12px;
-  border-radius: 20px;
-  font-size: $font-size-sm;
-  color: $color-gray-500;
-  background: $color-gray-100;
-  white-space: nowrap;
-  transition: background $transition-fast, color $transition-fast;
-
-  &:hover {
-    background: $color-gray-200;
-    color: $color-black;
+  @include desktop {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 28px 16px;
   }
 }
 
-.catActive {
-  background: $color-black;
-  color: $color-white;
-}
-
-// ─── 상품 리스트 ──────────────────────────────────────
-.productList {
+// ─── 카드 ─────────────────────────────────────────────
+.card {
   display: flex;
   flex-direction: column;
-  gap: 0;
-}
-
-.productItem {
-  display: flex;
-  gap: 16px;
-  padding: 16px 0;
-  border-bottom: 1px solid $color-gray-100;
+  gap: 10px;
   cursor: pointer;
 
-  &:last-child {
-    border-bottom: none;
+  &:hover .image {
+    transform: scale(1.03);
   }
 
-  &:hover .image {
-    transform: scale(1.02);
+  &:hover .wishBtn {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
 // ─── 이미지 ───────────────────────────────────────────
 .imageWrap {
   position: relative;
-  flex-shrink: 0;
-  width: 120px;
-  height: 160px;
+  aspect-ratio: 4 / 5;
   border-radius: $border-radius-md;
   overflow: hidden;
   background: $color-gray-100;
-
-  @include tablet-up {
-    width: 160px;
-    height: 213px;
-  }
 }
 
 .image {
@@ -117,54 +83,46 @@
   font-weight: 700;
   letter-spacing: 0.04em;
 
-  &.best {
-    background: $color-accent;
-    color: $color-white;
-  }
-
-  &.new {
-    background: $color-black;
-    color: $color-white;
-  }
-
-  &.sale {
-    background: $color-red;
-    color: $color-white;
-  }
+  &.best { background: $color-accent; color: $color-white; }
+  &.new  { background: $color-black;  color: $color-white; }
+  &.sale { background: $color-red;    color: $color-white; }
 }
 
 .wishBtn {
   @include reset-button;
   @include flex-center;
   position: absolute;
-  bottom: 8px;
-  right: 8px;
+  bottom: 10px;
+  right: 10px;
   width: 34px;
   height: 34px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.88);
+  background: rgba(255, 255, 255, 0.9);
   color: $color-gray-400;
-  transition: color $transition-fast;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity $transition-base, transform $transition-base, color $transition-fast;
 
-  &:hover {
-    color: $color-red;
+  &:hover { color: $color-red; }
+
+  @include mobile {
+    opacity: 1;
+    transform: none;
   }
 }
 
 // ─── 상품 정보 ────────────────────────────────────────
 .info {
-  flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  gap: 8px;
-  min-width: 0;
+  gap: 5px;
+  padding: 0 2px;
 }
 
 .name {
   font-size: $font-size-base;
   color: $color-gray-800;
-  line-height: 1.5;
+  line-height: 1.4;
   @include line-clamp(2);
   margin: 0;
 }
@@ -172,7 +130,7 @@
 .priceRow {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   flex-wrap: wrap;
 }
 

@@ -38,4 +38,18 @@
     font-weight: 600;
     border-bottom-color: $color-black;
   }
+  .skeleton {
+    flex-shrink: 0;
+    width: 60px;
+    height: 16px;
+    border-radius: 8px;
+    background: $color-gray-200;
+    animation: shimmer 1.4s ease infinite;
+    align-self: center;
+  }
+
+  @keyframes shimmer {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.4; }
+  }
 }

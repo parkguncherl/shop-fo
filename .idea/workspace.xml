@@ -6,26 +6,12 @@
   <component name="ChangeListManager">
     <list default="true" id="4f6e4ce5-2083-486f-90af-f3b12eb1a58b" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/(auth)/layout.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/(shop)/page.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/[...errorPage]/ErrorPageClient.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/[...errorPage]/page.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/components/shop/ProductCard/ProductCard.module.scss" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/components/shop/ProductCard/ProductCard.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/customer/mainPage/MainPage.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/customer/mainPage/page.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/layout.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/stores/cartStore.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/styles/_index.scss" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/styles/_mixins.scss" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/(app)/styles/_variables.scss" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/layout/header/Navs.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/design/index.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/design/productList.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(shop)/page.module.scss" beforeDir="false" afterPath="$PROJECT_DIR$/app/(shop)/page.module.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(shop)/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(shop)/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/common/Navigation/Navigation.module.scss" beforeDir="false" afterPath="$PROJECT_DIR$/components/common/Navigation/Navigation.module.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/common/Navigation/Navigation.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/common/Navigation/Navigation.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/libs/api.ts" beforeDir="false" afterPath="$PROJECT_DIR$/libs/api.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pnpm-lock.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pnpm-lock.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/styles/layout/header.scss" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/styles/layout/layout.module.scss" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -36,9 +22,9 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="HTML File" />
-        <option value="TypeScript File" />
         <option value="TypeScript JSX File" />
         <option value="SCSS File" />
+        <option value="TypeScript File" />
       </list>
     </option>
   </component>
@@ -61,6 +47,9 @@
     <commands />
     <urls />
   </component>
+  <component name="PackageJsonUpdateNotifier">
+    <dismissed value="$PROJECT_DIR$/package.json" />
+  </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 8,
   &quot;fromUser&quot;: false
@@ -72,44 +61,45 @@
   <component name="ProjectViewState">
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;js.debugger.nextJs.config.created.client&quot;: &quot;true&quot;,
-    &quot;js.debugger.nextJs.config.created.server&quot;: &quot;true&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Work/shop-fo&quot;,
-    &quot;list.type.of.created.stylesheet&quot;: &quot;SCSS&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.standard&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.standard&quot;: &quot;&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;npm.Next.js: 서버 측.executor&quot;: &quot;Run&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;settings.javascript.linters.eslint&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;C:\\Work\\shop-fo\\node_modules\\typescript\\lib&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "DefaultHtmlFileTemplate": "HTML File",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.MCP Project settings loaded": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
+    "git-widget-placeholder": "main",
+    "ignore.virus.scanning.warn.message": "true",
+    "js.debugger.nextJs.config.created.client": "true",
+    "js.debugger.nextJs.config.created.server": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Work/shop-front-web",
+    "list.type.of.created.stylesheet": "SCSS",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.standard": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.standard": "",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "npm.Next.js: 서버 측.executor": "Run",
+    "prettierjs.PrettierConfiguration.Package": "C:\\Work\\shop-front-web\\node_modules\\prettier",
+    "settings.editor.selected.configurable": "settings.javascript.linters.eslint",
+    "ts.external.directory.path": "C:\\Work\\shop-front-web\\node_modules\\typescript\\lib",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Work\shop-front-web" />
+      <recent name="C:\Work\shop-front-web\app" />
+      <recent name="C:\Work\shop-front-web\app\api" />
       <recent name="C:\Work\shop-fo" />
       <recent name="C:\Work\shop-fo\components\layout" />
-      <recent name="C:\Work\shop-fo\components" />
-      <recent name="C:\Work\shop-fo\app" />
-      <recent name="C:\Work\shop-fo\app\(app)" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Work\shop-fo\app\(app)\components\shop" />
@@ -203,6 +193,10 @@
       <envs />
       <method v="2" />
     </configuration>
+    <list>
+      <item itemvalue="JavaScript Debug.Next.js: 클라이언트 측에서 디버그" />
+      <item itemvalue="npm.Next.js: 서버 측" />
+    </list>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
@@ -227,6 +221,8 @@
       <workItem from="1776574825279" duration="925000" />
       <workItem from="1776575948671" duration="1152000" />
       <workItem from="1776577378988" duration="2899000" />
+      <workItem from="1776582812029" duration="188000" />
+      <workItem from="1776583016521" duration="7036000" />
     </task>
     <servers />
   </component>
