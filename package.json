@@ -4,9 +4,9 @@
   "scripts": {
     "dev": "next dev -p 3000",
     "build:dev": "env-cmd -f .env.development next build",
-    "start:dev": "env-cmd -f .env.development next start -H 0.0.0.0 -p 3001",
+    "start:dev": "env-cmd -f .env.development next start -H 0.0.0.0 -p 3000",
     "build:prod": "env-cmd -f .env.production next build",
-    "start:prod": "env-cmd -f .env.production next start -H 0.0.0.0 -p 3001",
+    "start:prod": "env-cmd -f .env.production next start -H 0.0.0.0 -p 3000",
     "openapi:local": "openapi-generator-cli generate --reserved-words-mappings delete=delete -g typescript-axios -i http://localhost:8080/shop-ap/v3/api-docs/smart -o ./generated -c ./openapi.json --skip-validate-spec",
     "openapi:dev": "openapi-generator-cli generate --reserved-words-mappings delete=delete -g typescript-axios -i http://172.26.5.177:8080/shop-ap/v3/api-docs/smart -o ./generated -c ./openapi.json --skip-validate-spec",
     "openapi:prod": "openapi-generator-cli generate --reserved-words-mappings delete=delete -g typescript-axios -i http://172.26.5.177:8080/shop-ap/v3/api-docs/smart -o ./generated -c ./openapi.json --skip-validate-spec"
