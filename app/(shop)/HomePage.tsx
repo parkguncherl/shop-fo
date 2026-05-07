@@ -19,7 +19,7 @@ const DUMMY_PRODUCTS = [
 ];
 
 interface ExtendedDisplayResponseProductInfoForEnum extends DisplayResponseProductInfoForEnum {
-  src?: string
+  src?: string;
 }
 
 /** 상품관리 - 상품컨텐츠 페이지 */
@@ -30,7 +30,7 @@ const HomePage = () => {
 
   /** filters, lastInfo's filters*/
   const [filters, onChangeFilters, onFiltersReset, dispatch] = useFilters<DisplayRequestProductDetInfoListFilter>({
-    lastProdDetId: undefined,
+    lastProdId: undefined,
   });
 
   const [productInfosForEnum, setProductInfosForEnum] = useState<ExtendedDisplayResponseProductInfoForEnum[]>([]);
@@ -120,7 +120,7 @@ const HomePage = () => {
         {/*  </div>*/}
         {/*))}*/}
         {productInfosForEnum.map((product, index) => (
-          <div key={product.prodDetId} className={styles.card}>
+          <div key={product.prodId} className={styles.card}>
             <div className={styles.imageWrap}>
               {/*<img src={`https://picsum.photos/seed/${index + 1 + 10}/400/500`} alt={product.prodNm} className={styles.image} />*/}
               <img src={product.src} alt={product.prodNm} className={styles.image} />
