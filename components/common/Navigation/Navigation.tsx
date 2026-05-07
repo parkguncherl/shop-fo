@@ -1,17 +1,17 @@
 'use client';
-import React, { useEffect, useRef } from 'react';
+import React, { Suspense, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { usePartnerCode } from '@/hooks/usePartnerCode';
 import styles from './Navigation.module.scss';
 
-export default function Navigation() {
+// ─── useSearchParams 사용 컴포넌트 분리 ───────────────
+function NavigationInner() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const scrollRef = useRef<HTMLDivElement>(null);
   const currentCategory = searchParams.get('category');
 
-  // API에서 카테고리 목록 조회
   const { data: categories, isLoading } = usePartnerCode('P0001');
 
   useEffect(() => {
@@ -35,8 +35,7 @@ export default function Navigation() {
 
         {/* API에서 동적 생성 */}
         {isLoading
-          ? // 로딩 중 스켈레톤
-            Array.from({ length: 5 }).map((_, i) => <span key={i} className={styles.skeleton} />)
+          ? Array.from({ length: 5 }).map((_, i) => <span key={i} className={styles.skeleton} />)
           : categories?.map((cat) => (
               <Link
                 key={cat.codeCd}
@@ -48,5 +47,27 @@ export default function Navigation() {
             ))}
       </div>
     </nav>
+  );
+}
+
+// ─── 스켈레톤 fallback ────────────────────────────────
+function NavigationSkeleton() {
+  return (
+    <nav className={styles.nav}>
+      <div className={styles.scrollArea}>
+        {Array.from({ length: 6 }).map((_, i) => (
+          <span key={i} className={styles.skeleton} />
+        ))}
+      </div>
+    </nav>
+  );
+}
+
+// ───  Suspense로 감싸서 export (빌드 오류 해결)
+export default function Navigation() {
+  return (
+    <Suspense fallback={<NavigationSkeleton />}>
+      <NavigationInner />
+    </Suspense>
   );
 }
