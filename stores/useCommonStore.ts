@@ -3,7 +3,7 @@ import { devtools } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
 import { ApiResponse, CommonRequestFileDownload, CommonRequestFileRearrangementRequest, CommonRequestFileUploads, FileDet } from '@/generated';
 import { AxiosPromise } from 'axios';
-import { defaultApi } from '@/libs/api';
+import publicApi from '@/libs/publicApi';
 
 type ModalType = 'UPLOAD' | 'UPLOADS' | 'IMAGES' | 'PRIVACY' | 'FILES';
 
@@ -91,7 +91,7 @@ const initialStateCreator: StateCreator<CommonState & CommonApiState, any> = (se
       }));
     },
     selectFileList: async (fileId: number) => {
-      return defaultApi.get(`/common/file/${fileId}`).then((res): FileDet[] => {
+      return publicApi.get(`/common/file/${fileId}`).then((res): FileDet[] => {
         if (res.data.resultCode === 200) {
           return res.data.body;
         } else {
@@ -103,7 +103,7 @@ const initialStateCreator: StateCreator<CommonState & CommonApiState, any> = (se
     fileDownload: async (commonRequest) => {
       const params = '?id=' + commonRequest.id + '&fileSeq=' + commonRequest.fileSeq;
 
-      const res = await defaultApi.get('/common/file/download' + params.replaceAll('undefined', ''));
+      const res = await publicApi.get('/common/file/download' + params.replaceAll('undefined', ''));
       const blob = res.data;
 
       if (typeof window !== 'undefined') {
@@ -117,18 +117,18 @@ const initialStateCreator: StateCreator<CommonState & CommonApiState, any> = (se
     fileDownloadBlob: async (commonRequest) => {
       const params = '?id=' + commonRequest.id + '&fileSeq=' + commonRequest.fileSeq;
 
-      const res = await defaultApi.get('/common/file/download' + params.replaceAll('undefined', ''));
+      const res = await publicApi.get('/common/file/download' + params.replaceAll('undefined', ''));
       return res.data;
     },
 
     deleteFile: (commonRequest) => {
-      return defaultApi.delete('/common/fileDeleteBySeq/' + commonRequest.fileId + '/' + commonRequest.fileSeq, {});
+      return publicApi.delete('/common/fileDeleteBySeq/' + commonRequest.fileId + '/' + commonRequest.fileSeq, {});
     },
     getFileUrl: async (fileKey: string) => {
       if (!fileKey || fileKey.trim() === '') {
         return '';
       } else {
-        return await defaultApi.get('/common/getFileUrl', { params: { fileKey: fileKey } }).then((res) => {
+        return await publicApi.get('/common/getFileUrl', { params: { fileKey: fileKey } }).then((res) => {
           if (res.data.resultCode === 200) {
             return res.data.body;
           } else {
@@ -138,10 +138,10 @@ const initialStateCreator: StateCreator<CommonState & CommonApiState, any> = (se
       }
     },
     getFileList: (fileId: number) => {
-      return defaultApi.get(`/common/file/${fileId}`);
+      return publicApi.get(`/common/file/${fileId}`);
     },
     rearrangeFilesByStepsToMove: (commonRequestFileRearrangementRequest) => {
-      return defaultApi.patch('/common/rearrangeFilesByStepsToMove', commonRequestFileRearrangementRequest);
+      return publicApi.patch('/common/rearrangeFilesByStepsToMove', commonRequestFileRearrangementRequest);
     },
     uploadImageFiles: (commonRequestFileUploads) => {
       const formData = new FormData();
@@ -151,7 +151,7 @@ const initialStateCreator: StateCreator<CommonState & CommonApiState, any> = (se
 
       formData.append('fileId', commonRequestFileUploads.fileId.toString());
 
-      return defaultApi.post('/common/imgfile/uploads', formData, {
+      return publicApi.post('/common/imgfile/uploads', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
     },
@@ -161,7 +161,7 @@ const initialStateCreator: StateCreator<CommonState & CommonApiState, any> = (se
       formData.append('fileSeq', commonRequestFileUpdate.fileSeq.toString());
       formData.append('uploadFile', commonRequestFileUpdate.uploadFile);
 
-      return defaultApi.patch('/common/imgfile/update', formData, {
+      return publicApi.patch('/common/imgfile/update', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
     },
