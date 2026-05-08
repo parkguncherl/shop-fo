@@ -1,13 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
-import { DisplayControllerApi } from '@/generated/src/api/display-controller-api';
+import { WebCommonControllerApi } from '@/generated';
 
-const displayApi = new DisplayControllerApi();
+const webCommonApi = new WebCommonControllerApi();
 
 export function usePartnerCode(partnerUpperCode: string) {
   return useQuery({
-    queryKey: ['categoryList', partnerUpperCode],
+    queryKey: ['selectLowerCodeByCodeUpper', partnerUpperCode],
     queryFn: async () => {
-      const res = await displayApi.categoryList({ partnerUpperCode });
+      const res = await webCommonApi.partnerCodeList({ partnerUpperCode: partnerUpperCode });
       return res.data.body;
     },
     enabled: !!partnerUpperCode,
