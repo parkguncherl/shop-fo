@@ -1,6 +1,6 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { getSession } from 'next-auth/react';
-import { getCookie, setCookie } from 'cookies-next';
+import { getCookie } from 'cookies-next';
 import { COOKIE_KEYS } from '@/libs/const';
 
 const BASE_URL = process.env.NEXT_PUBLIC_SHOP_API_ENDPOINT;
@@ -13,7 +13,6 @@ const createInstance = () => {
     headers: { 'Content-Type': 'application/json' },
   });
 
-  // 공통 Response interceptor
   instance.interceptors.response.use(
     (res) => res,
     (error: AxiosError<{ message?: string; resultMessage?: string }>) => {
@@ -31,32 +30,16 @@ export const publicApi = createInstance();
 
 publicApi.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   const guestToken = getCookie(COOKIE_KEYS.GUEST_TOKEN);
+  console.log('publicApi 호출 URL ==>', config.url); // ← 확인
+  console.log('publicApi X-Guest-Token ==>', guestToken); // ← 확인
   if (guestToken) {
-    config.headers.set('X-Guest-Token', guestToken);
+    config.headers.set('X-Guest-Token', guestToken as string);
   }
   return config;
 });
 
 // ─── authApi: 회원 (Bearer Token 첨부) ────────────────
 export const authApi = createInstance();
-
-authApi.interceptors.request.use(
-  async (config: InternalAxiosRequestConfig) => {
-    const session = await getSession();
-    const token = session?.token;
-
-    if (!token) {
-      if (typeof window !== 'undefined') {
-        window.location.href = '/login';
-      }
-      return Promise.reject(new Error('인증이 필요합니다.'));
-    }
-
-    config.headers.Authorization = `Bearer ${token.accessToken}`;
-    return config;
-  },
-  (error) => Promise.reject(error),
-);
 
 authApi.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
