@@ -73,6 +73,7 @@ const Contents = () => {
     if (isContentsInfoListSuccess) {
       const { resultCode, body, resultMessage } = contentsInfoList.data;
       if (resultCode === 200) {
+        // todo 페이징 동작에 맞추어 setState 동작을 적절히 처리하거나 reducer 를 통한 디스패칭 형식 재정의를 고려하여야
         attachImgSrcForEachContents(body.rows || []).then((extendedContentsResponseContentsInfoList) => {
           setContentsResponseContentsInfoList(extendedContentsResponseContentsInfoList);
         });
@@ -132,6 +133,11 @@ const Contents = () => {
             </div>
           </div>
         ))}
+      </div>
+      <div className={styles.paging}>
+        <button className={styles.pagingBtn} disabled={!pagingOnContents.curPage}>
+          {pagingOnContents.curPage ? '눌러서 ' + (pagingOnContents.curPage + 1) + '페이지로 확장' : '사용할 수 없음'}
+        </button>
       </div>
     </div>
   );

@@ -119,6 +119,21 @@
   }
 }
 
+// ─── 페이징 버튼 영역 ───────────────────────────────────────────
+.paging {
+  @include flex-center;
+  padding: 7px;
+}
+
+.pagingBtn {
+  @include reset-button;
+  width: 200px;
+  height: 30px;
+  background-color: $color-gray-100;
+  border-radius: 10px;
+}
+
+
 // ─── 상품 및 컨텐츠 정보 ────────────────────────────────────────
 .info {
   display: flex;
