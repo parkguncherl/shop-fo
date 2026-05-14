@@ -119,7 +119,22 @@
   }
 }
 
-// ─── 상품 정보 ────────────────────────────────────────
+// ─── 페이징 버튼 영역 ───────────────────────────────────────────
+.paging {
+  @include flex-center;
+  padding: 7px;
+}
+
+.pagingBtn {
+  @include reset-button;
+  width: 200px;
+  height: 30px;
+  background-color: $color-gray-100;
+  border-radius: 10px;
+}
+
+
+// ─── 상품 및 컨텐츠 정보 ────────────────────────────────────────
 .info {
   display: flex;
   flex-direction: column;
@@ -135,6 +150,7 @@
   margin: 0;
 }
 
+// ─── 상품 specific  ────────────────────────────────────────
 .priceRow {
   display: flex;
   align-items: center;
@@ -158,4 +174,32 @@
   font-size: $font-size-sm;
   color: $color-gray-400;
   text-decoration: line-through;
+}
+
+// ─── 컨텐츠 specific  ────────────────────────────────────────
+.subTitle {
+  font-size: $font-size-base;
+  color: $color-gray-500;
+  line-height: 1.4;
+  @include line-clamp(2);
+  margin: 0;
+}
+
+.contentRow {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.content {
+  font-size: $font-size-base;
+  font-weight: 400;
 }

@@ -1,7 +1,7 @@
 import { create, StateCreator } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
-import { ApiResponse, CommonRequestFileDownload, CommonRequestFileRearrangementRequest, CommonRequestFileUploads, FileDet } from '@/generated';
+import { ApiResponse, CommonRequestFileRearrangementRequest, CommonRequestFileUploads, FileDet } from '@/generated';
 import { AxiosPromise } from 'axios';
 import publicApi from '@/libs/publicApi';
 
@@ -30,8 +30,6 @@ interface CommonState {
 
 interface CommonApiState {
   selectFileList: (fileId: number) => Promise<FileDet[]>;
-  fileDownload: (commonRequest: CommonRequestFileDownload) => void;
-  fileDownloadBlob: (commonRequest: CommonRequestFileDownload) => any;
   deleteFile: (commonRequest: any) => AxiosPromise<ApiResponse>;
   getFileUrl: (fileKey: string) => Promise<string>;
   getFileList: (fileId: number) => AxiosPromise<ApiResponse>;
@@ -100,27 +98,6 @@ const initialStateCreator: StateCreator<CommonState & CommonApiState, any> = (se
         }
       });
     },
-    fileDownload: async (commonRequest) => {
-      const params = '?id=' + commonRequest.id + '&fileSeq=' + commonRequest.fileSeq;
-
-      const res = await publicApi.get('/common/file/download' + params.replaceAll('undefined', ''));
-      const blob = res.data;
-
-      if (typeof window !== 'undefined') {
-        const link = document.createElement('a');
-        link.href = window.URL.createObjectURL(blob);
-        link.target = '_self';
-        link.download = commonRequest.fileNm!;
-        link.click();
-      }
-    },
-    fileDownloadBlob: async (commonRequest) => {
-      const params = '?id=' + commonRequest.id + '&fileSeq=' + commonRequest.fileSeq;
-
-      const res = await publicApi.get('/common/file/download' + params.replaceAll('undefined', ''));
-      return res.data;
-    },
-
     deleteFile: (commonRequest) => {
       return publicApi.delete('/common/fileDeleteBySeq/' + commonRequest.fileId + '/' + commonRequest.fileSeq, {});
     },

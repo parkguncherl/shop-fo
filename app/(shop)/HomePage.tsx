@@ -7,7 +7,8 @@ import { useHomePageStore } from '@/stores/useHomePageStore';
 import useFilters from '../../hooks/useFilters';
 import { DisplayRequestProductDetInfoListFilter, DisplayResponseProductInfoForEnum } from '@/generated';
 import publicApi from '@/libs/publicApi';
-import { useCommonStore } from '@/stores/useCommonStore';
+//import { useCommonStore } from '@/stores/useCommonStore';
+import { useWebCommonStore } from '@/stores/useWebCommonStore';
 //import noImage from '../../public/images/ico_noImage.svg';
 
 // const DUMMY_PRODUCTS = [
@@ -27,7 +28,7 @@ interface ExtendedDisplayResponseProductInfoForEnum extends DisplayResponseProdu
 const HomePage = () => {
   /** 홈페이지 전역 스토어 - State */
   const [paging, setPaging] = useHomePageStore((s) => [s.paging, s.setPaging]);
-  const [getFileUrl] = useCommonStore((s) => [s.getFileUrl]);
+  const [getFileUrl] = useWebCommonStore((s) => [s.getFileUrl]);
 
   /** filters, lastInfo's filters*/
   const [filters, onChangeFilters, onFiltersReset, dispatch] = useFilters<DisplayRequestProductDetInfoListFilter>({
@@ -73,7 +74,6 @@ const HomePage = () => {
       const { resultCode, body, resultMessage } = productInfoListForEnum.data;
       if (resultCode === 200) {
         syncProductInfosWithImgSrcs(body.rows || []).then((ResponseProductInfoListForEnum) => {
-          console.log('ResponseProductInfoListForEnum: ', ResponseProductInfoListForEnum);
           setProductInfosForEnum(ResponseProductInfoListForEnum);
         });
       } else {
@@ -86,11 +86,13 @@ const HomePage = () => {
     <div className={styles.page}>
       {/* 필터 행 */}
       <div className={styles.filterRow}>
-        <div className={styles.titleWrap}>
+        <div>
           <span className={styles.pageTitle}>베스트셀러</span>
           <span className={styles.totalCount}>({productInfosForEnum.length})</span>
         </div>
-        <button className={styles.sortBtn}>상품정렬 ▽</button>
+        <div>
+          <button className={styles.sortBtn}>상품정렬 ▽</button>
+        </div>
       </div>
 
       {/* 2컬럼 그리드 */}
