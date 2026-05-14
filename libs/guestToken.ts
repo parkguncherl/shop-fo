@@ -5,6 +5,16 @@ export const initGuestToken = async () => {
     const res = await fetch('/api/guest', {
       method: 'POST',
       credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        refererUrl: document.referrer, // ← 이전 URL
+        currentUrl: window.location.href, // ← 현재 URL
+        utmSource: new URLSearchParams(window.location.search).get('utm_source') ?? '',
+        utmMedium: new URLSearchParams(window.location.search).get('utm_medium') ?? '',
+        utmCampaign: new URLSearchParams(window.location.search).get('utm_campaign') ?? '',
+      }),
     });
 
     if (!res.ok) {
