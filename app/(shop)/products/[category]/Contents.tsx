@@ -1,12 +1,12 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { Fragment, useEffect, useReducer } from 'react';
+import { useEffect, useReducer } from 'react';
 import { ContentsRequestContentsInfoListFilter, ContentsResponseContentsInfo } from '@/generated';
 import publicApi from '@/libs/publicApi';
 import useFilters from '@/hooks/useFilters';
 import { useContentsStore } from '@/stores/useContentsStore';
-import { Contents as ContentsRegExps } from '../../../../libs/const';
+//import { Contents as ContentsRegExps } from '../../../../libs/const';
 import { useWebCommonStore } from '@/stores/useWebCommonStore';
 import styles from '@/app/(shop)/page.module.scss';
 
@@ -16,6 +16,8 @@ interface ExtendedContentsResponseContentsInfo extends ContentsResponseContentsI
 
 interface ContentsInfosState {
   contentsInfoList: ExtendedContentsResponseContentsInfo[];
+  lastInfo: ContentsResponseContentsInfo | undefined;
+  endOfThePageHasBeenReached: boolean;
 }
 type ContentsInfosAction =
   | {
@@ -28,6 +30,12 @@ type ContentsInfosAction =
       type: 'initialize';
       payload: {
         infosForInitialize: ExtendedContentsResponseContentsInfo[];
+      };
+    }
+  | {
+      type: 'sync_lastInfo';
+      payload: {
+        lastInfo: ContentsResponseContentsInfo;
       };
     };
 
@@ -46,20 +54,24 @@ function ContentsInfosManagementReducerFn(state: ContentsInfosState, action: Con
     };
   }
 
+  if (action.type == 'sync_lastInfo') {
+    return {
+      ...state,
+      lastInfo: action.payload.lastInfo,
+      endOfThePageHasBeenReached: action.payload.lastInfo == undefined,
+    };
+  }
+
   return state;
 }
 
-// todo 최대 상품개수에 도달하였는지 여부를 리듀서 등에 상태 플래그를 추가하여 명시할수 있도록 하기
 /** 상품 - 카테고리 (조건부) 페이지 */
 const Contents = () => {
   /** 홈페이지 전역 스토어 - State */
-  const [pagingOnContents, setPagingOnContents] = useContentsStore((s) => [s.paging, s.setPaging]);
+  const [pagingOnContents] = useContentsStore((s) => [s.paging]);
   const [getFileUrl] = useWebCommonStore((s) => [s.getFileUrl]);
 
   /** filters, lastInfo's filters*/
-  // const [filters, onChangeFilters, onFiltersReset] = useFilters<ContentsRequestContentsInfoListFilter>({
-  //   // todo
-  // });
   const [lastInfoFilters, onChangeLastInfoFilters, onLastInfoFiltersReset] = useFilters<ContentsRequestContentsInfoListFilter>({
     lastId: undefined,
   });
@@ -67,11 +79,11 @@ const Contents = () => {
   /** 이하 지역 상태는 반드시 배열의 불변성을 유지할 것 */
   const [contentsInfoListStatus, dispatchContentsInfoListStatus] = useReducer(ContentsInfosManagementReducerFn, {
     contentsInfoList: [],
+    lastInfo: undefined,
+    endOfThePageHasBeenReached: false,
   });
 
-  useEffect(() => {
-    console.log('contentsInfoListStatus.contentsInfoList: ', contentsInfoListStatus.contentsInfoList);
-  }, [contentsInfoListStatus.contentsInfoList]);
+  //const [endOfThePageHasBeenReached, setEndOfThePageHasBeenReached] = useState(false);
 
   /** 품목정보 목록 조회 */
   const {
@@ -94,13 +106,13 @@ const Contents = () => {
   });
 
   // 오리지널 newsContents 기반으로 이미지 토큰 제거하고 캐리지 리턴 기준으로 분할
-  const contentRenderer = (newsContents?: string) => {
-    return newsContents
-      ? (newsContents.length > 320 ? newsContents.substring(0, 320) + '...' : newsContents)
-          .replace(ContentsRegExps.imgToken, '')
-          .split(ContentsRegExps.carriageReturn)
-      : [];
-  };
+  // const contentRenderer = (newsContents?: string) => {
+  //   return newsContents
+  //     ? (newsContents.length > 320 ? newsContents.substring(0, 320) + '...' : newsContents)
+  //         .replace(ContentsRegExps.imgToken, '')
+  //         .split(ContentsRegExps.carriageReturn)
+  //     : [];
+  // };
 
   // 컨텐츠 각각에 img src 첨부
   const attachImgSrcForEachContents = async (contentInfos: ContentsResponseContentsInfo[]) => {
@@ -119,7 +131,21 @@ const Contents = () => {
     if (isContentsInfoListSuccess) {
       const { resultCode, body, resultMessage } = contentsInfoList.data;
       if (resultCode === 200) {
-        attachImgSrcForEachContents(body.rows || []).then((extendedContentsResponseContentsInfoList) => {
+        const contentsInfoList = body.rows || [];
+        const contentsInfoListForAttachment: ContentsResponseContentsInfo[] = pagingOnContents.pageRowCount
+          ? contentsInfoList.slice(0, pagingOnContents.pageRowCount)
+          : contentsInfoList;
+
+        if (pagingOnContents.pageRowCount) {
+          dispatchContentsInfoListStatus({
+            type: 'sync_lastInfo',
+            payload: {
+              lastInfo: contentsInfoList[pagingOnContents.pageRowCount],
+            },
+          });
+        }
+
+        attachImgSrcForEachContents(contentsInfoListForAttachment).then((extendedContentsResponseContentsInfoList) => {
           if (lastInfoFilters.lastId || contentsInfoListStatus.contentsInfoList.length == 0) {
             // lastInfoFilters 하에서 lastId가 정의되었거나 contentsInfoListStatus.contentsInfoList 가 빈 배열인(초기화 후 최초 시점 동기화) 경우
             dispatchContentsInfoListStatus({
@@ -198,16 +224,13 @@ const Contents = () => {
       <div className={styles.paging}>
         <button
           className={styles.pagingBtn}
-          disabled={contentsInfoListStatus.contentsInfoList.length % (pagingOnContents.pageRowCount || 1) != 0}
+          disabled={contentsInfoListStatus.endOfThePageHasBeenReached}
           onClick={() => {
             // 클릭 시점에 lastId 동기화하여 refetch 촉발
             onChangeLastInfoFilters('lastId', contentsInfoListStatus.contentsInfoList[contentsInfoListStatus.contentsInfoList.length - 1].id);
           }}
         >
-          {contentsInfoListStatus.contentsInfoList.length >= (pagingOnContents.pageRowCount || 1) &&
-          contentsInfoListStatus.contentsInfoList.length % (pagingOnContents.pageRowCount || 1) == 0
-            ? '눌러서 다음 페이지로 확장'
-            : '사용할 수 없음'}
+          {contentsInfoListStatus.endOfThePageHasBeenReached ? '사용할 수 없음' : '눌러서 다음 페이지로 확장'}
         </button>
       </div>
     </div>
