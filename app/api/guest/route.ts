@@ -14,8 +14,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ guestToken: existingToken.value });
   }
 
+  const body = await request.json().catch(() => ({}));
+  const refererUrl = body.refererUrl ?? ''; // ← document.referrer
   const userAgent = request.headers.get('user-agent') ?? '';
-  const refererUrl = request.headers.get('referer') ?? '';
   const clientIp = request.headers.get('x-forwarded-for')?.split(',')[0].trim() ?? request.headers.get('x-real-ip') ?? '';
 
   try {
@@ -27,6 +28,10 @@ export async function POST(request: NextRequest) {
         Referer: refererUrl,
         'X-Real-IP': clientIp,
       },
+      body: JSON.stringify({
+        refererUrl: document.referrer, // ← 이전 URL (브라우저만 앎)
+        currentUrl: window.location.href, // ← 현재 URL
+      }),
     });
 
     const data = await res.json();
