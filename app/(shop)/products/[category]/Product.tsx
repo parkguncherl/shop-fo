@@ -8,6 +8,8 @@ import publicApi from '@/libs/publicApi';
 import useFilters from '@/hooks/useFilters';
 import { useProductStore } from '@/stores/useProductStore';
 import { useWebCommonStore } from '@/stores/useWebCommonStore';
+import { useBlockStore } from '@/stores/useBlockStore';
+import useUpdateEffect from '@/customHook/useUpdateEffect';
 
 interface ExtendedProductResponseProductInfo extends ProductResponseProductInfo {
   src?: string;
@@ -68,6 +70,7 @@ const Product = () => {
   /** 홈페이지 전역 스토어 - State */
   const [pagingOnProduct, setPagingOnProduct] = useProductStore((s) => [s.paging, s.setPaging]);
   const [getFileUrl] = useWebCommonStore((s) => [s.getFileUrl]);
+  const [isBlocked, timeLeft] = useBlockStore((s) => [s.isBlocked, s.timeLeft]);
 
   /** filters, lastInfo's filters*/
   const [lastInfoFilters, onChangeLastInfoFilters, onLastInfoFiltersReset] = useFilters<ProductRequestProductInfoListFilter>({
@@ -106,7 +109,8 @@ const Product = () => {
         },
       }),
     refetchOnMount: 'always',
-    gcTime: 0, // 데이터가 비활성화되는 즉시(언마운트) 가비지 컬렉션(삭제) 수행
+    //gcTime: 0, // 데이터가 비활성화되는 즉시(언마운트) 가비지 컬렉션(삭제) 수행
+    enabled: !isBlocked, // 차단 상태가 아닐 때(!isBlocked)만 요청을 허용
   });
 
   // 컨텐츠 각각에 img src 첨부
@@ -122,7 +126,7 @@ const Product = () => {
     return extendedProductResponseProductInfoList;
   };
 
-  useEffect(() => {
+  useUpdateEffect(() => {
     if (isProductInfoListSuccess) {
       const { resultCode, body, resultMessage } = productInfoList.data;
       if (resultCode === 200) {

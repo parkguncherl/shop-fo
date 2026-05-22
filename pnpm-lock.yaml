@@ -56,6 +56,9 @@ importers:
       '@serialport/list':
         specifier: ^12.0.0
         version: 12.0.0
+      '@tanstack/query-core':
+        specifier: 5.99.1
+        version: 5.99.1
       '@tanstack/react-query':
         specifier: ^5.99.1
         version: 5.99.1(react@19.2.4)

@@ -8,6 +8,8 @@ import useFilters from '@/hooks/useFilters';
 import { useContentsStore } from '@/stores/useContentsStore';
 import { useWebCommonStore } from '@/stores/useWebCommonStore';
 import styles from '@/app/(shop)/page.module.scss';
+import { useBlockStore } from '@/stores/useBlockStore';
+import useUpdateEffect from '@/customHook/useUpdateEffect';
 
 interface ExtendedContentsResponseContentsInfo extends ContentsResponseContentsInfo {
   src?: string;
@@ -69,6 +71,7 @@ const Contents = () => {
   /** 홈페이지 전역 스토어 - State */
   const [pagingOnContents] = useContentsStore((s) => [s.paging]);
   const [getFileUrl] = useWebCommonStore((s) => [s.getFileUrl]);
+  const [isBlocked, timeLeft] = useBlockStore((s) => [s.isBlocked, s.timeLeft]);
 
   /** filters, lastInfo's filters*/
   const [lastInfoFilters, onChangeLastInfoFilters, onLastInfoFiltersReset] = useFilters<ContentsRequestContentsInfoListFilter>({
@@ -107,7 +110,8 @@ const Contents = () => {
         },
       }),
     refetchOnMount: 'always',
-    gcTime: 0, // 데이터가 비활성화되는 즉시(언마운트) 가비지 컬렉션(삭제) 수행
+    //gcTime: 0, // 데이터가 비활성화되는 즉시(언마운트) 가비지 컬렉션(삭제) 수행
+    enabled: !isBlocked, // 차단 상태가 아닐 때(!isBlocked)만 요청을 허용
   });
 
   // 오리지널 newsContents 기반으로 이미지 토큰 제거하고 캐리지 리턴 기준으로 분할
@@ -132,7 +136,7 @@ const Contents = () => {
     return extendedContentsResponseContentsInfoList;
   };
 
-  useEffect(() => {
+  useUpdateEffect(() => {
     if (isContentsInfoListSuccess) {
       const { resultCode, body, resultMessage } = contentsInfoList.data;
       if (resultCode === 200) {

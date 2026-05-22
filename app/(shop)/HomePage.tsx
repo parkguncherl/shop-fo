@@ -9,6 +9,8 @@ import { ContentsResponseContentsInfo, DisplayRequestProductDetInfoListFilter, D
 import publicApi from '@/libs/publicApi';
 import { useWebCommonStore } from '@/stores/useWebCommonStore';
 import { usePageViewLog } from '@/hooks/usePageViewLog';
+import { useBlockStore } from '@/stores/useBlockStore';
+import useUpdateEffect from '@/customHook/useUpdateEffect';
 
 interface ExtendedDisplayResponseProductInfoForEnum extends DisplayResponseProductInfoForEnum {
   src?: string;
@@ -74,6 +76,7 @@ const HomePage = () => {
   /** 홈페이지 전역 스토어 - State */
   const [paging] = useHomePageStore((s) => [s.paging]);
   const [getFileUrl] = useWebCommonStore((s) => [s.getFileUrl]);
+  const [isBlocked, timeLeft] = useBlockStore((s) => [s.isBlocked, s.timeLeft]);
 
   /** filters, lastInfo's filters*/
   const [lastInfoFilters, onChangeLastInfoFilters, onLastInfoFiltersReset] = useFilters<DisplayRequestProductDetInfoListFilter>({
@@ -124,8 +127,8 @@ const HomePage = () => {
         },
       }),
     refetchOnMount: 'always',
-    enabled: guestReady, // ← Guest Token 발급 후에만 호출
-    gcTime: 0, // 데이터가 비활성화되는 즉시(언마운트) 가비지 컬렉션(삭제) 수행
+    enabled: guestReady && !isBlocked, // ← Guest Token 발급 후에만 호출, 또한 차단 상태가 아닐 때(!isBlocked)
+    //gcTime: 0, // 데이터가 비활성화되는 즉시(언마운트) 가비지 컬렉션(삭제) 수행
   });
 
   const syncProductInfosWithImgSrcs = async (ListForEnum: DisplayResponseProductInfoForEnum[]) => {
@@ -140,7 +143,7 @@ const HomePage = () => {
     return extendedDisplayResponseProductInfoListForEnum;
   };
 
-  useEffect(() => {
+  useUpdateEffect(() => {
     if (isProductInfoListForEnumSuccess) {
       const { resultCode, body, resultMessage } = productInfoListForEnum.data;
       if (resultCode === 200) {
