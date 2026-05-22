@@ -17,6 +17,7 @@
   /* [처음 상태] 너비 0, 높이 2px (얇은 선 상태) */
   width: 0;
   height: 2px;
+  //opacity: 0;
 
   //transition:
   //        width 0.4s ease,                               /* 1. 너비는 즉시 0.4초 동안 펼쳐짐 */
@@ -26,9 +27,34 @@
           width 0.4s ease,
           height 0.4s ease,
           background-color 0.4s ease;
+          //opacity 0.4s ease;
 
   z-index: 2;
   overflow: hidden;
+}
+
+.islandContent {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -50%); // 정중앙 배치 공식
+
+  // 중요: 내부 엘리먼트들이 찌그러지지 않게 넓은 공간을 확보해 둡니다.
+  width: 100%;
+  max-width: 500px;
+  //padding: 20px;
+
+  // 처음에는 안 보이게 숨김
+  opacity: 0;
+  //transform: translate(-50%, -40%); // 나타날 때 아래에서 위로 살짝 올라오는 효과용
+
+  // 커튼 애니메이션이 끝나는 시점(0.8초)에 맞춰 부드럽게 등장하도록 설정
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  transition-delay: 0.8s;
+
+  z-index: 3; // 커튼 위에 올려야 하므로 z-index 높임
+
+  color: white;
 }
 
 /* 활성화 상태 (.active 클래스가 붙었을 때) */
@@ -37,6 +63,11 @@
   width: 80%;
   height: 50px;
   background-color: #1a1a1a;
+  //opacity: 1;
+}
+.underIsland.active .islandContent {
+  opacity: 1;
+  transform: translate(-50%, -50%);
 }
 
 /* 콘텐츠 스타일 */
