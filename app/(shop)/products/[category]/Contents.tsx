@@ -10,8 +10,7 @@ import { useWebCommonStore } from '@/stores/useWebCommonStore';
 import styles from '@/app/(shop)/page.module.scss';
 import { useBlockStore } from '@/stores/useBlockStore';
 import useUpdateEffect from '@/customHook/useUpdateEffect';
-import Island from '@/components/common/Animated/Island';
-import UnderIsland from '@/components/common/wrapper/UnderIsland';
+import UnderIsland from '@/components/common/UnderIsland/UnderIsland';
 
 interface ExtendedContentsResponseContentsInfo extends ContentsResponseContentsInfo {
   src?: string;
