@@ -3,6 +3,10 @@ import { COOKIE_KEYS } from '@/libs/const';
 let initPromise: Promise<void> | null = null; // ← Promise 캐싱
 
 export const initGuestToken = async (): Promise<void> => {
+  // ✅ 이미 쿠키가 있으면 발급 스킵
+  const hasGuestToken = document.cookie.split('; ').some((c) => c.startsWith(`${COOKIE_KEYS.GUEST_TOKEN}=`));
+  if (hasGuestToken) return;
+
   // 이미 실행 중이면 같은 Promise 반환 (중복 실행 방지)
   if (initPromise) return initPromise;
 
