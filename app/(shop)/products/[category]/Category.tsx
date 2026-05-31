@@ -11,7 +11,7 @@ const Category = ({ codeCd }: { codeCd: string }) => {
     codeCd: codeCd,
   });
 
-  return !isLoading && partnerCode ? partnerCode?.codeEtc == 'CONTENT' ? <Contents /> : <Product /> : <></>;
+  return !isLoading && partnerCode ? partnerCode?.codeEtc == 'CONTENT' ? <Contents /> : <Product categoryId={codeCd} /> : <></>;
 };
 
 export default Category;

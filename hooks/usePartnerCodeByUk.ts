@@ -1,13 +1,10 @@
 import { useQuery, UseQueryResult } from '@tanstack/react-query';
 import { publicApi } from '@/libs/api';
-import { getCookie } from 'cookies-next';
-import { COOKIE_KEYS } from '@/libs/const';
 import { PartnerCode, WebCommonRequestPartnerCodeByUkFilter } from '@/generated';
+import { useUiStore } from '@/stores/uiStore';
 
 export function usePartnerCodeByUk(webCommonRequestPartnerCodeByUkFilter: WebCommonRequestPartnerCodeByUkFilter): UseQueryResult<PartnerCode, Error> {
-  const guestToken = getCookie(COOKIE_KEYS.GUEST_TOKEN);
-
-  console.log('guestToken ==>', guestToken);
+  const { guestReady } = useUiStore();
   return useQuery({
     queryKey: ['partnerCodeByUk', webCommonRequestPartnerCodeByUkFilter],
     queryFn: async () => {
@@ -18,6 +15,6 @@ export function usePartnerCodeByUk(webCommonRequestPartnerCodeByUkFilter: WebCom
       });
       return res.data.body;
     },
-    enabled: !!webCommonRequestPartnerCodeByUkFilter && !!guestToken, // ← guestToken 있을 때만 호출
+    enabled: !!webCommonRequestPartnerCodeByUkFilter && guestReady, // ← guestToken 있을 때만 호출
   });
 }

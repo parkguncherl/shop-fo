@@ -66,7 +66,7 @@ function ProductInfosOfHomePageForEnumReducerFn(state: ProductInfoState, action:
 }
 
 /** 상품 - 카테고리 (조건부) 페이지 */
-const Product = () => {
+const Product = (Props: { categoryId: string }) => {
   /** 홈페이지 전역 스토어 - State */
   const [pagingOnProduct, setPagingOnProduct] = useProductStore((s) => [s.paging, s.setPaging]);
   const [getFileUrl] = useWebCommonStore((s) => [s.getFileUrl]);
@@ -75,6 +75,7 @@ const Product = () => {
   /** filters, lastInfo's filters*/
   const [lastInfoFilters, onChangeLastInfoFilters, onLastInfoFiltersReset] = useFilters<ProductRequestProductInfoListFilter>({
     lastId: undefined,
+    categoryId: Props.categoryId,
   });
 
   /** 이하 지역 상태는 반드시 배열의 불변성을 유지할 것 */
@@ -110,7 +111,7 @@ const Product = () => {
       }),
     refetchOnMount: 'always',
     //gcTime: 0, // 데이터가 비활성화되는 즉시(언마운트) 가비지 컬렉션(삭제) 수행
-    enabled: !isBlocked, // 차단 상태가 아닐 때(!isBlocked)만 요청을 허용
+    enabled: true, // 차단 상태가 아닐 때(!isBlocked)만 요청을 허용
   });
 
   // 컨텐츠 각각에 img src 첨부

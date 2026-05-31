@@ -11,6 +11,7 @@ import { useWebCommonStore } from '@/stores/useWebCommonStore';
 import { usePageViewLog } from '@/hooks/usePageViewLog';
 import { useBlockStore } from '@/stores/useBlockStore';
 import useUpdateEffect from '@/customHook/useUpdateEffect';
+import { useUiStore } from '@/stores/uiStore';
 
 interface ExtendedDisplayResponseProductInfoForEnum extends DisplayResponseProductInfoForEnum {
   src?: string;
@@ -71,13 +72,12 @@ function ProductInfosOfHomePageForEnumReducerFn(
 
 /** 상품관리 - 상품컨텐츠 페이지 */
 const HomePage = () => {
+  const guestReady = useUiStore((s) => s.guestReady);
   usePageViewLog({ pageType: 'main' });
-
   /** 홈페이지 전역 스토어 - State */
   const [paging] = useHomePageStore((s) => [s.paging]);
   const [getFileUrl] = useWebCommonStore((s) => [s.getFileUrl]);
-  const [isBlocked, timeLeft] = useBlockStore((s) => [s.isBlocked, s.timeLeft]);
-
+  //  const [isBlocked, timeLeft] = useBlockStore((s) => [s.isBlocked, s.timeLeft]);
   /** filters, lastInfo's filters*/
   const [lastInfoFilters, onChangeLastInfoFilters, onLastInfoFiltersReset] = useFilters<DisplayRequestProductDetInfoListFilter>({
     lastProdId: undefined,
@@ -90,31 +90,15 @@ const HomePage = () => {
     endOfThePageHasBeenReached: false,
   });
 
-  const [guestReady, setGuestReady] = useState(false);
-
-  useEffect(() => {
-    // /api/guest 호출 완료 후 true
-    fetch('/api/guest', {
-      method: 'POST',
-      credentials: 'include',
-    }).then(() => setGuestReady(true));
-  }, []);
-
   /** 페이지 언마운트 시점 초기화 영역 */
   useEffect(() => {
     return () => {
       onLastInfoFiltersReset();
-      setGuestReady(false); // guest 토큰 여부 플래그 초기화
     };
   }, [onLastInfoFiltersReset]);
 
   /** 품목정보 목록 조회 */
-  const {
-    data: productInfoListForEnum,
-    isSuccess: isProductInfoListForEnumSuccess,
-    // isLoading: isProductInfoListForEnumLoading,
-    // refetch: productInfoListForEnumRefetch,
-  } = useQuery({
+  const { data: productInfoListForEnum, isSuccess: isProductInfoListForEnumSuccess } = useQuery({
     queryKey: ['/frontWeb/display/productInfoListForEnum', lastInfoFilters.lastProdId, guestReady],
     queryFn: () =>
       // 인증 토큰 불필요
@@ -126,8 +110,7 @@ const HomePage = () => {
         },
       }),
     refetchOnMount: 'always',
-    enabled: guestReady && !isBlocked, // ← Guest Token 발급 후에만 호출, 또한 차단 상태가 아닐 때(!isBlocked)
-    //gcTime: 0, // 데이터가 비활성화되는 즉시(언마운트) 가비지 컬렉션(삭제) 수행
+    enabled: guestReady, // ← Guest Token 발급 후에만 호출, 또한 차단 상태가 아닐 때(!isBlocked)
   });
 
   const syncProductInfosWithImgSrcs = async (ListForEnum: DisplayResponseProductInfoForEnum[]) => {

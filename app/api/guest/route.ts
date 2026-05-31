@@ -29,6 +29,7 @@ export async function POST(request: NextRequest) {
   const fbclid = body.fbclid ?? '';
 
   if (!currentUrl || !currentUrl.startsWith('http')) {
+    // 브라우저 아닌 api 로 들어오는것 여기서 막을수 있다.
     return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
   }
 
