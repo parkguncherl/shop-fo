@@ -3,30 +3,23 @@
 
 .wrap {
   @include flex-center;
-  position: relative;
   width: 40px;
   height: 40px;
-  border-radius: 50%;
-  color: $color-black;
   text-decoration: none;
-  transition: background $transition-fast;
+  transition: opacity $transition-fast;
 
-  &:hover { background: $color-gray-100; }
+  &:hover { opacity: 0.7; }
 }
 
-.badge {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  min-width: 16px;
-  height: 16px;
-  padding: 0 4px;
+.circle {
+  @include flex-center;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 6px;
   background: $color-black;
   color: $color-white;
-  font-size: 10px;
-  font-weight: 700;
-  border-radius: 8px;
-  @include flex-center;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 14px;
   line-height: 1;
-  pointer-events: none;
 }

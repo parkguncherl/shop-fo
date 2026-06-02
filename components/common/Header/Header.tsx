@@ -36,6 +36,8 @@ export default function Header() {
 
         {/* 우측 액션 */}
         <div className={styles.actions}>
+          <CartIcon />
+
           <button className={styles.iconBtn} onClick={() => setSearchOpen((v) => !v)} aria-label="검색">
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
               <circle cx="9" cy="9" r="6" stroke="currentColor" strokeWidth="1.5" />
@@ -43,14 +45,11 @@ export default function Header() {
             </svg>
           </button>
 
-          <Link href="/mypage" className={styles.iconBtn} aria-label="마이페이지">
+          <Link href="/mypage" className={styles.iconBtn} aria-label="메뉴">
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-              <circle cx="10" cy="7" r="3.5" stroke="currentColor" strokeWidth="1.5" />
-              <path d="M3 17c0-3.314 3.134-6 7-6s7 2.686 7 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+              <path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
             </svg>
           </Link>
-
-          <CartIcon />
         </div>
       </div>
 
