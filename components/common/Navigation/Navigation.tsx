@@ -11,21 +11,7 @@ const SKELETON_COUNT = 5;
 function NavigationInner() {
   const pathname = usePathname();
   const scrollRef = useRef<HTMLDivElement>(null);
-  const [mounted, setMounted] = useState(false);
-
   const { data: categories, isLoading } = usePartnerCode('P0001');
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  // const isActive = (href: string) => {
-  //   if (href === '/products' && !currentCategory) return true;
-  //   const categoryMatch = href.match(/category=(\w+)/);
-  //   if (categoryMatch) return currentCategory === categoryMatch[1];
-  //   return false;
-  // };
-
   const skeletons = Array.from({ length: SKELETON_COUNT }, (_, i) => <span key={i} className={styles.skeleton} />);
 
   return (
@@ -35,7 +21,7 @@ function NavigationInner() {
           전체
         </Link>
 
-        {!mounted || isLoading
+        {isLoading
           ? skeletons
           : categories?.map((category) => (
               <Link
