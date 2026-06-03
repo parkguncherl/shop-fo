@@ -3,10 +3,12 @@
 import styles from '@/app/(shop)/page.module.scss';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useReducer } from 'react';
+import Link from 'next/link';
 import { DisplayResponseProductInfoForEnum, ProductRequestProductInfoListFilter, ProductResponseProductInfo } from '@/generated';
 import publicApi from '@/libs/publicApi';
 import useFilters from '@/hooks/useFilters';
 import { useProductStore } from '@/stores/useProductStore';
+import { usePartnerCodeStore } from '@/stores/usePartnerCodeStore';
 import { useWebCommonStore } from '@/stores/useWebCommonStore';
 import { useBlockStore } from '@/stores/useBlockStore';
 import useUpdateEffect from '@/customHook/useUpdateEffect';
@@ -71,6 +73,7 @@ const Product = (Props: { categoryId: string }) => {
   const [pagingOnProduct, setPagingOnProduct] = useProductStore((s) => [s.paging, s.setPaging]);
   const [getFileUrl] = useWebCommonStore((s) => [s.getFileUrl]);
   const [isBlocked, timeLeft] = useBlockStore((s) => [s.isBlocked, s.timeLeft]);
+  const categoryReady = usePartnerCodeStore((s) => s.categoryReady);
 
   /** filters, lastInfo's filters*/
   const [lastInfoFilters, onChangeLastInfoFilters, onLastInfoFiltersReset] = useFilters<ProductRequestProductInfoListFilter>({
@@ -111,7 +114,7 @@ const Product = (Props: { categoryId: string }) => {
       }),
     refetchOnMount: 'always',
     //gcTime: 0, // 데이터가 비활성화되는 즉시(언마운트) 가비지 컬렉션(삭제) 수행
-    enabled: true, // 차단 상태가 아닐 때(!isBlocked)만 요청을 허용
+    enabled: categoryReady, // 카테고리 로드 완료 후 호출
   });
 
   // 컨텐츠 각각에 img src 첨부
@@ -193,24 +196,18 @@ const Product = (Props: { categoryId: string }) => {
       <div className={styles.grid}>
         {productInfoListStatus.productInfoList.map((product, index) => (
           <div key={index} className={styles.card}>
+            {/* 이미지 + 찜하기 — 이미지 영역만 Link로 감쌈 */}
             <div className={styles.imageWrap}>
-              {product.src ? (
-                <img src={product.src} alt={product.prodNm} className={styles.image} />
-              ) : (
-                <div title={product.prodNm} className={`${styles.image} ${styles.defaultImg}`} />
-              )}
-              <button className={styles.wishBtn} aria-label="찜하기">
-                <svg width="20" height="20" viewBox="0 0 22 22" fill="none">
-                  <path
-                    d="M11 18.5S3 13.5 3 8a5 5 0 019.5-2.2A5 5 0 0119 8c0 5.5-8 10.5-8 10.5z"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                  />
-                </svg>
-              </button>
+              <Link href={`/products/${Props.categoryId}/${product.id}`} className={styles.imageLink}>
+                {product.src ? (
+                  <img src={product.src} alt={product.prodNm} className={styles.image} />
+                ) : (
+                  <div title={product.prodNm} className={`${styles.image} ${styles.defaultImg}`} />
+                )}
+              </Link>
             </div>
-            <div className={styles.info}>
+            {/* 상품 정보도 Link */}
+            <Link href={`/products/${Props.categoryId}/${product.id}`} className={styles.info}>
               <p className={styles.name}>{product.prodNm}</p>
               <div className={styles.priceRow}>
                 {product.discountRate && product.discountRate != 0 && <span className={styles.discount}>{Math.round(product.discountRate || 0)}%</span>}
@@ -221,7 +218,7 @@ const Product = (Props: { categoryId: string }) => {
                   <span className={styles.originalPrice}>{product.sellAmt.toLocaleString()}원</span>
                 )}
               </div>
-            </div>
+            </Link>
           </div>
         ))}
       </div>

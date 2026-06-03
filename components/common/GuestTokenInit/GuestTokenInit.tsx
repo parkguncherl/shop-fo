@@ -7,7 +7,6 @@ export default function GuestTokenInit() {
   const setGuestReady = useUiStore((s) => s.setGuestReady);
 
   useEffect(() => {
-    console.log('GuestTokenInit====>');
     initGuestToken().then(() => {
       setGuestReady(true);
     });

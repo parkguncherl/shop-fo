@@ -1,0 +1,245 @@
+@use '../../../../../styles/variables' as *;
+@use '../../../../../styles/mixins' as *;
+
+// ── 스켈레톤 ───────────────────────────────────────────
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+@mixin skeleton {
+  background: linear-gradient(90deg, $color-gray-200 25%, $color-gray-100 50%, $color-gray-200 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.4s infinite linear;
+  border-radius: $border-radius-sm;
+}
+
+.skeletonTitle {
+  @include skeleton;
+  height: 24px;
+  width: 60%;
+  margin-bottom: $spacing-sm;
+}
+
+.skeletonPrice {
+  @include skeleton;
+  height: 20px;
+  width: 30%;
+}
+
+// ── 전체 래퍼 ──────────────────────────────────────────
+.wrap {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: calc(80px + env(safe-area-inset-bottom)); // 하단 버튼 높이만큼 여백
+  background: $color-white;
+}
+
+// ── 상품 이미지 섹션 ────────────────────────────────────
+.imageSection {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.productImg {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  display: block;
+}
+
+.imgPlaceholder {
+  background: $color-gray-100;
+}
+
+// ── 상품 기본 정보 ──────────────────────────────────────
+.infoSection {
+  padding: $spacing-lg $spacing-md $spacing-md;
+  border-bottom: 1px solid $color-gray-200;
+}
+
+.prodNm {
+  font-size: $font-size-lg;
+  font-weight: 600;
+  color: $color-black;
+  line-height: 1.4;
+  margin-bottom: $spacing-sm;
+}
+
+.priceRow {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  margin-bottom: $spacing-sm;
+}
+
+.discount {
+  font-size: $font-size-base;
+  font-weight: 700;
+  color: $color-red;
+}
+
+.price {
+  font-size: $font-size-lg;
+  font-weight: 700;
+  color: $color-black;
+}
+
+.orgPrice {
+  font-size: $font-size-sm;
+  color: $color-gray-400;
+  text-decoration: line-through;
+}
+
+.composition {
+  font-size: $font-size-sm;
+  color: $color-gray-500;
+  margin-top: $spacing-xs;
+}
+
+// ── SKU 섹션 ───────────────────────────────────────────
+.skuSection {
+  padding: $spacing-md;
+  border-bottom: 1px solid $color-gray-200;
+}
+
+.skuLabel {
+  font-size: $font-size-sm;
+  font-weight: 600;
+  color: $color-gray-700;
+  margin-bottom: $spacing-sm;
+}
+
+.skuList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-xs;
+}
+
+.skuChip {
+  @include reset-button;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 14px;
+  border: 1px solid $color-gray-300;
+  border-radius: $border-radius-xl;
+  font-size: $font-size-sm;
+  color: $color-black;
+  transition: border-color $transition-fast, background $transition-fast;
+
+  &:hover {
+    border-color: $color-black;
+    background: $color-gray-50;
+  }
+}
+
+// ── 연관 상품 섹션 ──────────────────────────────────────
+.relatedSection {
+  padding: $spacing-md $spacing-md $spacing-lg;
+  border-bottom: 1px solid $color-gray-200;
+}
+
+.relatedLabel {
+  font-size: $font-size-sm;
+  font-weight: 600;
+  color: $color-gray-700;
+  margin-bottom: $spacing-sm;
+}
+
+// 2열 고정, 3개 이상이면 가로 스크롤
+.relatedTrack {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $spacing-sm;
+
+  // 카드가 3개 이상이면 스크롤 트랙으로 전환
+  &:has(> :nth-child(3)) {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    @include hidden-scrollbar;
+
+    > * {
+      flex: 0 0 calc(50% - #{$spacing-xs});
+      scroll-snap-align: start;
+    }
+  }
+}
+
+.relatedCard {
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.relatedImg {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: $border-radius-sm;
+  display: block;
+  background: $color-gray-100;
+}
+
+.relatedNm {
+  font-size: $font-size-sm;
+  color: $color-black;
+  @include line-clamp(2);
+}
+
+.relatedPrice {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: $font-size-sm;
+  font-weight: 600;
+  color: $color-black;
+}
+
+// ── 하단 버튼 바 ───────────────────────────────────────
+.bottomBar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  gap: $spacing-xs;
+  padding: $spacing-sm $spacing-md;
+  padding-bottom: calc(#{$spacing-sm} + env(safe-area-inset-bottom));
+  background: $color-white;
+  border-top: 1px solid $color-gray-200;
+  z-index: $z-header;
+}
+
+.cartBtn {
+  @include reset-button;
+  flex: 1;
+  height: 52px;
+  border: 1.5px solid $color-black;
+  border-radius: $border-radius-md;
+  font-size: $font-size-base;
+  font-weight: 600;
+  color: $color-black;
+  background: $color-white;
+  transition: background $transition-fast;
+
+  &:hover { background: $color-gray-100; }
+}
+
+.orderBtn {
+  @include reset-button;
+  flex: 1;
+  height: 52px;
+  border-radius: $border-radius-md;
+  font-size: $font-size-base;
+  font-weight: 600;
+  color: $color-white;
+  background: $color-black;
+  transition: opacity $transition-fast;
+
+  &:hover { opacity: 0.85; }
+}

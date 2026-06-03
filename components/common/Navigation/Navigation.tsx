@@ -17,7 +17,7 @@ function NavigationInner() {
   return (
     <nav className={styles.nav}>
       <div className={styles.scrollArea} ref={scrollRef}>
-        <Link href="/" className={`${styles.item} ${pathname == '/' ? styles.active : ''}`}>
+        <Link href="/products/all" className={`${styles.item} ${pathname === '/products/all' ? styles.active : ''}`}>
           전체
         </Link>
 

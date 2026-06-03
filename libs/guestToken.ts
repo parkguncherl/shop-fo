@@ -35,7 +35,6 @@ export const initGuestToken = async (): Promise<void> => {
       }
 
       const data = await res.json();
-      console.log('Guest Token 응답 ===>', data);
     } catch (e) {
       console.error('Guest Token 발급 실패', e);
     } finally {

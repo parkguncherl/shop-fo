@@ -31,8 +31,6 @@ export const publicApi = createInstance();
 
 publicApi.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   const guestToken = getCookie(COOKIE_KEYS.GUEST_TOKEN);
-  console.log('publicApi 호출 URL ==>', config.url); // ← 확인
-  console.log('publicApi X-Guest-Token ==>', guestToken); // ← 확인
   if (guestToken) {
     config.headers.set('X-Guest-Token', guestToken as string);
   }
