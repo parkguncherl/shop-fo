@@ -20,7 +20,6 @@ export interface RedirectRule {
 }
 
 export const redirectRules: RedirectRule[] = [
-
   // ────────────────────────────────────────────────────────────
   // [패턴 1] ref 파라미터 — 이벤트/시즌 링크
   //
@@ -40,7 +39,6 @@ export const redirectRules: RedirectRule[] = [
   //   value: 'event_winter',
   //   to: () => '/products/WINTER',
   // },
-
   // ────────────────────────────────────────────────────────────
   // [패턴 2] to=product — 상품 상세 직접 진입
   //
@@ -55,7 +53,6 @@ export const redirectRules: RedirectRule[] = [
   //   value: 'product',
   //   to: (params) => params['id'] ? `/products/all/${params['id']}` : DEFAULT_REDIRECT,
   // },
-
   // ────────────────────────────────────────────────────────────
   // [패턴 3] campaign 파라미터 — 마케팅 캠페인
   //
@@ -75,7 +72,6 @@ export const redirectRules: RedirectRule[] = [
   //   value: 'sale',
   //   to: () => '/products/SALE',
   // },
-
   // ────────────────────────────────────────────────────────────
   // [패턴 4] value 없이 param 존재만 확인 — 동적 경로
   //
@@ -89,7 +85,6 @@ export const redirectRules: RedirectRule[] = [
   //   param: 'category',
   //   to: (params) => `/products/${params['category']}`,
   // },
-
 ];
 
 /** 기본 리다이렉트 경로 */
