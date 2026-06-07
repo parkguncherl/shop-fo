@@ -1,0 +1,195 @@
+@use '../../../styles/variables' as *;
+@use '../../../styles/mixins' as *;
+
+// ── 딤 배경 ────────────────────────────────────────────────────
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: $z-drawer - 1;
+  background: rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity $transition-base;
+
+  &.overlayVisible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+// ── 드로어 패널 ────────────────────────────────────────────────
+.drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: $z-drawer;
+  width: 280px;
+  max-width: 85vw;
+  height: 100dvh;
+  background: $color-white;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform $transition-base;
+  overflow-y: auto;
+  @include hidden-scrollbar;
+
+  &.drawerOpen {
+    transform: translateX(0);
+  }
+}
+
+// ── 상단 아이콘 바 ─────────────────────────────────────────────
+.topBar {
+  @include flex-between;
+  justify-content: flex-end;
+  gap: $spacing-xs;
+  padding: $spacing-md $spacing-md;
+  border-bottom: 1px solid $color-gray-200;
+}
+
+.topIcon {
+  @include reset-button;
+  position: relative;
+  width: 36px;
+  height: 36px;
+  @include flex-center;
+  color: $color-black;
+  border-radius: $border-radius-md;
+  transition: background $transition-fast;
+  text-decoration: none;
+
+  &:hover {
+    background: $color-gray-100;
+  }
+}
+
+.badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  background: $color-black;
+  color: $color-white;
+  font-size: 9px;
+  font-weight: 700;
+  border-radius: 8px;
+  @include flex-center;
+}
+
+// ── 유저 영역 ──────────────────────────────────────────────────
+.userArea {
+  padding: $spacing-lg $spacing-md;
+  border-bottom: 1px solid $color-gray-200;
+}
+
+.loggedIn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-sm;
+}
+
+.userName {
+  font-size: $font-size-sm;
+  color: $color-gray-700;
+  margin: 0;
+
+  strong {
+    color: $color-black;
+    font-weight: 600;
+  }
+}
+
+.logoutBtn {
+  @include reset-button;
+  font-size: $font-size-sm;
+  color: $color-gray-500;
+  text-decoration: underline;
+  white-space: nowrap;
+}
+
+.authBtns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-sm;
+}
+
+.loginBtn,
+.signupBtn {
+  display: block;
+  text-align: center;
+  padding: 10px 0;
+  font-size: $font-size-sm;
+  font-weight: 500;
+  border-radius: $border-radius-md;
+  text-decoration: none;
+  transition: background $transition-fast, color $transition-fast;
+}
+
+.loginBtn {
+  border: 1px solid $color-gray-300;
+  color: $color-black;
+  background: $color-white;
+
+  &:hover { background: $color-gray-100; }
+}
+
+.signupBtn {
+  border: 1px solid $color-black;
+  background: $color-black;
+  color: $color-white;
+
+  &:hover { background: $color-gray-800; }
+}
+
+// ── 메뉴 그룹 ──────────────────────────────────────────────────
+.nav {
+  flex: 1;
+  padding: $spacing-sm 0 $spacing-xl;
+}
+
+.group {
+  padding-top: $spacing-md;
+
+  & + & {
+    border-top: 1px solid $color-gray-200;
+    margin-top: $spacing-sm;
+  }
+}
+
+.groupTitle {
+  padding: $spacing-xs $spacing-md;
+  font-size: $font-size-xs;
+  font-weight: 700;
+  color: $color-gray-500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin: 0 0 $spacing-xs;
+}
+
+.groupList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.menuItem {
+  display: block;
+  padding: 12px $spacing-md;
+  font-size: $font-size-base;
+  color: $color-black;
+  text-decoration: none;
+  transition: background $transition-fast, color $transition-fast;
+
+  &:hover {
+    background: $color-gray-100;
+    color: $color-black;
+  }
+
+  &:active {
+    background: $color-gray-200;
+  }
+}

@@ -7,6 +7,7 @@ import publicApi from '@/libs/publicApi';
 import { useWebCommonStore } from '@/stores/useWebCommonStore';
 import { usePartnerCodeStore } from '@/stores/usePartnerCodeStore';
 import styles from './ProductDet.module.scss';
+import { usePageViewLog } from '@/hooks/usePageViewLog';
 
 /* ── 타입 ─────────────────────────────────────────────── */
 interface ProductDetInfo {
@@ -42,13 +43,11 @@ interface ProductDetail {
 }
 
 /* ── 이미지 헬퍼 ──────────────────────────────────────── */
-const ProductImage = ({ src, alt }: { src?: string; alt: string }) =>
-  src ? (
-    <img src={src} alt={alt} className={styles.productImg} />
-  ) : null;
+const ProductImage = ({ src, alt }: { src?: string; alt: string }) => (src ? <img src={src} alt={alt} className={styles.productImg} /> : null);
 
 /* ── 컴포넌트 ─────────────────────────────────────────── */
 const ProductDet = ({ productId }: { productId: number }) => {
+  usePageViewLog({ pageType: ProductDet.name, productId: productId });
   const getFileUrl = useWebCommonStore((s) => s.getFileUrl);
   const categoryReady = usePartnerCodeStore((s) => s.categoryReady);
   const swipeRef = useRef<HTMLDivElement>(null);
@@ -66,19 +65,17 @@ const ProductDet = ({ productId }: { productId: number }) => {
     enabled: categoryReady && !!productId,
   });
 
-  const product: ProductDetail | null = isSuccess && data?.data?.resultCode === 200
-    ? data.data.body
-    : null;
+  const product: ProductDetail | null = isSuccess && data?.data?.resultCode === 200 ? data.data.body : null;
 
   /* ── 이미지 URL 변환 ─────────────────────────────────── */
   useEffect(() => {
     if (!product) return;
     (async () => {
       const [rep, detail, size, etc] = await Promise.all([
-        product.repSysFileNm    ? getFileUrl(product.repSysFileNm)    : undefined,
+        product.repSysFileNm ? getFileUrl(product.repSysFileNm) : undefined,
         product.detailSysFileNm ? getFileUrl(product.detailSysFileNm) : undefined,
-        product.sizeSysFileNm   ? getFileUrl(product.sizeSysFileNm)   : undefined,
-        product.etcSysFileNm    ? getFileUrl(product.etcSysFileNm)    : undefined,
+        product.sizeSysFileNm ? getFileUrl(product.sizeSysFileNm) : undefined,
+        product.etcSysFileNm ? getFileUrl(product.etcSysFileNm) : undefined,
       ]);
       setImages({ rep, detail, size, etc });
 
@@ -108,23 +105,18 @@ const ProductDet = ({ productId }: { productId: number }) => {
 
   if (!product) return null;
 
-  const discountedPrice =
-    (product.sellAmt ?? 0) -
-    Math.floor((product.sellAmt ?? 0) * ((product.discountRate ?? 0) / 100));
+  const discountedPrice = (product.sellAmt ?? 0) - Math.floor((product.sellAmt ?? 0) * ((product.discountRate ?? 0) / 100));
 
   return (
     <div className={styles.wrap}>
-
       {/* ── 상품 이미지 (rep → detail → size → etc 순) ── */}
       <section className={styles.imageSection}>
-        <ProductImage src={images.rep}    alt={product.prodNm ?? ''} />
+        <ProductImage src={images.rep} alt={product.prodNm ?? ''} />
         <ProductImage src={images.detail} alt={`${product.prodNm} 상세`} />
-        <ProductImage src={images.size}   alt={`${product.prodNm} 사이즈`} />
-        <ProductImage src={images.etc}    alt={`${product.prodNm} 기타`} />
+        <ProductImage src={images.size} alt={`${product.prodNm} 사이즈`} />
+        <ProductImage src={images.etc} alt={`${product.prodNm} 기타`} />
         {/* 이미지가 하나도 없으면 placeholder */}
-        {!images.rep && !images.detail && !images.size && !images.etc && (
-          <div className={`${styles.productImg} ${styles.imgPlaceholder}`} />
-        )}
+        {!images.rep && !images.detail && !images.size && !images.etc && <div className={`${styles.productImg} ${styles.imgPlaceholder}`} />}
       </section>
 
       {/* ── 상품 기본 정보 ─────────────────────────────── */}
@@ -132,18 +124,12 @@ const ProductDet = ({ productId }: { productId: number }) => {
         <h1 className={styles.prodNm}>{product.prodNm}</h1>
 
         <div className={styles.priceRow}>
-          {(product.discountRate ?? 0) > 0 && (
-            <span className={styles.discount}>{product.discountRate}%</span>
-          )}
+          {(product.discountRate ?? 0) > 0 && <span className={styles.discount}>{product.discountRate}%</span>}
           <span className={styles.price}>{discountedPrice.toLocaleString()}원</span>
-          {(product.discountRate ?? 0) > 0 && product.orgAmt && (
-            <span className={styles.orgPrice}>{product.orgAmt.toLocaleString()}원</span>
-          )}
+          {(product.discountRate ?? 0) > 0 && product.orgAmt && <span className={styles.orgPrice}>{product.orgAmt.toLocaleString()}원</span>}
         </div>
 
-        {product.composition && (
-          <p className={styles.composition}>소재 · {product.composition}</p>
-        )}
+        {product.composition && <p className={styles.composition}>소재 · {product.composition}</p>}
       </section>
 
       {/* ── SKU (사이즈 / 컬러) ─────────────────────────── */}
@@ -154,7 +140,7 @@ const ProductDet = ({ productId }: { productId: number }) => {
             {product.detList.map((det) => (
               <button key={det.id} className={styles.skuChip}>
                 {det.productDetColor && <span>{det.productDetColor}</span>}
-                {det.productDetSize  && <span>{det.productDetSize}</span>}
+                {det.productDetSize && <span>{det.productDetSize}</span>}
               </button>
             ))}
           </div>
@@ -167,9 +153,7 @@ const ProductDet = ({ productId }: { productId: number }) => {
           <p className={styles.relatedLabel}>연관 상품</p>
           <div className={styles.relatedTrack} ref={swipeRef}>
             {relatedWithSrc.map((rel) => {
-              const relPrice =
-                (rel.sellAmt ?? 0) -
-                Math.floor((rel.sellAmt ?? 0) * ((rel.discountRate ?? 0) / 100));
+              const relPrice = (rel.sellAmt ?? 0) - Math.floor((rel.sellAmt ?? 0) * ((rel.discountRate ?? 0) / 100));
               return (
                 <Link key={rel.id} href={`/products/all/${rel.id}`} className={styles.relatedCard}>
                   {rel.src ? (
@@ -179,9 +163,7 @@ const ProductDet = ({ productId }: { productId: number }) => {
                   )}
                   <p className={styles.relatedNm}>{rel.prodNm}</p>
                   <div className={styles.relatedPrice}>
-                    {(rel.discountRate ?? 0) > 0 && (
-                      <span className={styles.discount}>{rel.discountRate}%</span>
-                    )}
+                    {(rel.discountRate ?? 0) > 0 && <span className={styles.discount}>{rel.discountRate}%</span>}
                     <span>{relPrice.toLocaleString()}원</span>
                   </div>
                 </Link>
@@ -200,7 +182,6 @@ const ProductDet = ({ productId }: { productId: number }) => {
           주문하기
         </button>
       </div>
-
     </div>
   );
 };

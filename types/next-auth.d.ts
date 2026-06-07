@@ -8,9 +8,11 @@ interface ISessionUser extends UserResponseSelectByLoginId {
 
 declare module 'next-auth' {
   interface Session {
-    user: UserResponseSelectByLoginId;
-    token: JwtAuthToken;
-    error?: string;
+    user:      UserResponseSelectByLoginId;
+    token:     JwtAuthToken;
+    provider?: string;   // 'credentials' | 'kakao' | 'naver' | 'google'
+    memberId?: number;   // 소셜 로그인 회원 ID
+    error?:    string;
   }
 
   interface User extends ISessionUser {}
@@ -18,6 +20,8 @@ declare module 'next-auth' {
 
 declare module 'next-auth/jwt' {
   interface JWT {
-    user: ISessionUser;
+    user:      ISessionUser;
+    provider?: string;
+    memberId?: number;
   }
 }

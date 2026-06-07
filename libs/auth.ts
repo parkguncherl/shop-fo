@@ -1,59 +1,97 @@
 import type { NextAuthOptions } from 'next-auth';
-import CredentialsProvider from 'next-auth/providers/credentials';
+import KakaoProvider from 'next-auth/providers/kakao';
+import NaverProvider from 'next-auth/providers/naver';
+import GoogleProvider from 'next-auth/providers/google';
 import axios from 'axios';
 
-const BASE_URL = process.env.NEXT_PUBLIC_SHOP_API_ENDPOINT ?? 'http://localhost:8080/shop-ap';
+// 서버사이드 전용 (NEXT_SERVER_API_ENDPOINT 사용)
+const BASE_URL = process.env.NEXT_SERVER_API_ENDPOINT ?? 'http://localhost:8080/shop-ap';
 
 export const authOptions: NextAuthOptions = {
   providers: [
-    CredentialsProvider({
-      name: 'credentials',
-      credentials: {
-        email: { label: '이메일', type: 'email' },
-        password: { label: '비밀번호', type: 'password' },
-      },
-      async authorize(credentials) {
-        try {
-          const { data } = await axios.post(`${BASE_URL}/auth/login`, {
-            email: credentials?.email,
-            password: credentials?.password,
-          });
+    // ── 카카오 로그인 ────────────────────────────────────────────────
+    KakaoProvider({
+      clientId:     process.env.KAKAO_CLIENT_ID!,
+      clientSecret: process.env.KAKAO_CLIENT_SECRET!,
+    }),
 
-          if (data?.body?.accessToken) {
-            return {
-              id: data.body.userId,
-              email: data.body.email,
-              name: data.body.name,
-              token: {
-                accessToken: data.body.accessToken, // ← token 객체로 변경
-                refreshToken: data.body.refreshToken,
-              },
-            };
-          }
-          return null;
-        } catch {
-          return null;
-        }
-      },
+    // ── 네이버 로그인 ────────────────────────────────────────────────
+    NaverProvider({
+      clientId:     process.env.NAVER_CLIENT_ID!,
+      clientSecret: process.env.NAVER_CLIENT_SECRET!,
+    }),
+
+    // ── 구글 로그인 ──────────────────────────────────────────────────
+    GoogleProvider({
+      clientId:     process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
   ],
 
   callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.token = (user as any).token;
+    /**
+     * 소셜 OAuth 인증 완료 후
+     * → 백엔드 /frontWeb/login/social/callback 호출
+     * → tb_social_account 조회/생성 + 서비스 JWT 발급
+     */
+    async signIn({ user, account }) {
+      try {
+        const { data } = await axios.post(
+          `${BASE_URL}/frontWeb/login/social/callback`,
+          {
+            provider:     account?.provider,
+            providerId:   account?.providerAccountId,
+            email:        user.email,
+            nickname:     user.name,
+            profileImage: user.image,
+            guestId:      null, // 서버사이드라 쿠키 접근 불가 → 클라이언트에서 병합 API 별도 호출
+          }
+        );
+
+        if (data?.body?.accessToken) {
+          // user 객체에 임시 저장 → jwt 콜백에서 꺼내 씀
+          (user as any).shopToken = {
+            accessToken:  data.body.accessToken,
+            refreshToken: data.body.refreshToken,
+            memberId:     data.body.memberId,
+            nickname:     data.body.nickname,
+            profileImage: data.body.profileImage,
+          };
+          return true;
+        }
+        return false;
+      } catch (e) {
+        console.error('소셜 로그인 백엔드 연동 실패', e);
+        return false;
+      }
+    },
+
+    async jwt({ token, user, account }) {
+      // 최초 로그인 시에만 user 객체 존재
+      if (user && (user as any).shopToken) {
+        token.shopToken = (user as any).shopToken;
+        token.provider  = account?.provider;
       }
       return token;
     },
+
     async session({ session, token }) {
-      session.token = token.token as any;
+      const shopToken = token.shopToken as any;
+      session.token    = { accessToken: shopToken?.accessToken, refreshToken: shopToken?.refreshToken } as any;
+      session.provider = token.provider as string;
+      session.memberId = shopToken?.memberId;
+      // 세션 user 정보 보강
+      if (session.user && shopToken) {
+        session.user.name  = shopToken.nickname;
+        session.user.image = shopToken.profileImage;
+      }
       return session;
     },
   },
 
   pages: {
     signIn: '/login',
-    error: '/login',
+    error:  '/login',
   },
 
   session: { strategy: 'jwt', maxAge: 60 * 60 * 24 },

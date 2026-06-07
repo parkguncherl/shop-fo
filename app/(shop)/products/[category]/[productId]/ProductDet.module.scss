@@ -31,8 +31,14 @@
 .wrap {
   display: flex;
   flex-direction: column;
-  padding-bottom: calc(80px + env(safe-area-inset-bottom)); // 하단 버튼 높이만큼 여백
+  // 모바일: 버튼바(52+16px) + MobileNav(60px) 여백
+  padding-bottom: calc(80px + #{$mobile-nav-height} + env(safe-area-inset-bottom));
   background: $color-white;
+
+  // 데스크톱: 버튼바가 인라인이므로 여백 불필요
+  @include desktop {
+    padding-bottom: 0;
+  }
 }
 
 // ── 상품 이미지 섹션 ────────────────────────────────────
@@ -202,17 +208,30 @@
 
 // ── 하단 버튼 바 ───────────────────────────────────────
 .bottomBar {
+  // 모바일: 뷰포트 하단에 고정 (MobileNav 위)
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
+  z-index: $z-header;
   display: flex;
   gap: $spacing-xs;
   padding: $spacing-sm $spacing-md;
-  padding-bottom: calc(#{$spacing-sm} + env(safe-area-inset-bottom));
+  padding-bottom: calc(#{$mobile-nav-height} + env(safe-area-inset-bottom));
   background: $color-white;
   border-top: 1px solid $color-gray-200;
-  z-index: $z-header;
+
+  // 데스크톱: fixed 해제 → 콘텐츠 흐름에 포함 (Footer 위에 자연스럽게)
+  @include desktop {
+    position: static;
+    padding: $spacing-md $spacing-xl;
+    border-top: 1px solid $color-gray-200;
+    border-bottom: 1px solid $color-gray-200;
+    max-width: $max-width;
+    margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
+  }
 }
 
 .cartBtn {
