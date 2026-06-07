@@ -141,7 +141,7 @@ const ProductDet = ({ productId }: { productId: number }) => {
   }, [product?.id]);
 
   /* ── 장바구니 담기 ─────────────────────────────────────── */
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     if (!product) return;
 
     const hasDet = (product.detList ?? []).length > 0;
