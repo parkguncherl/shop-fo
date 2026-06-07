@@ -1,0 +1,335 @@
+@use '../../../styles/variables' as *;
+@use '../../../styles/mixins' as *;
+
+// ── 스켈레톤 ───────────────────────────────────────────────
+.skeleton {
+  height: 300px;
+  background: linear-gradient(90deg, $color-gray-100 25%, $color-gray-50 50%, $color-gray-100 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.4s infinite linear;
+  border-radius: $border-radius-md;
+}
+
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+// ── 빈 장바구니 ────────────────────────────────────────────
+.empty {
+  @include flex-center;
+  flex-direction: column;
+  gap: $spacing-md;
+  padding: $spacing-2xl $spacing-md;
+  min-height: 60vh;
+}
+
+.emptyIcon { color: $color-gray-300; }
+
+.emptyText {
+  font-size: $font-size-base;
+  color: $color-gray-500;
+  margin: 0;
+}
+
+.emptyBtn {
+  display: inline-flex;
+  align-items: center;
+  padding: 12px 28px;
+  background: $color-black;
+  color: $color-white;
+  font-size: $font-size-sm;
+  font-weight: 600;
+  border-radius: $border-radius-md;
+  text-decoration: none;
+  margin-top: $spacing-sm;
+  transition: opacity $transition-fast;
+
+  &:hover { opacity: 0.8; }
+}
+
+// ── 페이지 레이아웃 ────────────────────────────────────────
+.page {
+  @include container;
+  padding-top: $spacing-lg;
+  padding-bottom: $spacing-2xl;
+}
+
+.header {
+  display: flex;
+  align-items: baseline;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-lg;
+  border-bottom: 2px solid $color-black;
+  padding-bottom: $spacing-md;
+}
+
+.title {
+  font-size: $font-size-xl;
+  font-weight: 700;
+  margin: 0;
+}
+
+.count {
+  font-size: $font-size-sm;
+  color: $color-gray-500;
+}
+
+// 데스크톱: 2컬럼 (왼쪽 아이템 / 오른쪽 요약)
+.layout {
+  display: flex;
+  gap: $spacing-xl;
+  align-items: flex-start;
+
+  @include mobile {
+    flex-direction: column;
+  }
+}
+
+.left  { flex: 1; min-width: 0; }
+.right {
+  width: 320px;
+  flex-shrink: 0;
+  position: sticky;
+  top: calc(#{$header-height} + #{$spacing-md});
+
+  @include mobile {
+    width: 100%;
+    position: static;
+  }
+}
+
+// ── 툴바 (전체선택 / 선택삭제) ─────────────────────────────
+.toolbar {
+  @include flex-between;
+  padding: $spacing-sm 0;
+  border-bottom: 1px solid $color-gray-200;
+  margin-bottom: $spacing-sm;
+}
+
+.checkLabel {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  font-size: $font-size-sm;
+  color: $color-gray-700;
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkbox {
+  width: 18px;
+  height: 18px;
+  accent-color: $color-black;
+  cursor: pointer;
+}
+
+.deleteBtn {
+  @include reset-button;
+  font-size: $font-size-sm;
+  color: $color-gray-500;
+  text-decoration: underline;
+  cursor: pointer;
+
+  &:hover { color: $color-black; }
+}
+
+// ── 아이템 목록 ────────────────────────────────────────────
+.itemList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.item {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-md;
+  padding: $spacing-md 0;
+  border-bottom: 1px solid $color-gray-100;
+  position: relative;
+  transition: opacity $transition-fast;
+}
+
+.itemDimmed {
+  opacity: 0.4;
+}
+
+.itemCheck {
+  padding-top: 2px;
+  cursor: pointer;
+}
+
+.itemImage {
+  width: 88px;
+  height: 110px;
+  flex-shrink: 0;
+  border-radius: $border-radius-sm;
+  overflow: hidden;
+  background: $color-gray-100;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+}
+
+.imagePlaceholder {
+  width: 100%;
+  height: 100%;
+  background: $color-gray-200;
+}
+
+.itemInfo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.itemName {
+  font-size: $font-size-base;
+  font-weight: 500;
+  color: $color-black;
+  margin: 0;
+  @include line-clamp(2);
+}
+
+.itemOption {
+  font-size: $font-size-sm;
+  color: $color-gray-500;
+  margin: 0;
+}
+
+// 수량 조절
+.qtyWrap {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  border: 1px solid $color-gray-300;
+  border-radius: $border-radius-sm;
+  width: fit-content;
+  overflow: hidden;
+}
+
+.qtyBtn {
+  @include reset-button;
+  width: 32px;
+  height: 32px;
+  font-size: 16px;
+  color: $color-black;
+  @include flex-center;
+  transition: background $transition-fast;
+
+  &:hover:not(:disabled) { background: $color-gray-100; }
+  &:disabled { color: $color-gray-300; cursor: not-allowed; }
+}
+
+.qty {
+  width: 36px;
+  text-align: center;
+  font-size: $font-size-sm;
+  font-weight: 600;
+  border-left: 1px solid $color-gray-200;
+  border-right: 1px solid $color-gray-200;
+  line-height: 32px;
+}
+
+.itemPrice {
+  font-size: $font-size-base;
+  font-weight: 700;
+  color: $color-black;
+  margin: 0;
+}
+
+// 삭제 버튼
+.removeBtn {
+  @include reset-button;
+  color: $color-gray-400;
+  padding: 4px;
+  flex-shrink: 0;
+  transition: color $transition-fast;
+
+  &:hover { color: $color-black; }
+}
+
+// 전체 비우기
+.clearBtn {
+  @include reset-button;
+  font-size: $font-size-sm;
+  color: $color-gray-400;
+  text-decoration: underline;
+  margin-top: $spacing-md;
+  cursor: pointer;
+
+  &:hover { color: $color-gray-700; }
+}
+
+// ── 주문 요약 ──────────────────────────────────────────────
+.summary {
+  background: $color-gray-50;
+  border: 1px solid $color-gray-200;
+  border-radius: $border-radius-md;
+  padding: $spacing-lg;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.summaryTitle {
+  font-size: $font-size-md;
+  font-weight: 700;
+  margin: 0;
+  padding-bottom: $spacing-sm;
+  border-bottom: 1px solid $color-gray-200;
+}
+
+.summaryRow {
+  @include flex-between;
+  font-size: $font-size-sm;
+  color: $color-gray-700;
+}
+
+.summaryDivider {
+  height: 1px;
+  background: $color-gray-200;
+}
+
+.summaryTotal {
+  font-size: $font-size-base;
+  font-weight: 700;
+  color: $color-black;
+}
+
+.orderBtn {
+  @include reset-button;
+  width: 100%;
+  height: 52px;
+  background: $color-black;
+  color: $color-white;
+  font-size: $font-size-base;
+  font-weight: 700;
+  border-radius: $border-radius-md;
+  cursor: pointer;
+  transition: opacity $transition-fast;
+  margin-top: $spacing-xs;
+
+  &:hover:not(:disabled) { opacity: 0.85; }
+  &:disabled {
+    background: $color-gray-300;
+    cursor: not-allowed;
+  }
+}
+
+.freeShipping {
+  text-align: center;
+  font-size: $font-size-xs;
+  color: $color-gray-500;
+  margin: 0;
+}

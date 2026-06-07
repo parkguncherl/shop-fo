@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { signIn, signOut, useSession } from 'next-auth/react';
-import { useCartStore } from '@/stores/cartStore';
+import { useCartQuery } from '@/hooks/useCart';
 import styles from './HamburgerDrawer.module.scss';
 
 interface Props {
@@ -34,7 +34,8 @@ const MENU_GROUPS = [
 export default function HamburgerDrawer({ isOpen, onClose }: Props) {
   const { data: session } = useSession();
   const router = useRouter();
-  const cartCount = useCartStore((s) => s.totalCount());
+  const { data: cartData } = useCartQuery();
+  const displayCount = cartData?.totalCount ?? 0;
 
   // 드로어 열릴 때 배경 스크롤 잠금
   useEffect(() => {
@@ -75,8 +76,8 @@ export default function HamburgerDrawer({ isOpen, onClose }: Props) {
               <circle cx="9" cy="19" r="1" fill="currentColor"/>
               <circle cx="17" cy="19" r="1" fill="currentColor"/>
             </svg>
-            {cartCount > 0 && (
-              <span className={styles.badge}>{cartCount > 9 ? '9+' : cartCount}</span>
+            {displayCount > 0 && (
+              <span className={styles.badge}>{displayCount > 9 ? '9+' : displayCount}</span>
             )}
           </Link>
 

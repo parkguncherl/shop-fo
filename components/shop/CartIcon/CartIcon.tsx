@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 import Link from 'next/link';
-import { useCartStore } from '@/stores/cartStore';
+import { useCartQuery } from '@/hooks/useCart';
 import styles from './CartIcon.module.scss';
 
 interface CartIconProps {
@@ -9,11 +9,14 @@ interface CartIconProps {
 }
 
 export default function CartIcon({ className }: CartIconProps) {
-  const totalCount = useCartStore((s) => s.totalCount());
+  const { data } = useCartQuery();
+  const totalCount = data?.totalCount ?? 0;
 
   return (
     <Link href="/cart" className={`${styles.wrap} ${className ?? ''}`} aria-label="장바구니">
-      <span className={styles.circle}>{totalCount > 99 ? '99+' : totalCount}</span>
+      <span className={styles.circle}>
+        {totalCount > 99 ? '99+' : totalCount}
+      </span>
     </Link>
   );
 }

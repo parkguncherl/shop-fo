@@ -2,25 +2,25 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 export interface CartItem {
-  productId:    number;
-  productDetId: number;   // tb_product_det.id
-  name:         string;
-  price:        number;
-  imageUrl:     string;
-  quantity:     number;
-  size?:        string;
-  color?:       string;
+  productId: number;
+  productDetId: number; // tb_product_det.id
+  name: string;
+  price: number;
+  imageUrl: string;
+  quantity: number;
+  size?: string;
+  color?: string;
 }
 
 interface CartStore {
   items: CartItem[];
-  addItem:        (item: CartItem) => void;
-  removeItem:     (productDetId: number) => void;
+  addItem: (item: CartItem) => void;
+  removeItem: (productDetId: number) => void;
   updateQuantity: (productDetId: number, quantity: number) => void;
-  clearCart:      () => void;
-  totalCount:     () => number;
-  totalPrice:     () => number;
-  isInCart:       (productDetId: number) => boolean;
+  clearCart: () => void;
+  totalCount: () => number;
+  totalPrice: () => number;
+  isInCart: (productDetId: number) => boolean;
 }
 
 export const useCartStore = create<CartStore>()(
@@ -34,11 +34,7 @@ export const useCartStore = create<CartStore>()(
           const exists = s.items.find((i) => i.productDetId === item.productDetId);
           if (exists) {
             return {
-              items: s.items.map((i) =>
-                i.productDetId === item.productDetId
-                  ? { ...i, quantity: i.quantity + item.quantity }
-                  : i,
-              ),
+              items: s.items.map((i) => (i.productDetId === item.productDetId ? { ...i, quantity: i.quantity + item.quantity } : i)),
             };
           }
           return { items: [...s.items, item] };
@@ -53,11 +49,7 @@ export const useCartStore = create<CartStore>()(
       // productDetId 기준 수량 수정
       updateQuantity: (productDetId, quantity) =>
         set((s) => ({
-          items: s.items.map((i) =>
-            i.productDetId === productDetId
-              ? { ...i, quantity: Math.max(1, quantity) }
-              : i,
-          ),
+          items: s.items.map((i) => (i.productDetId === productDetId ? { ...i, quantity: Math.max(1, quantity) } : i)),
         })),
 
       clearCart: () => set({ items: [] }),
@@ -67,8 +59,7 @@ export const useCartStore = create<CartStore>()(
       totalPrice: () => get().items.reduce((sum, i) => sum + i.price * i.quantity, 0),
 
       // 이미 담겼는지 확인
-      isInCart: (productDetId) =>
-        get().items.some((i) => i.productDetId === productDetId),
+      isInCart: (productDetId) => get().items.some((i) => i.productDetId === productDetId),
     }),
     { name: 'gg-cart' },
   ),

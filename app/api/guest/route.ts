@@ -59,15 +59,27 @@ export async function POST(request: NextRequest) {
     const data = await res.json();
     console.log('백엔드 응답 ===>', data);
     const guestToken = data.body?.guestToken;
+    const guestId    = data.body?.guestId;
 
-    if (!guestToken) {
-      console.error('guestToken 없음 ===>', data); // ← 추가
+    if (!guestToken || !guestId) {
+      console.error('guestToken/guestId 없음 ===>', data);
       return NextResponse.json({ error: 'Failed' }, { status: 500 });
     }
 
-    const response = NextResponse.json({ guestToken });
+    const response = NextResponse.json({ guestToken, guestId });
+
+    // JWT 토큰 — httpOnly (보안)
     response.cookies.set(COOKIE_KEYS.GUEST_TOKEN, guestToken, {
       httpOnly: true,
+      secure: false,
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 30,
+      path: '/',
+    });
+
+    // guestId — 클라이언트 JS 접근 가능 (장바구니 API 호출용)
+    response.cookies.set(COOKIE_KEYS.GUEST_ID, guestId, {
+      httpOnly: false,
       secure: false,
       sameSite: 'lax',
       maxAge: 60 * 60 * 24 * 30,

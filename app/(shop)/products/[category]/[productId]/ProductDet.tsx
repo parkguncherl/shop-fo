@@ -6,7 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import publicApi from '@/libs/publicApi';
 import { useWebCommonStore } from '@/stores/useWebCommonStore';
 import { usePartnerCodeStore } from '@/stores/usePartnerCodeStore';
-import { useCartStore } from '@/stores/cartStore';
+import { useAddCartItem, useCartQuery } from '@/hooks/useCart';
 import { toastSuccess, toastError } from '@/components/common/Others/ToastMessage';
 import styles from './ProductDet.module.scss';
 import { usePageViewLog } from '@/hooks/usePageViewLog';
@@ -54,7 +54,8 @@ const ProductDet = ({ productId }: { productId: number }) => {
 
   const getFileUrl    = useWebCommonStore((s) => s.getFileUrl);
   const categoryReady = usePartnerCodeStore((s) => s.categoryReady);
-  const { addItem, isInCart } = useCartStore();
+  const { mutateAsync: addCartItem, isPending: isAdding } = useAddCartItem();
+  const { data: cartData } = useCartQuery();
   const swipeRef = useRef<HTMLDivElement>(null);
 
   const [images, setImages]             = useState<{ rep?: string; detail?: string; size?: string; etc?: string }>({});
@@ -165,7 +166,8 @@ const ProductDet = ({ productId }: { productId: number }) => {
     const productDetId = matchedDet?.id ?? product.detList?.[0]?.id ?? product.id;
 
     // 이미 담긴 옵션인지 확인
-    if (isInCart(productDetId)) {
+    const alreadyInCart = cartData?.items.some((i) => i.productDetId === productDetId);
+    if (alreadyInCart) {
       toastError('이미 장바구니에 담긴 상품입니다.');
       return;
     }
@@ -174,18 +176,19 @@ const ProductDet = ({ productId }: { productId: number }) => {
       (product.sellAmt ?? 0) -
       Math.floor((product.sellAmt ?? 0) * ((product.discountRate ?? 0) / 100));
 
-    addItem({
-      productId,
-      productDetId,
-      name:     product.prodNm ?? '',
-      price:    discountedPrice,
-      imageUrl: images.rep ?? '',
-      quantity: 1,
-      color:    selectedColor ?? undefined,
-      size:     selectedSize  ?? undefined,
-    });
-
-    toastSuccess('장바구니에 담았습니다 🛒');
+    try {
+      await addCartItem({
+        productDetId,
+        quantity:  1,
+        unitPrice: discountedPrice,
+        optionsSnapshot: selectedColor || selectedSize
+          ? JSON.stringify({ color: selectedColor, size: selectedSize })
+          : undefined,
+      });
+      toastSuccess('장바구니에 담았습니다 🛒');
+    } catch {
+      toastError('장바구니 담기에 실패했습니다.');
+    }
   };
 
   /* ── 로딩 ──────────────────────────────────────────────── */
@@ -323,9 +326,10 @@ const ProductDet = ({ productId }: { productId: number }) => {
         <button
           className={styles.cartBtn}
           onClick={handleAddToCart}
+          disabled={isAdding}
           aria-label="장바구니 담기"
         >
-          장바구니
+          {isAdding ? '담는 중...' : '장바구니'}
         </button>
         <button className={styles.orderBtn} aria-label="바로 주문하기">
           주문하기

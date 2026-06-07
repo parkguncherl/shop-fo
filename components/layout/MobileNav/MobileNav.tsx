@@ -2,7 +2,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useCartStore } from '@/stores/cartStore';
+import { useCartQuery } from '@/hooks/useCart';
 import styles from './MobileNav.module.scss';
 
 const NAV_ITEMS = [
@@ -66,7 +66,8 @@ const NAV_ITEMS = [
 
 export default function MobileNav() {
   const pathname = usePathname();
-  const cartCount = useCartStore((s) => s.totalCount());
+  const { data: cartData } = useCartQuery();
+  const displayCount = cartData?.totalCount ?? 0;
 
   return (
     <nav className={styles.nav}>
@@ -78,7 +79,7 @@ export default function MobileNav() {
           <Link key={item.href} href={item.href} className={`${styles.item} ${isActive ? styles.active : ''}`}>
             <span className={styles.iconWrap}>
               {item.icon}
-              {isCart && cartCount > 0 && <span className={styles.badge}>{cartCount > 9 ? '9+' : cartCount}</span>}
+              {isCart && displayCount > 0 && <span className={styles.badge}>{displayCount > 9 ? '9+' : displayCount}</span>}
             </span>
             <span className={styles.label}>{item.label}</span>
           </Link>
