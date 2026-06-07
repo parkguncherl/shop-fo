@@ -141,6 +141,26 @@
   }
 }
 
+// 선택된 옵션 칩
+.skuChipSelected {
+  border-color: $color-black;
+  background: $color-black;
+  color: $color-white;
+
+  &:hover { background: $color-gray-800; }
+}
+
+// 사이즈 선택 래퍼 (색상 아래 간격)
+.skuSizeWrap {
+  margin-top: $spacing-md;
+}
+
+// 선택된 값 표시 (색상 · 파랑)
+.skuSelected {
+  font-weight: 400;
+  color: $color-gray-600;
+}
+
 // ── 연관 상품 섹션 ──────────────────────────────────────
 .relatedSection {
   padding: $spacing-md $spacing-md $spacing-lg;
