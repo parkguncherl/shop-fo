@@ -53,12 +53,12 @@ export const authOptions: NextAuthOptions = {
         if (data?.body?.accessToken) {
           // user 객체에 임시 저장 → jwt 콜백에서 꺼내 씀
           (user as any).shopToken = {
-            accessToken:  data.body.accessToken,
+            accessToken: data.body.accessToken,
             refreshToken: data.body.refreshToken,
             socialAccountId: data.body.memberId,
-            nickname:     data.body.nickname,
+            nickname: data.body.nickname,
             profileImage: data.body.profileImage,
-            email:        data.body.email,
+            email: data.body.email,
           };
           return true;
         }
@@ -83,10 +83,10 @@ export const authOptions: NextAuthOptions = {
       session.token = { accessToken: shopToken?.accessToken, refreshToken: shopToken?.refreshToken } as any;
       session.provider = token.provider as string;
       session.socialAccountId = shopToken?.socialAccountId;
-      session.email    = shopToken?.email;
+      session.email = shopToken?.email;
       // 세션 user 정보 보강
       if (session.user && shopToken) {
-        session.user.name  = shopToken.nickname;
+        session.user.name = shopToken.nickname;
         session.user.image = shopToken.profileImage;
         session.user.email = shopToken.email;
       }
