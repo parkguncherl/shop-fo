@@ -11,7 +11,8 @@ declare module 'next-auth' {
     user:      UserResponseSelectByLoginId;
     token:     JwtAuthToken;
     provider?: string;   // 'credentials' | 'kakao' | 'naver' | 'google'
-    memberId?: number;   // 소셜 로그인 회원 ID
+    socialAccountId?: number;   // 소셜 로그인 계정 ID (tb_social_account.id)
+    email?:    string;   // 소셜 로그인 이메일 (loginId)
     error?:    string;
   }
 
@@ -22,6 +23,6 @@ declare module 'next-auth/jwt' {
   interface JWT {
     user:      ISessionUser;
     provider?: string;
-    memberId?: number;
+    socialAccountId?: number;
   }
 }

@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useSession } from 'next-auth/react';
 import publicApi from '@/libs/publicApi';
 import { COOKIE_KEYS } from '@/libs/const';
 
@@ -40,9 +41,18 @@ const emptyCart: CartInfo = { cartId: 0, items: [], totalCount: 0, totalPrice: 0
 
 // ── 장바구니 조회 ─────────────────────────────────────────────
 export const useCartQuery = () => {
+  const { data: session } = useSession();
+  const socialAccountId = session?.socialAccountId;
+
   return useQuery<CartInfo>({
-    queryKey: CART_QUERY_KEY,
+    queryKey: [...CART_QUERY_KEY, socialAccountId ?? 'guest'],
     queryFn: async () => {
+      // 로그인 상태 → socialAccountId 로 회원 카트 조회
+      if (socialAccountId) {
+        const { data } = await publicApi.get('/frontWeb/cart', { params: { socialAccountId } });
+        return data?.body ?? emptyCart;
+      }
+      // 비로그인 → guestId 로 게스트 카트 조회
       const guestId = getGuestId();
       if (!guestId) return emptyCart;
       const { data } = await publicApi.get('/frontWeb/cart', { params: { guestId } });

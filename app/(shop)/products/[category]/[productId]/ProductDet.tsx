@@ -112,6 +112,17 @@ const ProductDet = ({ productId }: { productId: number }) => {
     return null;
   }, [product, colors, sizes, selectedColor, selectedSize]);
 
+  /* ── 색상/사이즈 1개뿐이면 자동 선택 ───────────────── */
+  useEffect(() => {
+    if (!product) return;
+    if (colors.length === 1) setSelectedColor(colors[0]);
+  }, [product?.id, colors.length]);
+
+  useEffect(() => {
+    if (!product) return;
+    if (sizes.length === 1) setSelectedSize(sizes[0]);
+  }, [product?.id, sizes.length, selectedColor]);
+
   /* ── 색상 선택 시 사이즈 초기화 ─────────────────────── */
   const handleColorSelect = (color: string) => {
     setSelectedColor((prev) => (prev === color ? null : color));

@@ -2,7 +2,6 @@
 import { useEffect } from 'react';
 import { initGuestToken } from '@/libs/guestToken';
 import { useUiStore } from '@/stores/uiStore';
-
 export default function GuestTokenInit() {
   const setGuestReady = useUiStore((s) => s.setGuestReady);
 

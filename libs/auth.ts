@@ -3,6 +3,8 @@ import KakaoProvider from 'next-auth/providers/kakao';
 import NaverProvider from 'next-auth/providers/naver';
 import GoogleProvider from 'next-auth/providers/google';
 import axios from 'axios';
+import { cookies } from 'next/headers';
+import { COOKIE_KEYS } from '@/libs/const';
 
 // 서버사이드 전용 (NEXT_SERVER_API_ENDPOINT 사용)
 const BASE_URL = process.env.NEXT_SERVER_API_ENDPOINT ?? 'http://localhost:8080/shop-ap';
@@ -11,19 +13,19 @@ export const authOptions: NextAuthOptions = {
   providers: [
     // ── 카카오 로그인 ────────────────────────────────────────────────
     KakaoProvider({
-      clientId:     process.env.KAKAO_CLIENT_ID!,
+      clientId: process.env.KAKAO_CLIENT_ID!,
       clientSecret: process.env.KAKAO_CLIENT_SECRET!,
     }),
 
     // ── 네이버 로그인 ────────────────────────────────────────────────
     NaverProvider({
-      clientId:     process.env.NAVER_CLIENT_ID!,
+      clientId: process.env.NAVER_CLIENT_ID!,
       clientSecret: process.env.NAVER_CLIENT_SECRET!,
     }),
 
     // ── 구글 로그인 ──────────────────────────────────────────────────
     GoogleProvider({
-      clientId:     process.env.GOOGLE_CLIENT_ID!,
+      clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
   ],
@@ -36,26 +38,27 @@ export const authOptions: NextAuthOptions = {
      */
     async signIn({ user, account }) {
       try {
-        const { data } = await axios.post(
-          `${BASE_URL}/frontWeb/login/social/callback`,
-          {
-            provider:     account?.provider,
-            providerId:   account?.providerAccountId,
-            email:        user.email,
-            nickname:     user.name,
-            profileImage: user.image,
-            guestId:      null, // 서버사이드라 쿠키 접근 불가 → 클라이언트에서 병합 API 별도 호출
-          }
-        );
+        const cookieStore = await cookies();
+        const guestId = cookieStore.get(COOKIE_KEYS.GUEST_ID)?.value ?? null;
+
+        const { data } = await axios.post(`${BASE_URL}/frontWeb/login/social/callback`, {
+          provider: account?.provider,
+          providerId: account?.providerAccountId,
+          email: user.email,
+          nickname: user.name,
+          profileImage: user.image,
+          guestId,
+        });
 
         if (data?.body?.accessToken) {
           // user 객체에 임시 저장 → jwt 콜백에서 꺼내 씀
           (user as any).shopToken = {
             accessToken:  data.body.accessToken,
             refreshToken: data.body.refreshToken,
-            memberId:     data.body.memberId,
+            socialAccountId: data.body.memberId,
             nickname:     data.body.nickname,
             profileImage: data.body.profileImage,
+            email:        data.body.email,
           };
           return true;
         }
@@ -70,20 +73,22 @@ export const authOptions: NextAuthOptions = {
       // 최초 로그인 시에만 user 객체 존재
       if (user && (user as any).shopToken) {
         token.shopToken = (user as any).shopToken;
-        token.provider  = account?.provider;
+        token.provider = account?.provider;
       }
       return token;
     },
 
     async session({ session, token }) {
       const shopToken = token.shopToken as any;
-      session.token    = { accessToken: shopToken?.accessToken, refreshToken: shopToken?.refreshToken } as any;
+      session.token = { accessToken: shopToken?.accessToken, refreshToken: shopToken?.refreshToken } as any;
       session.provider = token.provider as string;
-      session.memberId = shopToken?.memberId;
+      session.socialAccountId = shopToken?.socialAccountId;
+      session.email    = shopToken?.email;
       // 세션 user 정보 보강
       if (session.user && shopToken) {
         session.user.name  = shopToken.nickname;
         session.user.image = shopToken.profileImage;
+        session.user.email = shopToken.email;
       }
       return session;
     },
@@ -91,7 +96,7 @@ export const authOptions: NextAuthOptions = {
 
   pages: {
     signIn: '/login',
-    error:  '/login',
+    error: '/login',
   },
 
   session: { strategy: 'jwt', maxAge: 60 * 60 * 24 },

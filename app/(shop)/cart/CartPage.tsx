@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
@@ -10,6 +10,7 @@ import {
   useClearCart,
 } from '@/hooks/useCart';
 import { toastError } from '@/components/common/Others/ToastMessage';
+import { useWebCommonStore } from '@/stores/useWebCommonStore';
 import styles from './CartPage.module.scss';
 
 export default function CartPage() {
@@ -18,8 +19,26 @@ export default function CartPage() {
   const { mutate: updateItem } = useUpdateCartItem();
   const { mutate: removeItem, isPending: isRemoving } = useRemoveCartItem();
   const { mutate: clearCart, isPending: isClearing } = useClearCart();
+  const getFileUrl = useWebCommonStore((s) => s.getFileUrl);
 
   const items = cart?.items ?? [];
+
+  // sysFileNm → 실제 URL 변환
+  const [imageMap, setImageMap] = useState<Record<number, string>>({});
+  useEffect(() => {
+    if (!items.length) return;
+    (async () => {
+      const entries = await Promise.all(
+        items.map(async (item) => {
+          console.log('[Cart] productImage raw:', item.productImage);
+          const url = item.productImage ? await getFileUrl(item.productImage) : null;
+          console.log('[Cart] getFileUrl result:', url);
+          return [item.cartItemId, url] as [number, string | null];
+        }),
+      );
+      setImageMap(Object.fromEntries(entries.filter(([, url]) => url !== null)));
+    })();
+  }, [cart?.items?.map((i) => i.cartItemId).join(',')]);
   const [checkedIds, setCheckedIds] = useState<Set<number>>(
     () => new Set(items.map((i) => i.cartItemId)),
   );
@@ -123,8 +142,8 @@ export default function CartPage() {
 
                   {/* 이미지 */}
                   <div className={styles.itemImage}>
-                    {item.productImage
-                      ? <img src={item.productImage} alt={item.productName} />
+                    {imageMap[item.cartItemId]
+                      ? <img src={imageMap[item.cartItemId]} alt={item.productName} />
                       : <div className={styles.imagePlaceholder} />}
                   </div>
 
