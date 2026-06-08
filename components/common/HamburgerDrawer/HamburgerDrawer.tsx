@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { signIn, signOut, useSession } from 'next-auth/react';
-import { useCartQuery } from '@/hooks/useCart';
+import CartIcon from '@/components/shop/CartIcon/CartIcon';
 import styles from './HamburgerDrawer.module.scss';
 
 interface Props {
@@ -34,9 +34,6 @@ const MENU_GROUPS = [
 export default function HamburgerDrawer({ isOpen, onClose }: Props) {
   const { data: session } = useSession();
   const router = useRouter();
-  const { data: cartData } = useCartQuery();
-  const displayCount = cartData?.totalCount ?? 0;
-
   // 드로어 열릴 때 배경 스크롤 잠금
   useEffect(() => {
     document.body.style.overflow = isOpen ? 'hidden' : '';
@@ -70,27 +67,18 @@ export default function HamburgerDrawer({ isOpen, onClose }: Props) {
 
         {/* 상단: 카트 / 검색 / 닫기 */}
         <div className={styles.topBar}>
-          <Link href="/cart" className={styles.topIcon} onClick={onClose} aria-label="장바구니">
-            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-              <path d="M3 3h2l2.4 10h9.2l1.8-7H7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              <circle cx="9" cy="19" r="1" fill="currentColor"/>
-              <circle cx="17" cy="19" r="1" fill="currentColor"/>
-            </svg>
-            {displayCount > 0 && (
-              <span className={styles.badge}>{displayCount > 9 ? '9+' : displayCount}</span>
-            )}
-          </Link>
+          <CartIcon className={styles.topIconCart} />
 
           <Link href="/search" className={styles.topIcon} onClick={onClose} aria-label="검색">
-            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-              <circle cx="10" cy="10" r="6.5" stroke="currentColor" strokeWidth="1.5"/>
-              <path d="M15 15l4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <circle cx="9" cy="9" r="6" stroke="currentColor" strokeWidth="1.5"/>
+              <path d="M13.5 13.5L17 17" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
             </svg>
           </Link>
 
           <button className={styles.topIcon} onClick={onClose} aria-label="닫기">
-            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-              <path d="M5 5l12 12M17 5L5 17" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <path d="M4 4l12 12M16 4L4 16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
             </svg>
           </button>
         </div>
@@ -110,9 +98,6 @@ export default function HamburgerDrawer({ isOpen, onClose }: Props) {
             <div className={styles.authBtns}>
               <Link href="/login" className={styles.loginBtn} onClick={onClose}>
                 로그인
-              </Link>
-              <Link href="/signup" className={styles.signupBtn} onClick={onClose}>
-                회원가입
               </Link>
             </div>
           )}

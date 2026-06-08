@@ -41,42 +41,29 @@
 
 // ── 상단 아이콘 바 ─────────────────────────────────────────────
 .topBar {
-  @include flex-between;
+  display: flex;
+  align-items: center;
   justify-content: flex-end;
-  gap: $spacing-xs;
+  gap: 4px;
   padding: $spacing-md $spacing-md;
   border-bottom: 1px solid $color-gray-200;
 }
 
 .topIcon {
   @include reset-button;
-  position: relative;
-  width: 36px;
-  height: 36px;
   @include flex-center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
   color: $color-black;
-  border-radius: $border-radius-md;
   transition: background $transition-fast;
   text-decoration: none;
 
-  &:hover {
-    background: $color-gray-100;
-  }
+  &:hover { background: $color-gray-100; }
 }
 
-.badge {
-  position: absolute;
-  top: 2px;
-  right: 2px;
-  min-width: 16px;
-  height: 16px;
-  padding: 0 4px;
-  background: $color-black;
-  color: $color-white;
-  font-size: 9px;
-  font-weight: 700;
-  border-radius: 8px;
-  @include flex-center;
+.topIconCart {
+  // CartIcon 컴포넌트의 wrap 위에 추가 스타일 없음 — 기본 스타일 그대로 사용
 }
 
 // ── 유저 영역 ──────────────────────────────────────────────────
@@ -112,9 +99,7 @@
 }
 
 .authBtns {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: $spacing-sm;
+  display: block;
 }
 
 .loginBtn,
@@ -130,11 +115,11 @@
 }
 
 .loginBtn {
-  border: 1px solid $color-gray-300;
-  color: $color-black;
-  background: $color-white;
+  border: 1px solid $color-black;
+  background: $color-black;
+  color: $color-white;
 
-  &:hover { background: $color-gray-100; }
+  &:hover { background: $color-gray-800; }
 }
 
 .signupBtn {
