@@ -31,7 +31,6 @@
   margin: 0 0 $spacing-lg;
 }
 
-// ── 소셜 버튼 ──────────────────────────────────────────────
 .socialBtns {
   display: flex;
   flex-direction: column;
@@ -57,21 +56,7 @@
   &:active { opacity: 0.7; }
 }
 
-// 카카오 — 노란 배경 / 갈색 텍스트
 .kakao {
   background: #FEE500;
   color: #3C1E1E;
-}
-
-// 네이버 — 초록 배경 / 흰 텍스트
-.naver {
-  background: #03C75A;
-  color: $color-white;
-}
-
-// 구글 — 흰 배경 / 회색 테두리
-.google {
-  background: $color-white;
-  color: #3C4043;
-  border: 1px solid $color-gray-300;
 }

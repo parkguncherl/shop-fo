@@ -1,41 +1,24 @@
 import type { NextAuthOptions } from 'next-auth';
 import KakaoProvider from 'next-auth/providers/kakao';
-import NaverProvider from 'next-auth/providers/naver';
-import GoogleProvider from 'next-auth/providers/google';
 import axios from 'axios';
 import { cookies } from 'next/headers';
 import { COOKIE_KEYS } from '@/libs/const';
 
-// 서버사이드 전용 (NEXT_SERVER_API_ENDPOINT 사용)
 const BASE_URL = process.env.NEXT_SERVER_API_ENDPOINT ?? 'http://localhost:8080/shop-ap';
+const KAKAO_CLIENT_SECRET = process.env.KAKAO_CLIENT_SECRET?.trim();
 
 export const authOptions: NextAuthOptions = {
   providers: [
-    // ── 카카오 로그인 ────────────────────────────────────────────────
     KakaoProvider({
       clientId: process.env.KAKAO_CLIENT_ID!,
-      clientSecret: process.env.KAKAO_CLIENT_SECRET!,
-    }),
-
-    // ── 네이버 로그인 ────────────────────────────────────────────────
-    NaverProvider({
-      clientId: process.env.NAVER_CLIENT_ID!,
-      clientSecret: process.env.NAVER_CLIENT_SECRET!,
-    }),
-
-    // ── 구글 로그인 ──────────────────────────────────────────────────
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      clientSecret: KAKAO_CLIENT_SECRET || undefined,
+      client: {
+        token_endpoint_auth_method: KAKAO_CLIENT_SECRET ? 'client_secret_post' : 'none',
+      },
     }),
   ],
 
   callbacks: {
-    /**
-     * 소셜 OAuth 인증 완료 후
-     * → 백엔드 /frontWeb/login/social/callback 호출
-     * → tb_social_account 조회/생성 + 서비스 JWT 발급
-     */
     async signIn({ user, account }) {
       try {
         const cookieStore = await cookies();
@@ -51,7 +34,6 @@ export const authOptions: NextAuthOptions = {
         });
 
         if (data?.body?.accessToken) {
-          // user 객체에 임시 저장 → jwt 콜백에서 꺼내 씀
           (user as any).shopToken = {
             accessToken: data.body.accessToken,
             refreshToken: data.body.refreshToken,
@@ -70,7 +52,6 @@ export const authOptions: NextAuthOptions = {
     },
 
     async jwt({ token, user, account }) {
-      // 최초 로그인 시에만 user 객체 존재
       if (user && (user as any).shopToken) {
         token.shopToken = (user as any).shopToken;
         token.provider = account?.provider;
@@ -84,7 +65,6 @@ export const authOptions: NextAuthOptions = {
       session.provider = token.provider as string;
       session.socialAccountId = shopToken?.socialAccountId;
       session.email = shopToken?.email;
-      // 세션 user 정보 보강
       if (session.user && shopToken) {
         session.user.name = shopToken.nickname;
         session.user.image = shopToken.profileImage;
