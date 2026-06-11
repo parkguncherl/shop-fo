@@ -5,10 +5,10 @@ import styles from './Footer.module.scss';
 const BUSINESS_INFO = {
   brand: 'GGUANGGU',
   companyName: 'GGUANGGU',
-  representative: '대표자명 입력',
-  businessNumber: '사업자등록번호 입력',
-  phone: '유선번호 입력',
-  address: '사업장 주소 입력',
+  representative: '박근철',
+  businessNumber: '204-19-967-02',
+  phone: '010-2746-6297',
+  address: '경기도 이천시 신둔면 원적로 155번길 86-21',
   businessType: '의류 및 패션잡화 소매업',
   items: '의류, 악세사리, 패션잡화',
 };
