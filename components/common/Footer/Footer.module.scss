@@ -19,11 +19,14 @@
 
 .top {
   @include flex-between;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
   flex-wrap: wrap;
   gap: 12px;
 
-  @include mobile { flex-direction: column; align-items: flex-start; }
+  @include mobile {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }
 
 .brand {
@@ -43,8 +46,52 @@
     color: $color-gray-500;
     text-decoration: none;
     transition: color $transition-fast;
+
     &:hover { color: $color-black; }
   }
+}
+
+.businessInfo {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 18px;
+  margin: 0 0 12px;
+  padding: 0;
+  color: $color-gray-500;
+  font-size: $font-size-sm;
+  line-height: 1.65;
+
+  div {
+    display: flex;
+    min-width: 0;
+    gap: 6px;
+  }
+
+  dt {
+    flex: 0 0 auto;
+    color: $color-gray-600;
+    font-weight: 600;
+  }
+
+  dd {
+    min-width: 0;
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+
+  @include mobile {
+    grid-template-columns: 1fr;
+  }
+}
+
+.fullLine {
+  grid-column: 1 / -1;
+}
+
+.notice {
+  font-size: $font-size-sm;
+  color: $color-gray-500;
+  margin: 0 0 6px;
 }
 
 .copy {
