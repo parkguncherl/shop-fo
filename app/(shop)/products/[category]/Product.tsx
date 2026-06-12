@@ -4,7 +4,7 @@ import styles from '@/app/(shop)/page.module.scss';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useReducer } from 'react';
 import Link from 'next/link';
-import { DisplayResponseProductInfoForEnum, ProductRequestProductInfoListFilter, ProductResponseProductInfo } from '@/generated';
+import { ProductRequestProductInfoListFilter, ProductResponseProductInfo } from '@/generated';
 import publicApi from '@/libs/publicApi';
 import useFilters from '@/hooks/useFilters';
 import { useProductStore } from '@/stores/useProductStore';
@@ -20,7 +20,7 @@ interface ExtendedProductResponseProductInfo extends ProductResponseProductInfo 
 
 interface ProductInfoState {
   productInfoList: ExtendedProductResponseProductInfo[];
-  lastInfo: DisplayResponseProductInfoForEnum | undefined;
+  lastInfo: ProductResponseProductInfo | undefined;
   endOfThePageHasBeenReached: boolean;
 }
 type ProductInfoAction =

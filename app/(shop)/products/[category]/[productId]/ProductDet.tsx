@@ -15,7 +15,7 @@ import { usePageViewLog } from '@/hooks/usePageViewLog';
 interface ProductDetInfo {
   id: number;
   productDetSeq: number;
-  productDetSize?:  string;
+  productDetSize?: string;
   productDetColor?: string;
   sysFileNm?: string;
 }
@@ -45,23 +45,22 @@ interface ProductDetail {
 }
 
 /* ── 이미지 헬퍼 ──────────────────────────────────────── */
-const ProductImage = ({ src, alt }: { src?: string; alt: string }) =>
-  src ? <img src={src} alt={alt} className={styles.productImg} /> : null;
+const ProductImage = ({ src, alt }: { src?: string; alt: string }) => (src ? <img src={src} alt={alt} className={styles.productImg} /> : null);
 
 /* ── 컴포넌트 ─────────────────────────────────────────── */
 const ProductDet = ({ productId }: { productId: number }) => {
   usePageViewLog({ pageType: ProductDet.name, productId: productId });
 
-  const getFileUrl    = useWebCommonStore((s) => s.getFileUrl);
+  const getFileUrl = useWebCommonStore((s) => s.getFileUrl);
   const categoryReady = usePartnerCodeStore((s) => s.categoryReady);
   const { mutateAsync: addCartItem, isPending: isAdding } = useAddCartItem();
   const { data: cartData } = useCartQuery();
   const swipeRef = useRef<HTMLDivElement>(null);
 
-  const [images, setImages]             = useState<{ rep?: string; detail?: string; size?: string; etc?: string }>({});
+  const [images, setImages] = useState<{ rep?: string; detail?: string; size?: string; etc?: string }>({});
   const [relatedWithSrc, setRelatedWithSrc] = useState<RelatedProductInfo[]>([]);
-  const [selectedColor, setSelectedColor]   = useState<string | null>(null);
-  const [selectedSize,  setSelectedSize]    = useState<string | null>(null);
+  const [selectedColor, setSelectedColor] = useState<string | null>(null);
+  const [selectedSize, setSelectedSize] = useState<string | null>(null);
 
   /* ── API 호출 ─────────────────────────────────────────── */
   const { data, isSuccess, isLoading } = useQuery({
@@ -70,8 +69,7 @@ const ProductDet = ({ productId }: { productId: number }) => {
     enabled: categoryReady && !!productId,
   });
 
-  const product: ProductDetail | null =
-    isSuccess && data?.data?.resultCode === 200 ? data.data.body : null;
+  const product: ProductDetail | null = isSuccess && data?.data?.resultCode === 200 ? data.data.body : null;
 
   /* ── 색상 / 사이즈 목록 파생 ─────────────────────────── */
   const colors = useMemo(() => {
@@ -82,9 +80,7 @@ const ProductDet = ({ productId }: { productId: number }) => {
   const sizes = useMemo(() => {
     if (!product) return [];
     // 색상 선택 후 → 해당 색상에서 가능한 사이즈만
-    const filtered = selectedColor
-      ? (product.detList ?? []).filter((d) => d.productDetColor === selectedColor)
-      : (product.detList ?? []);
+    const filtered = selectedColor ? (product.detList ?? []).filter((d) => d.productDetColor === selectedColor) : product.detList ?? [];
     return [...new Set(filtered.map((d) => d.productDetSize).filter(Boolean))] as string[];
   }, [product, selectedColor]);
 
@@ -103,11 +99,7 @@ const ProductDet = ({ productId }: { productId: number }) => {
     }
     // 색상 + 사이즈 모두 있는 경우
     if (selectedColor && selectedSize) {
-      return (
-        product.detList.find(
-          (d) => d.productDetColor === selectedColor && d.productDetSize === selectedSize,
-        ) ?? null
-      );
+      return product.detList.find((d) => d.productDetColor === selectedColor && d.productDetSize === selectedSize) ?? null;
     }
     return null;
   }, [product, colors, sizes, selectedColor, selectedSize]);
@@ -134,10 +126,10 @@ const ProductDet = ({ productId }: { productId: number }) => {
     if (!product) return;
     (async () => {
       const [rep, detail, size, etc] = await Promise.all([
-        product.repSysFileNm    ? getFileUrl(product.repSysFileNm)    : undefined,
+        product.repSysFileNm ? getFileUrl(product.repSysFileNm) : undefined,
         product.detailSysFileNm ? getFileUrl(product.detailSysFileNm) : undefined,
-        product.sizeSysFileNm   ? getFileUrl(product.sizeSysFileNm)   : undefined,
-        product.etcSysFileNm    ? getFileUrl(product.etcSysFileNm)    : undefined,
+        product.sizeSysFileNm ? getFileUrl(product.sizeSysFileNm) : undefined,
+        product.etcSysFileNm ? getFileUrl(product.etcSysFileNm) : undefined,
       ]);
       setImages({ rep, detail, size, etc });
 
@@ -183,18 +175,14 @@ const ProductDet = ({ productId }: { productId: number }) => {
       return;
     }
 
-    const discountedPrice =
-      (product.sellAmt ?? 0) -
-      Math.floor((product.sellAmt ?? 0) * ((product.discountRate ?? 0) / 100));
+    const discountedPrice = (product.sellAmt ?? 0) - Math.floor((product.sellAmt ?? 0) * ((product.discountRate ?? 0) / 100));
 
     try {
       await addCartItem({
         productDetId,
-        quantity:  1,
+        quantity: 1,
         unitPrice: discountedPrice,
-        optionsSnapshot: selectedColor || selectedSize
-          ? JSON.stringify({ color: selectedColor, size: selectedSize })
-          : undefined,
+        optionsSnapshot: selectedColor || selectedSize ? JSON.stringify({ color: selectedColor, size: selectedSize }) : undefined,
       });
       toastSuccess('장바구니에 담았습니다 🛒');
     } catch {
@@ -217,42 +205,32 @@ const ProductDet = ({ productId }: { productId: number }) => {
 
   if (!product) return null;
 
-  const discountedPrice =
-    (product.sellAmt ?? 0) -
-    Math.floor((product.sellAmt ?? 0) * ((product.discountRate ?? 0) / 100));
+  const discountedPrice = (product.sellAmt ?? 0) - Math.floor((product.sellAmt ?? 0) * ((product.discountRate ?? 0) / 100));
 
-  const hasDet   = (product.detList ?? []).length > 0;
+  const hasDet = (product.detList ?? []).length > 0;
   const hasColor = colors.length > 0;
-  const hasSize  = sizes.length > 0;
+  const hasSize = sizes.length > 0;
 
   return (
     <div className={styles.wrap}>
       {/* ── 상품 이미지 ── */}
       <section className={styles.imageSection}>
-        <ProductImage src={images.rep}    alt={product.prodNm ?? ''} />
+        <ProductImage src={images.rep} alt={product.prodNm ?? ''} />
         <ProductImage src={images.detail} alt={`${product.prodNm} 상세`} />
-        <ProductImage src={images.size}   alt={`${product.prodNm} 사이즈`} />
-        <ProductImage src={images.etc}    alt={`${product.prodNm} 기타`} />
-        {!images.rep && !images.detail && !images.size && !images.etc && (
-          <div className={`${styles.productImg} ${styles.imgPlaceholder}`} />
-        )}
+        <ProductImage src={images.size} alt={`${product.prodNm} 사이즈`} />
+        <ProductImage src={images.etc} alt={`${product.prodNm} 기타`} />
+        {!images.rep && !images.detail && !images.size && !images.etc && <div className={`${styles.productImg} ${styles.imgPlaceholder}`} />}
       </section>
 
       {/* ── 상품 기본 정보 ── */}
       <section className={styles.infoSection}>
         <h1 className={styles.prodNm}>{product.prodNm}</h1>
         <div className={styles.priceRow}>
-          {(product.discountRate ?? 0) > 0 && (
-            <span className={styles.discount}>{product.discountRate}%</span>
-          )}
+          {(product.discountRate ?? 0) > 0 && <span className={styles.discount}>{product.discountRate}%</span>}
           <span className={styles.price}>{discountedPrice.toLocaleString()}원</span>
-          {(product.discountRate ?? 0) > 0 && product.orgAmt && (
-            <span className={styles.orgPrice}>{product.orgAmt.toLocaleString()}원</span>
-          )}
+          {(product.discountRate ?? 0) > 0 && product.orgAmt && <span className={styles.orgPrice}>{product.orgAmt.toLocaleString()}원</span>}
         </div>
-        {product.composition && (
-          <p className={styles.composition}>소재 · {product.composition}</p>
-        )}
+        {product.composition && <p className={styles.composition}>소재 · {product.composition}</p>}
       </section>
 
       {/* ── 옵션 선택 (색상 → 사이즈 2단계) ── */}
@@ -308,9 +286,7 @@ const ProductDet = ({ productId }: { productId: number }) => {
           <p className={styles.relatedLabel}>연관 상품</p>
           <div className={styles.relatedTrack} ref={swipeRef}>
             {relatedWithSrc.map((rel) => {
-              const relPrice =
-                (rel.sellAmt ?? 0) -
-                Math.floor((rel.sellAmt ?? 0) * ((rel.discountRate ?? 0) / 100));
+              const relPrice = (rel.sellAmt ?? 0) - Math.floor((rel.sellAmt ?? 0) * ((rel.discountRate ?? 0) / 100));
               return (
                 <Link key={rel.id} href={`/products/all/${rel.id}`} className={styles.relatedCard}>
                   {rel.src ? (
@@ -320,9 +296,7 @@ const ProductDet = ({ productId }: { productId: number }) => {
                   )}
                   <p className={styles.relatedNm}>{rel.prodNm}</p>
                   <div className={styles.relatedPrice}>
-                    {(rel.discountRate ?? 0) > 0 && (
-                      <span className={styles.discount}>{rel.discountRate}%</span>
-                    )}
+                    {(rel.discountRate ?? 0) > 0 && <span className={styles.discount}>{rel.discountRate}%</span>}
                     <span>{relPrice.toLocaleString()}원</span>
                   </div>
                 </Link>
@@ -334,13 +308,8 @@ const ProductDet = ({ productId }: { productId: number }) => {
 
       {/* ── 하단 버튼 ── */}
       <div className={styles.bottomBar}>
-        <button
-          className={styles.cartBtn}
-          onClick={handleAddToCart}
-          disabled={isAdding}
-          aria-label="장바구니 담기"
-        >
-          {isAdding ? '담는 중...' : '장바구니'}
+        <button className={styles.cartBtn} onClick={handleAddToCart} disabled={isAdding} aria-label="장바구니 담기">
+          {isAdding ? '담는 중...' : '장바구니에 담기'}
         </button>
         <button className={styles.orderBtn} aria-label="바로 주문하기">
           주문하기

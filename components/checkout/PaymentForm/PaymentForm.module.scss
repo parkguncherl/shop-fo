@@ -16,14 +16,60 @@
   border-bottom: 1px solid $color-gray-200;
 }
 
+.pointBox,
+.amountBox {
+  border: 1px solid $color-gray-200;
+  border-radius: $border-radius-md;
+  padding: 14px;
+  background: $color-gray-50;
+}
+
+.pointHeader,
+.amountBox div {
+  @include flex-between;
+  font-size: $font-size-sm;
+  color: $color-gray-600;
+
+  strong {
+    color: $color-black;
+    font-weight: 700;
+  }
+}
+
+.pointInputRow {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.pointInput {
+  flex: 1;
+  min-width: 0;
+  height: 42px;
+  border: 1px solid $color-gray-300;
+  border-radius: $border-radius-sm;
+  padding: 0 12px;
+  text-align: right;
+  font-size: $font-size-base;
+  background: $color-white;
+}
+
+.pointBtn {
+  @include reset-button;
+  flex: 0 0 auto;
+  height: 42px;
+  padding: 0 12px;
+  border: 1px solid $color-black;
+  border-radius: $border-radius-sm;
+  color: $color-black;
+  font-size: $font-size-sm;
+  font-weight: 600;
+}
+
 .methods {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 8px;
-
-  @include mobile {
-    grid-template-columns: 1fr 1fr;
-  }
 }
 
 .method {
@@ -34,8 +80,7 @@
   font-size: $font-size-sm;
   font-weight: 400;
   color: $color-gray-600;
-  transition: border-color $transition-fast, color $transition-fast,
-    background $transition-fast;
+  transition: border-color $transition-fast, color $transition-fast, background $transition-fast;
 
   &:hover { border-color: $color-gray-500; color: $color-black; }
 
@@ -45,6 +90,12 @@
     color: $color-white;
     font-weight: 600;
   }
+}
+
+.amountBox {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .agree {
