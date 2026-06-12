@@ -22,6 +22,7 @@
     "@fontsource/roboto": "^4.5.8",
     "@hookform/resolvers": "^3.0.0",
     "@next/bundle-analyzer": "^13.1.1",
+    "@portone/browser-sdk": "^0.1.8",
     "@react-google-maps/api": "^2.18.1",
     "@tanstack/query-core": "5.99.1",
     "@tanstack/react-query": "^5.99.1",

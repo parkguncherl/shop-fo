@@ -40,6 +40,9 @@ export interface CreateCheckoutPayload {
       payMethod: 'POINT' | PaymentMethod;
       amount: number;
       pgProvider?: 'PORTONE';
+      pgTid?: string;
+      portonePaymentId?: string;
+      rawResponse?: string;
     }>;
   };
 }

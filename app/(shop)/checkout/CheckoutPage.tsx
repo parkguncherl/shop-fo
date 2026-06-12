@@ -1,14 +1,16 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
+import { useDaumPostcodePopup, type Address } from 'react-daum-postcode';
 import OrderSummary from '@/components/checkout/OrderSummary/OrderSummary';
 import PaymentForm from '@/components/checkout/PaymentForm/PaymentForm';
 import Button from '@/components/common/Button/Button';
 import { toastError, toastSuccess } from '@/components/common/Others/ToastMessage';
 import { useCartQuery } from '@/hooks/useCart';
 import { PaymentMethod, useCreateCheckoutMutation, usePointBalanceQuery } from '@/hooks/useCheckout';
+import { requestPortOnePayment } from '@/libs/portone';
 import styles from './CheckoutPage.module.scss';
 
 const FREE_SHIPPING_THRESHOLD = 50000;
@@ -21,8 +23,11 @@ export default function CheckoutPage() {
   const { data: session, status } = useSession();
   const { data: cart, isLoading } = useCartQuery();
   const socialAccountId = session?.socialAccountId;
+  const customerEmail = session?.user?.email || (socialAccountId ? 'customer-' + socialAccountId + '@gguanggu.local' : 'customer@gguanggu.local');
   const { data: pointBalance = 0 } = usePointBalanceQuery(socialAccountId);
   const createCheckout = useCreateCheckoutMutation();
+  const openPostcode = useDaumPostcodePopup();
+  const addressDetailRef = useRef<HTMLInputElement>(null);
 
   const [receiverName, setReceiverName] = useState('');
   const [receiverPhone, setReceiverPhone] = useState('');
@@ -40,6 +45,30 @@ export default function CheckoutPage() {
   const paymentAmount = Math.max(orderAmount - cappedUsedPoint, 0);
   const earnedPoint = Math.floor(paymentAmount * 0.02);
 
+  const formatPhoneNumber = (value: string) => {
+    const digits = value.replace(/\D/g, '').slice(0, 11);
+
+    if (digits.length <= 3) return digits;
+    if (digits.length <= 7) return `${digits.slice(0, 3)}-${digits.slice(3)}`;
+    return `${digits.slice(0, 3)}-${digits.slice(3, 7)}-${digits.slice(7)}`;
+  };
+
+  const handleReceiverPhoneChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setReceiverPhone(formatPhoneNumber(event.target.value));
+  };
+  const handleSearchAddress = async () => {
+    await openPostcode({
+      popupTitle: '주소 검색',
+      autoClose: true,
+      onComplete: (data: Address) => {
+        const selectedAddress = data.userSelectedType === 'R' ? data.roadAddress : data.jibunAddress;
+        setZipCode(data.zonecode);
+        setAddress(selectedAddress || data.address);
+        window.setTimeout(() => addressDetailRef.current?.focus(), 0);
+      },
+      onError: () => toastError('주소 검색창을 열 수 없습니다. 잠시 후 다시 시도해주세요.'),
+    });
+  };
   const summaryItems = items.map((item) => ({
     id: item.cartItemId,
     name: item.productName,
@@ -73,28 +102,55 @@ export default function CheckoutPage() {
 
     const orderNo = makeOrderNo();
     const paymentId = makePaymentId();
-    const details = [];
-
-    if (cappedUsedPoint > 0) {
-      details.push({
-        paymentNo: `${paymentId}-POINT`,
-        payType: 'POINT' as const,
-        payMethod: 'POINT' as const,
-        amount: cappedUsedPoint,
-      });
-    }
-
-    if (paymentAmount > 0) {
-      details.push({
-        paymentNo: `${paymentId}-PG`,
-        payType: 'PG' as const,
-        payMethod: method,
-        amount: paymentAmount,
-        pgProvider: 'PORTONE' as const,
-      });
-    }
+    const orderName = items.length > 1 ? `${items[0].productName} 외 ${items.length - 1}건` : items[0]?.productName ?? 'GGUANGGU 주문';
 
     try {
+      let portOneResponse: Awaited<ReturnType<typeof requestPortOnePayment>> | null = null;
+
+      if (paymentAmount > 0) {
+        portOneResponse = await requestPortOnePayment({
+          paymentId,
+          orderName,
+          totalAmount: paymentAmount,
+          method,
+          customer: {
+            id: String(socialAccountId),
+            name: receiverName,
+            phoneNumber: receiverPhone,
+          },
+          customData: {
+            orderNo,
+            socialAccountId,
+            cartId: cart?.cartId,
+            usedPoint: cappedUsedPoint,
+          },
+        });
+      }
+
+      const details = [];
+
+      if (cappedUsedPoint > 0) {
+        details.push({
+          paymentNo: `${paymentId}-POINT`,
+          payType: 'POINT' as const,
+          payMethod: 'POINT' as const,
+          amount: cappedUsedPoint,
+        });
+      }
+
+      if (paymentAmount > 0) {
+        details.push({
+          paymentNo: `${paymentId}-PG`,
+          payType: 'PG' as const,
+          payMethod: method,
+          amount: paymentAmount,
+          pgProvider: 'PORTONE' as const,
+          pgTid: portOneResponse?.txId,
+          portonePaymentId: portOneResponse?.paymentId,
+          rawResponse: portOneResponse ? JSON.stringify(portOneResponse) : undefined,
+        });
+      }
+
       await createCheckout.mutateAsync({
         orderNo,
         socialAccountId: socialAccountId!,
@@ -130,10 +186,9 @@ export default function CheckoutPage() {
       toastSuccess('주문 정보가 생성되었습니다.');
       router.push('/mypage/orders');
     } catch (error) {
-      toastError('주문 생성 중 오류가 발생했습니다. 결제 API 연결 상태를 확인해주세요.');
+      toastError(error instanceof Error ? error.message : '결제 처리 중 오류가 발생했습니다.');
     }
   };
-
   if (status === 'loading' || isLoading) {
     return <div className={styles.page}>주문서를 불러오는 중입니다.</div>;
   }
@@ -156,21 +211,25 @@ export default function CheckoutPage() {
               </label>
               <label>
                 <span>연락처</span>
-                <input value={receiverPhone} onChange={(e) => setReceiverPhone(e.target.value)} placeholder="010-0000-0000" />
+                <input value={receiverPhone} onChange={handleReceiverPhoneChange} inputMode="numeric" placeholder="010-0000-0000" />
               </label>
-              <label>
-                <span>우편번호</span>
-                <input value={zipCode} onChange={(e) => setZipCode(e.target.value)} placeholder="우편번호" />
-              </label>
+              <div className={styles.addressSearchField}>
+                <label>
+                  <span>우편번호</span>
+                  <input value={zipCode} readOnly placeholder="우편번호" />
+                </label>
+                <button type="button" className={styles.addressSearchBtn} onClick={handleSearchAddress}>
+                  주소검색
+                </button>
+              </div>
               <label className={styles.fullLine}>
                 <span>주소</span>
-                <input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="기본 주소" />
+                <input value={address} readOnly placeholder="주소검색을 눌러 기본주소를 입력해주세요" />
               </label>
               <label className={styles.fullLine}>
-                <span>상세 주소</span>
-                <input value={addressDetail} onChange={(e) => setAddressDetail(e.target.value)} placeholder="상세 주소" />
-              </label>
-              <label className={styles.fullLine}>
+                <span>상세주소</span>
+                <input ref={addressDetailRef} value={addressDetail} onChange={(e) => setAddressDetail(e.target.value)} placeholder="상세주소를 입력해주세요" />
+              </label><label className={styles.fullLine}>
                 <span>배송 메모</span>
                 <input value={memo} onChange={(e) => setMemo(e.target.value)} placeholder="배송 요청사항" />
               </label>

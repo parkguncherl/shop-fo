@@ -110,3 +110,33 @@
 .backBtn {
   background: $color-white;
 }
+.addressSearchField {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 104px;
+  gap: 8px;
+  align-items: end;
+
+  label {
+    min-width: 0;
+  }
+
+  @include mobile {
+    grid-template-columns: 1fr;
+  }
+}
+
+.addressSearchBtn {
+  height: 44px;
+  border: 1px solid $color-gray-800;
+  border-radius: $border-radius-md;
+  background: $color-white;
+  color: $color-black;
+  font-size: $font-size-sm;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover {
+    background: $color-gray-100;
+  }
+}
