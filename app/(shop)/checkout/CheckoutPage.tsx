@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { useDaumPostcodePopup, type Address } from 'react-daum-postcode';
@@ -23,7 +23,7 @@ export default function CheckoutPage() {
   const { data: session, status } = useSession();
   const { data: cart, isLoading } = useCartQuery();
   const socialAccountId = session?.socialAccountId;
-  const customerEmail = session?.user?.email || (socialAccountId ? 'customer-' + socialAccountId + '@gguanggu.local' : 'customer@gguanggu.local');
+  const defaultBuyerEmail = session?.email || session?.user?.email || '';
   const { data: pointBalance = 0 } = usePointBalanceQuery(socialAccountId);
   const createCheckout = useCreateCheckoutMutation();
   const openPostcode = useDaumPostcodePopup();
@@ -31,12 +31,18 @@ export default function CheckoutPage() {
 
   const [receiverName, setReceiverName] = useState('');
   const [receiverPhone, setReceiverPhone] = useState('');
+  const [buyerEmail, setBuyerEmail] = useState('');
   const [zipCode, setZipCode] = useState('');
   const [address, setAddress] = useState('');
   const [addressDetail, setAddressDetail] = useState('');
   const [memo, setMemo] = useState('');
   const [usedPoint, setUsedPoint] = useState(0);
 
+  useEffect(() => {
+    if (defaultBuyerEmail && !buyerEmail) {
+      setBuyerEmail(defaultBuyerEmail);
+    }
+  }, [defaultBuyerEmail, buyerEmail]);
   const items = cart?.items ?? [];
   const productAmount = useMemo(() => items.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0), [items]);
   const shippingFee = productAmount > 0 && productAmount < FREE_SHIPPING_THRESHOLD ? 3000 : 0;
@@ -90,7 +96,7 @@ export default function CheckoutPage() {
       router.push('/cart');
       return false;
     }
-    if (!receiverName || !receiverPhone || !zipCode || !address || !addressDetail) {
+    if (!receiverName || !receiverPhone || !buyerEmail || !zipCode || !address || !addressDetail) {
       toastError('배송지 정보를 모두 입력해주세요.');
       return false;
     }
@@ -117,6 +123,7 @@ export default function CheckoutPage() {
             id: String(socialAccountId),
             name: receiverName,
             phoneNumber: receiverPhone,
+            email: buyerEmail.trim(),
           },
           customData: {
             orderNo,
@@ -153,6 +160,7 @@ export default function CheckoutPage() {
 
       await createCheckout.mutateAsync({
         orderNo,
+        cartId: cart?.cartId || undefined,
         socialAccountId: socialAccountId!,
         productAmount: orderAmount,
         discountAmount: 0,
@@ -161,6 +169,7 @@ export default function CheckoutPage() {
         earnedPoint,
         receiverName,
         receiverPhone,
+        buyerEmail: buyerEmail.trim(),
         zipCode,
         address,
         addressDetail,
@@ -213,6 +222,10 @@ export default function CheckoutPage() {
                 <span>연락처</span>
                 <input value={receiverPhone} onChange={handleReceiverPhoneChange} inputMode="numeric" placeholder="010-0000-0000" />
               </label>
+              <label>
+                <span>이메일</span>
+                <input value={buyerEmail} onChange={(e) => setBuyerEmail(e.target.value)} inputMode="email" placeholder="email@example.com" />
+              </label>
               <div className={styles.addressSearchField}>
                 <label>
                   <span>우편번호</span>
@@ -229,7 +242,8 @@ export default function CheckoutPage() {
               <label className={styles.fullLine}>
                 <span>상세주소</span>
                 <input ref={addressDetailRef} value={addressDetail} onChange={(e) => setAddressDetail(e.target.value)} placeholder="상세주소를 입력해주세요" />
-              </label><label className={styles.fullLine}>
+              </label>
+              <label className={styles.fullLine}>
                 <span>배송 메모</span>
                 <input value={memo} onChange={(e) => setMemo(e.target.value)} placeholder="배송 요청사항" />
               </label>

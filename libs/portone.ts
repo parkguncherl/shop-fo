@@ -10,6 +10,7 @@ interface RequestPortOnePaymentParams {
     id: string;
     name: string;
     phoneNumber: string;
+    email: string;
   };
   customData?: Record<string, unknown>;
 }
@@ -57,6 +58,7 @@ export const requestPortOnePayment = async ({ paymentId, orderName, totalAmount,
       customerId: customer.id,
       fullName: customer.name,
       phoneNumber: customer.phoneNumber,
+      email: customer.email,
     },
     customData,
     redirectUrl: typeof window === 'undefined' ? undefined : `${window.location.origin}/checkout`,

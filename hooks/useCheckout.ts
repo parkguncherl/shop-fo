@@ -17,6 +17,7 @@ export interface CheckoutOrderItem {
 
 export interface CreateCheckoutPayload {
   orderNo: string;
+  cartId?: number;
   socialAccountId: number;
   productAmount: number;
   discountAmount: number;
@@ -25,6 +26,7 @@ export interface CreateCheckoutPayload {
   earnedPoint: number;
   receiverName: string;
   receiverPhone: string;
+  buyerEmail: string;
   zipCode: string;
   address: string;
   addressDetail: string;
@@ -67,9 +69,11 @@ export const useCreateCheckoutMutation = () => {
       const { data: paymentData } = await authApi.post('/frontWeb/payment', {
         orderId,
         orderNo: payload.orderNo,
+        cartId: payload.cartId,
         paymentId: payload.payment.paymentId,
         totalAmount: payload.payment.totalAmount,
         currency: payload.payment.currency,
+        buyerEmail: payload.buyerEmail,
         details: payload.payment.details,
       });
 
