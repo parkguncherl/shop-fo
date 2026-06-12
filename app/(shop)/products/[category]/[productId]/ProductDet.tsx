@@ -311,9 +311,6 @@ const ProductDet = ({ productId }: { productId: number }) => {
         <button className={styles.cartBtn} onClick={handleAddToCart} disabled={isAdding} aria-label="장바구니 담기">
           {isAdding ? '담는 중...' : '장바구니에 담기'}
         </button>
-        <button className={styles.orderBtn} aria-label="바로 주문하기">
-          주문하기
-        </button>
       </div>
     </div>
   );
