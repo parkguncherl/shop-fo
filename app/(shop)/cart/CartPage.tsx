@@ -25,32 +25,31 @@ export default function CartPage() {
     (async () => {
       const entries = await Promise.all(
         items.map(async (item) => {
-          console.log('[Cart] productImage raw:', item.productImage);
           const url = item.productImage ? await getFileUrl(item.productImage) : null;
-          console.log('[Cart] getFileUrl result:', url);
-          return [item.cartItemId, url] as [number, string | null];
+          return [item.cartId, url] as [number, string | null];
         }),
       );
       const validEntries = entries.filter((entry): entry is [number, string] => entry[1] !== null);
       setImageMap(Object.fromEntries(validEntries));
     })();
-  }, [cart?.items?.map((i) => i.cartItemId).join(',')]);
-  const [checkedIds, setCheckedIds] = useState<Set<number>>(() => new Set(items.map((i) => i.cartItemId)));
+  }, [cart?.items?.map((i) => i.cartId).join(',')]);
+
+  const [checkedIds, setCheckedIds] = useState<Set<number>>(() => new Set(items.map((i) => i.cartId)));
 
   // 새 아이템이 생기면 자동 체크한다.
   React.useEffect(() => {
-    setCheckedIds(new Set(items.map((i) => i.cartItemId)));
+    setCheckedIds(new Set(items.map((i) => i.cartId)));
   }, [items.length]);
 
   /* ── 체크박스 ──────────────────────────────────────────── */
   const isAllChecked = items.length > 0 && checkedIds.size === items.length;
 
-  const toggleAll = () => setCheckedIds(isAllChecked ? new Set() : new Set(items.map((i) => i.cartItemId)));
+  const toggleAll = () => setCheckedIds(isAllChecked ? new Set() : new Set(items.map((i) => i.cartId)));
 
-  const toggleItem = (cartItemId: number) =>
+  const toggleItem = (cartId: number) =>
     setCheckedIds((prev) => {
       const next = new Set(prev);
-      next.has(cartItemId) ? next.delete(cartItemId) : next.add(cartItemId);
+      next.has(cartId) ? next.delete(cartId) : next.add(cartId);
       return next;
     });
 
@@ -65,7 +64,7 @@ export default function CartPage() {
   };
 
   /* ── 선택 합계 ───────────────────────────────────────── */
-  const checkedItems = items.filter((i) => checkedIds.has(i.cartItemId));
+  const checkedItems = items.filter((i) => checkedIds.has(i.cartId));
   const checkedTotal = checkedItems.reduce((s, i) => s + i.unitPrice * i.quantity, 0);
   const checkedCount = checkedItems.reduce((s, i) => s + i.quantity, 0);
   const deliveryFee = checkedTotal > 0 && checkedTotal < 50000 ? 3000 : 0;
@@ -126,17 +125,17 @@ export default function CartPage() {
           {/* 아이템 목록 */}
           <ul className={styles.itemList}>
             {items.map((item) => {
-              const isChecked = checkedIds.has(item.cartItemId);
+              const isChecked = checkedIds.has(item.cartId);
               return (
-                <li key={item.cartItemId} className={`${styles.item} ${!isChecked ? styles.itemDimmed : ''}`}>
+                <li key={item.cartId} className={`${styles.item} ${!isChecked ? styles.itemDimmed : ''}`}>
                   {/* 체크박스 */}
                   <label className={styles.itemCheck}>
-                    <input type="checkbox" checked={isChecked} onChange={() => toggleItem(item.cartItemId)} className={styles.checkbox} />
+                    <input type="checkbox" checked={isChecked} onChange={() => toggleItem(item.cartId)} className={styles.checkbox} />
                   </label>
 
                   {/* 이미지 */}
                   <div className={styles.itemImage}>
-                    {imageMap[item.cartItemId] ? <img src={imageMap[item.cartItemId]} alt={item.productName} /> : <div className={styles.imagePlaceholder} />}
+                    {imageMap[item.cartId] ? <img src={imageMap[item.cartId]} alt={item.productName} /> : <div className={styles.imagePlaceholder} />}
                   </div>
 
                   {/* 상품 정보 */}
@@ -151,12 +150,12 @@ export default function CartPage() {
                       <button
                         className={styles.qtyBtn}
                         disabled={item.quantity <= 1}
-                        onClick={() => updateItem({ cartItemId: item.cartItemId, quantity: item.quantity - 1 })}
+                        onClick={() => updateItem({ cartId: item.cartId, quantity: item.quantity - 1 })}
                       >
                         −
                       </button>
                       <span className={styles.qty}>{item.quantity}</span>
-                      <button className={styles.qtyBtn} onClick={() => updateItem({ cartItemId: item.cartItemId, quantity: item.quantity + 1 })}>
+                      <button className={styles.qtyBtn} onClick={() => updateItem({ cartId: item.cartId, quantity: item.quantity + 1 })}>
                         +
                       </button>
                     </div>
@@ -169,10 +168,10 @@ export default function CartPage() {
                     className={styles.removeBtn}
                     aria-label="삭제"
                     onClick={() => {
-                      removeItem(item.cartItemId);
+                      removeItem(item.cartId);
                       setCheckedIds((prev) => {
                         const n = new Set(prev);
-                        n.delete(item.cartItemId);
+                        n.delete(item.cartId);
                         return n;
                       });
                     }}

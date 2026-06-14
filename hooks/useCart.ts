@@ -14,7 +14,7 @@ export const getGuestId = (): string | null => {
 
 // ── 타입 ──────────────────────────────────────────────────────
 export interface CartItemInfo {
-  cartItemId:      number;
+  cartId:          number;   // TB_CART.id (구 cartItemId)
   productDetId:    number;
   productId:       number;
   productName:     string;
@@ -25,11 +25,9 @@ export interface CartItemInfo {
   quantity:        number;
   unitPrice:       number;
   subtotal:        number;
-  optionsSnapshot: string | null;
 }
 
 export interface CartInfo {
-  cartId:     number;
   items:      CartItemInfo[];
   totalCount: number;
   totalPrice: number;
@@ -37,7 +35,7 @@ export interface CartInfo {
 
 export const CART_QUERY_KEY = ['cart'];
 
-const emptyCart: CartInfo = { cartId: 0, items: [], totalCount: 0, totalPrice: 0 };
+const emptyCart: CartInfo = { items: [], totalCount: 0, totalPrice: 0 };
 
 // ── 장바구니 조회 ─────────────────────────────────────────────
 export const useCartQuery = () => {
@@ -67,10 +65,9 @@ export const useAddCartItem = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (params: {
-      productDetId:     number;
-      quantity:         number;
-      unitPrice:        number;
-      optionsSnapshot?: string;
+      productDetId: number;
+      quantity:     number;
+      unitPrice:    number;
     }) => {
       const guestId = getGuestId();
       const { data } = await publicApi.post('/frontWeb/cart/item', { guestId, ...params });
@@ -84,7 +81,7 @@ export const useAddCartItem = () => {
 export const useUpdateCartItem = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (params: { cartItemId: number; quantity: number }) => {
+    mutationFn: async (params: { cartId: number; quantity: number }) => {
       const { data } = await publicApi.put('/frontWeb/cart/item', params);
       return data?.body;
     },
@@ -96,8 +93,8 @@ export const useUpdateCartItem = () => {
 export const useRemoveCartItem = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (cartItemId: number) => {
-      await publicApi.delete(`/frontWeb/cart/item/${cartItemId}`);
+    mutationFn: async (cartId: number) => {
+      await publicApi.delete(`/frontWeb/cart/item/${cartId}`);
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: CART_QUERY_KEY }),
   });

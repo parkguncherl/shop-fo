@@ -1,9 +1,11 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { authApi } from '@/libs/api';
+import { CART_QUERY_KEY } from '@/hooks/useCart';
 
 export type PaymentMethod = 'CARD' | 'NAVER_PAY' | 'KAKAO_PAY' | 'TOSS_PAY' | 'VIRTUAL_ACCOUNT' | 'BANK_TRANSFER';
 
 export interface CheckoutOrderItem {
+  cartId: number;
   productId: number;
   productDetId: number;
   productName: string;
@@ -17,7 +19,6 @@ export interface CheckoutOrderItem {
 
 export interface CreateCheckoutPayload {
   orderNo: string;
-  cartId?: number;
   socialAccountId: number;
   productAmount: number;
   discountAmount: number;
@@ -37,7 +38,6 @@ export interface CreateCheckoutPayload {
     totalAmount: number;
     currency: 'KRW';
     details: Array<{
-      paymentNo: string;
       payType: 'POINT' | 'PG';
       payMethod: 'POINT' | PaymentMethod;
       amount: number;
@@ -61,23 +61,35 @@ export const usePointBalanceQuery = (socialAccountId?: number) => {
 };
 
 export const useCreateCheckoutMutation = () => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (payload: CreateCheckoutPayload) => {
-      const { data: orderData } = await authApi.post('/frontWeb/order', payload);
-      const orderId = orderData?.body?.orderId ?? orderData?.body?.id;
-
-      const { data: paymentData } = await authApi.post('/frontWeb/payment', {
-        orderId,
+      const { data } = await authApi.post('/frontWeb/checkout', {
         orderNo: payload.orderNo,
-        cartId: payload.cartId,
+        socialAccountId: payload.socialAccountId,
+        productAmount: payload.productAmount,
+        discountAmount: payload.discountAmount,
+        usedPoint: payload.usedPoint,
+        paymentAmount: payload.paymentAmount,
+        earnedPoint: payload.earnedPoint,
+        receiverName: payload.receiverName,
+        receiverPhone: payload.receiverPhone,
+        zipCode: payload.zipCode,
+        address: payload.address,
+        addressDetail: payload.addressDetail,
+        memo: payload.memo,
+        items: payload.items,
         paymentId: payload.payment.paymentId,
         totalAmount: payload.payment.totalAmount,
         currency: payload.payment.currency,
-        buyerEmail: payload.buyerEmail,
         details: payload.payment.details,
       });
 
-      return { order: orderData?.body, payment: paymentData?.body };
+      return data?.body;
+    },
+    onSuccess: () => {
+      // 주문 완료 후 장바구니 캐시 초기화
+      queryClient.invalidateQueries({ queryKey: CART_QUERY_KEY });
     },
   });
 };
