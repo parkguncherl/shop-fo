@@ -3,8 +3,9 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import { useDaumPostcodePopup, type Address } from 'react-daum-postcode';
+import { type Address } from 'react-daum-postcode';
 import OrderSummary from '@/components/checkout/OrderSummary/OrderSummary';
+import AddressSearchModal from '@/components/checkout/AddressSearchModal/AddressSearchModal';
 import PaymentForm from '@/components/checkout/PaymentForm/PaymentForm';
 import DeliveryAddressSelector from '@/components/checkout/DeliveryAddressSelector/DeliveryAddressSelector';
 import Button from '@/components/common/Button/Button';
@@ -30,7 +31,7 @@ export default function CheckoutPage() {
   const { data: pointBalance = 0 } = usePointBalanceQuery(socialAccountId);
   const createCheckout = useCreateCheckoutMutation();
   const saveAddress = useSaveDeliveryAddressMutation();
-  const openPostcode = useDaumPostcodePopup();
+  const [addressModalOpen, setAddressModalOpen] = useState(false);
   const addressDetailRef = useRef<HTMLInputElement>(null);
 
   const { data: savedAddresses = [] } = useDeliveryAddressListQuery(socialAccountId);
@@ -150,18 +151,11 @@ export default function CheckoutPage() {
     setReceiverPhone(formatPhoneNumber(event.target.value));
   };
 
-  const handleSearchAddress = async () => {
-    await openPostcode({
-      popupTitle: '주소 검색',
-      autoClose: true,
-      onComplete: (data: Address) => {
-        const selectedAddress = data.userSelectedType === 'R' ? data.roadAddress : data.jibunAddress;
-        setZipCode(data.zonecode);
-        setAddress(selectedAddress || data.address);
-        window.setTimeout(() => addressDetailRef.current?.focus(), 0);
-      },
-      onError: () => toastError('주소 검색창을 열 수 없습니다. 잠시 후 다시 시도해주세요.'),
-    });
+  const handleAddressComplete = (data: Address) => {
+    const selectedAddress = data.userSelectedType === 'R' ? data.roadAddress : data.jibunAddress;
+    setZipCode(data.zonecode);
+    setAddress(selectedAddress || data.address);
+    window.setTimeout(() => addressDetailRef.current?.focus(), 0);
   };
 
   const summaryItems = items.map((item) => ({
@@ -308,6 +302,12 @@ export default function CheckoutPage() {
   }
 
   return (
+    <>
+    <AddressSearchModal
+      open={addressModalOpen}
+      onClose={() => setAddressModalOpen(false)}
+      onComplete={handleAddressComplete}
+    />
     <main className={styles.page}>
       <header className={styles.header}>
         <h1>주문/결제</h1>
@@ -347,7 +347,7 @@ export default function CheckoutPage() {
                   <span>우편번호</span>
                   <input value={zipCode} readOnly placeholder="우편번호" />
                 </label>
-                <button type="button" className={styles.addressSearchBtn} onClick={handleSearchAddress}>
+                <button type="button" className={styles.addressSearchBtn} onClick={() => setAddressModalOpen(true)}>
                   주소검색
                 </button>
               </div>
@@ -417,5 +417,6 @@ export default function CheckoutPage() {
         </aside>
       </div>
     </main>
+    </>
   );
 }

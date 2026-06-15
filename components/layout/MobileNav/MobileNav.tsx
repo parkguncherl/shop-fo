@@ -38,21 +38,6 @@ const NAV_ITEMS = [
     ),
   },
   {
-    href: '/mypage/wishlist',
-    label: '찜',
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-        <path
-          d="M11 18.5S3 13.5 3 8a5 5 0 019.5-2.2A5 5 0 0119 8c0 5.5-8 10.5-8 10.5z"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    ),
-  },
-  {
     href: '/mypage',
     label: '마이',
     icon: (

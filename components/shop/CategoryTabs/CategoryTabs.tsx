@@ -1,5 +1,5 @@
 'use client';
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import styles from './CategoryTabs.module.scss';
 
@@ -25,7 +25,14 @@ export default function CategoryTabs({ countMap }: CategoryTabsProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const scrollRef = useRef<HTMLDivElement>(null);
+  const activeRef = useRef<HTMLButtonElement>(null);
   const current = searchParams.get('category') ?? '';
+
+  useEffect(() => {
+    if (activeRef.current && scrollRef.current) {
+      activeRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }
+  }, [current]);
 
   const handleTab = (value: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -37,12 +44,20 @@ export default function CategoryTabs({ countMap }: CategoryTabsProps) {
   return (
     <div className={styles.tabs}>
       <div className={styles.scrollArea} ref={scrollRef}>
-        {TABS.map((tab) => (
-          <button key={tab.value} className={`${styles.tab} ${current === tab.value ? styles.active : ''}`} onClick={() => handleTab(tab.value)}>
-            {tab.label}
-            {countMap?.[tab.value] !== undefined && <span className={styles.count}>({countMap[tab.value]})</span>}
-          </button>
-        ))}
+        {TABS.map((tab) => {
+          const isActive = current === tab.value;
+          return (
+            <button
+              key={tab.value}
+              ref={isActive ? activeRef : undefined}
+              className={`${styles.tab} ${isActive ? styles.active : ''}`}
+              onClick={() => handleTab(tab.value)}
+            >
+              {tab.label}
+              {countMap?.[tab.value] !== undefined && <span className={styles.count}>({countMap[tab.value]})</span>}
+            </button>
+          );
+        })}
       </div>
     </div>
   );

@@ -4,6 +4,22 @@
 .tabs {
   border-bottom: 1px solid $color-gray-200;
   background: $color-white;
+  position: relative;
+
+  // 오른쪽 끝 페이드 - 더 스크롤할 수 있음을 암시
+  @include mobile {
+    &::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      width: 40px;
+      background: linear-gradient(to right, transparent, $color-white);
+      pointer-events: none;
+      z-index: 1;
+    }
+  }
 }
 
 .scrollArea {
@@ -12,6 +28,10 @@
   display: flex;
   gap: 0;
   overflow-x: auto;
+
+  @include mobile {
+    padding-right: 40px; // 페이드 영역만큼 여백 확보
+  }
 }
 
 .tab {

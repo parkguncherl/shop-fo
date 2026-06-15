@@ -11,7 +11,7 @@ export const authOptions: NextAuthOptions = {
   providers: [
     KakaoProvider({
       clientId: process.env.KAKAO_CLIENT_ID!,
-      clientSecret: KAKAO_CLIENT_SECRET || undefined,
+      clientSecret: KAKAO_CLIENT_SECRET ?? '',
       client: {
         token_endpoint_auth_method: KAKAO_CLIENT_SECRET ? 'client_secret_post' : 'none',
       },
