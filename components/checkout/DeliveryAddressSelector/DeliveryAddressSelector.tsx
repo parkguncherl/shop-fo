@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { DeliveryAddress, useDeleteDeliveryAddressMutation } from '@/hooks/useDeliveryAddress';
+import { useConfirm } from '@/components/common/ConfirmModal/ConfirmProvider';
 import styles from './DeliveryAddressSelector.module.scss';
 
 interface Props {
@@ -16,6 +17,7 @@ export default function DeliveryAddressSelector({ addresses, socialAccountId, on
     addresses.find((a) => a.isDefault === 'Y')?.id ?? addresses[0]?.id ?? null,
   );
   const deleteMutation = useDeleteDeliveryAddressMutation();
+  const confirm = useConfirm();
 
   const handleSelect = (address: DeliveryAddress) => {
     setSelectedId(address.id);
@@ -24,7 +26,14 @@ export default function DeliveryAddressSelector({ addresses, socialAccountId, on
 
   const handleDelete = async (e: React.MouseEvent, id: number) => {
     e.stopPropagation();
-    if (!confirm('배송지를 삭제하시겠습니까?')) return;
+    const confirmed = await confirm({
+      title: '배송지 삭제',
+      message: '배송지를 삭제하시겠습니까?',
+      description: '삭제한 배송지는 다시 복구할 수 없습니다.',
+      confirmText: '삭제',
+      tone: 'danger',
+    });
+    if (!confirmed) return;
     await deleteMutation.mutateAsync({ id, socialAccountId });
     if (selectedId === id) setSelectedId(null);
   };

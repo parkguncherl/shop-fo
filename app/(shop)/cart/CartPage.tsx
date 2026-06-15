@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { signIn, useSession } from 'next-auth/react';
 import { useCartQuery, useUpdateCartItem, useRemoveCartItem, useClearCart } from '@/hooks/useCart';
 import { toastError } from '@/components/common/Others/ToastMessage';
+import { useConfirm } from '@/components/common/ConfirmModal/ConfirmProvider';
 import { useWebCommonStore } from '@/stores/useWebCommonStore';
 import styles from './CartPage.module.scss';
 
@@ -16,6 +17,7 @@ export default function CartPage() {
   const { mutate: updateItem } = useUpdateCartItem();
   const { mutate: removeItem, isPending: isRemoving } = useRemoveCartItem();
   const { mutate: clearCart, isPending: isClearing } = useClearCart();
+  const confirm = useConfirm();
   const getFileUrl = useWebCommonStore((s) => s.getFileUrl);
 
   const items = cart?.items ?? [];
@@ -56,13 +58,54 @@ export default function CartPage() {
     });
 
   /* ── 선택 삭제 ────────────────────────────────────────── */
-  const handleDeleteChecked = () => {
+  const handleDeleteChecked = async () => {
     if (checkedIds.size === 0) {
       toastError('삭제할 상품을 선택해주세요.');
       return;
     }
+
+    const confirmed = await confirm({
+      title: '선택 상품 삭제',
+      message: `선택한 상품 ${checkedIds.size}개를 삭제하시겠습니까?`,
+      description: '삭제한 상품은 장바구니에서 제거됩니다.',
+      confirmText: '삭제',
+      tone: 'danger',
+    });
+    if (!confirmed) return;
+
     checkedIds.forEach((id) => removeItem(id));
     setCheckedIds(new Set());
+  };
+
+  const handleDeleteItem = async (cartId: number) => {
+    const confirmed = await confirm({
+      title: '상품 삭제',
+      message: '이 상품을 장바구니에서 삭제하시겠습니까?',
+      description: '삭제한 상품은 장바구니에서 제거됩니다.',
+      confirmText: '삭제',
+      tone: 'danger',
+    });
+    if (!confirmed) return;
+
+    removeItem(cartId);
+    setCheckedIds((prev) => {
+      const next = new Set(prev);
+      next.delete(cartId);
+      return next;
+    });
+  };
+
+  const handleClearCart = async () => {
+    const confirmed = await confirm({
+      title: '장바구니 비우기',
+      message: '장바구니의 모든 상품을 삭제하시겠습니까?',
+      description: '장바구니를 비우면 담아둔 상품이 모두 제거됩니다.',
+      confirmText: '비우기',
+      tone: 'danger',
+    });
+    if (!confirmed) return;
+
+    clearCart();
   };
 
   /* ── 선택 합계 ───────────────────────────────────────── */
@@ -183,14 +226,7 @@ export default function CartPage() {
                   <button
                     className={styles.removeBtn}
                     aria-label="삭제"
-                    onClick={() => {
-                      removeItem(item.cartId);
-                      setCheckedIds((prev) => {
-                        const n = new Set(prev);
-                        n.delete(item.cartId);
-                        return n;
-                      });
-                    }}
+                    onClick={() => handleDeleteItem(item.cartId)}
                   >
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                       <path d="M3 3l10 10M13 3L3 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
@@ -201,7 +237,7 @@ export default function CartPage() {
             })}
           </ul>
 
-          <button className={styles.clearBtn} onClick={() => clearCart()} disabled={isClearing}>
+          <button className={styles.clearBtn} onClick={handleClearCart} disabled={isClearing}>
             {isClearing ? '비우는 중...' : '장바구니 비우기'}
           </button>
         </div>

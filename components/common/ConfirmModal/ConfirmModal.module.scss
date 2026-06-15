@@ -1,0 +1,59 @@
+@use '../../../styles/variables' as *;
+@use '../../../styles/mixins' as *;
+
+.content {
+  display: flex;
+  gap: $spacing-md;
+  align-items: flex-start;
+}
+
+.icon {
+  @include flex-center;
+  flex: 0 0 42px;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: $color-gray-100;
+  color: $color-black;
+
+  &.danger {
+    background: #fdecec;
+    color: $color-red;
+  }
+}
+
+.copy {
+  min-width: 0;
+}
+
+.message {
+  margin: 0;
+  color: $color-black;
+  font-size: $font-size-base;
+  font-weight: 600;
+  line-height: 1.55;
+}
+
+.description {
+  margin: $spacing-xs 0 0;
+  color: $color-gray-500;
+  font-size: $font-size-sm;
+  line-height: 1.5;
+}
+
+.footer {
+  display: flex;
+  width: 100%;
+  gap: $spacing-sm;
+  justify-content: flex-end;
+
+  button {
+    min-width: 96px;
+  }
+
+  @include mobile {
+    button {
+      flex: 1;
+    }
+  }
+}

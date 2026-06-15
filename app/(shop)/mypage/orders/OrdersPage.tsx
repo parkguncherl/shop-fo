@@ -8,6 +8,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { authApi } from '@/libs/api';
 import { useWebCommonStore } from '@/stores/useWebCommonStore';
 import { toastError, toastSuccess } from '@/components/common/Others/ToastMessage';
+import { useConfirm } from '@/components/common/ConfirmModal/ConfirmProvider';
 import styles from './OrdersPage.module.scss';
 
 interface OrderHistoryItem {
@@ -190,6 +191,7 @@ export default function OrdersPage() {
   const [fromDate, setFromDate] = useState(defaultFromDate);
   const [toDate, setToDate] = useState(defaultToDate);
   const queryClient = useQueryClient();
+  const confirm = useConfirm();
   const { data: orderData, isLoading, isError, refetch } = useOrderHistoryQuery(socialAccountId, fromDate, toDate);
   const orders = orderData ?? EMPTY_ORDER_HISTORY;
   const getFileUrl = useWebCommonStore((state) => state.getFileUrl);
@@ -250,9 +252,16 @@ export default function OrdersPage() {
     };
   }, [getFileUrl, imageTargets]);
 
-  const handleCancelPayment = (paymentSeq: number) => {
+  const handleCancelPayment = async (paymentSeq: number) => {
     if (cancelPayment.isPending) return;
-    if (!window.confirm('결제를 취소하시겠습니까?')) return;
+    const confirmed = await confirm({
+      title: '결제 취소',
+      message: '결제를 취소하시겠습니까?',
+      description: '취소 후에는 결제 상태와 주문 진행 정보가 변경됩니다.',
+      confirmText: '결제 취소',
+      tone: 'danger',
+    });
+    if (!confirmed) return;
     cancelPayment.mutate(paymentSeq);
   };
 

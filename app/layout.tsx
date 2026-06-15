@@ -3,6 +3,7 @@ import { AntdRegistry } from '@ant-design/nextjs-registry';
 import QueryProvider from '@/provider/QueryProvider';
 import AuthProvider from '@/provider/AuthProvider';
 import ToastProvider from '@/provider/ToastProvider';
+import { ConfirmProvider } from '@/components/common/ConfirmModal/ConfirmProvider';
 import './globals.scss';
 
 export const metadata: Metadata = {
@@ -29,8 +30,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <AuthProvider>
           <QueryProvider>
             <AntdRegistry>
-              {children}
-              <ToastProvider />
+              <ConfirmProvider>
+                {children}
+                <ToastProvider />
+              </ConfirmProvider>
             </AntdRegistry>
           </QueryProvider>
         </AuthProvider>
