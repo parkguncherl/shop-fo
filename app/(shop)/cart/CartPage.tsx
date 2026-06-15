@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { signIn, useSession } from 'next-auth/react';
 import { useCartQuery, useUpdateCartItem, useRemoveCartItem, useClearCart } from '@/hooks/useCart';
 import { toastError } from '@/components/common/Others/ToastMessage';
 import { useWebCommonStore } from '@/stores/useWebCommonStore';
@@ -10,6 +11,7 @@ import styles from './CartPage.module.scss';
 
 export default function CartPage() {
   const router = useRouter();
+  const { status } = useSession();
   const { data: cart, isLoading } = useCartQuery();
   const { mutate: updateItem } = useUpdateCartItem();
   const { mutate: removeItem, isPending: isRemoving } = useRemoveCartItem();
@@ -69,6 +71,20 @@ export default function CartPage() {
   const checkedCount = checkedItems.reduce((s, i) => s + i.quantity, 0);
   const deliveryFee = checkedTotal > 0 && checkedTotal < 50000 ? 3000 : 0;
   const finalTotal = checkedTotal + deliveryFee;
+
+  const handleOrder = () => {
+    if (checkedIds.size === 0) {
+      toastError('주문할 상품을 선택해주세요.');
+      return;
+    }
+
+    if (status === 'authenticated') {
+      router.push('/checkout');
+      return;
+    }
+
+    signIn('kakao', { callbackUrl: '/checkout' });
+  };
 
   /* ── 로딩 ────────────────────────────────────────────── */
   if (isLoading) {
@@ -213,14 +229,8 @@ export default function CartPage() {
 
             <button
               className={styles.orderBtn}
-              disabled={checkedIds.size === 0}
-              onClick={() => {
-                if (checkedIds.size === 0) {
-                  toastError('주문할 상품을 선택해주세요.');
-                  return;
-                }
-                router.push('/checkout');
-              }}
+              disabled={checkedIds.size === 0 || status === 'loading'}
+              onClick={handleOrder}
             >
               주문하기 ({checkedCount}개)
             </button>

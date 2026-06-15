@@ -177,7 +177,7 @@ export default function CheckoutPage() {
   const validate = () => {
     if (status !== 'authenticated' || !socialAccountId) {
       toastError('카카오 로그인 후 주문할 수 있습니다.');
-      router.push('/login');
+      router.push('/login?callbackUrl=/checkout');
       return false;
     }
     if (items.length === 0) {

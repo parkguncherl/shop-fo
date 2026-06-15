@@ -5,7 +5,8 @@ import styles from './page.module.scss';
 
 export default function LoginPage() {
   const handleKakaoLogin = () => {
-    signIn('kakao', { callbackUrl: '/' });
+    const callbackUrl = new URLSearchParams(window.location.search).get('callbackUrl') || '/';
+    signIn('kakao', { callbackUrl });
   };
 
   return (
