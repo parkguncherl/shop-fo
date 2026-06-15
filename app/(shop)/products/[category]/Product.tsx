@@ -2,7 +2,7 @@
 
 import styles from '@/app/(shop)/page.module.scss';
 import { useQuery } from '@tanstack/react-query';
-import { useEffect, useReducer } from 'react';
+import { useEffect, useReducer, useState } from 'react';
 import Link from 'next/link';
 import { ProductRequestProductInfoListFilter, ProductResponseProductInfo } from '@/generated';
 import publicApi from '@/libs/publicApi';
@@ -76,6 +76,7 @@ const Product = (Props: { categoryId: string }) => {
   const [getFileUrl] = useWebCommonStore((s) => [s.getFileUrl]);
   const [isBlocked, timeLeft] = useBlockStore((s) => [s.isBlocked, s.timeLeft]);
   const categoryReady = usePartnerCodeStore((s) => s.categoryReady);
+  const [sort, setSort] = useState<string>('');
 
   /** filters, lastInfo's filters*/
   const [lastInfoFilters, onChangeLastInfoFilters, onLastInfoFiltersReset] = useFilters<ProductRequestProductInfoListFilter>({
@@ -97,6 +98,12 @@ const Product = (Props: { categoryId: string }) => {
     };
   }, [onLastInfoFiltersReset]);
 
+  /** 정렬 변경 시 목록 초기화 */
+  useEffect(() => {
+    onChangeLastInfoFilters('lastId', undefined);
+    dispatchProductInfoListStatus({ type: 'initialize', payload: { infosForInitialize: [] } });
+  }, [sort]);
+
   /** 품목정보 목록 조회 */
   const {
     data: productInfoList,
@@ -104,14 +111,14 @@ const Product = (Props: { categoryId: string }) => {
     // isLoading: isProductInfoListLoading,
     // refetch: productInfoListRefetch,
   } = useQuery({
-    queryKey: ['/frontWeb/product/productInfoListPaging', lastInfoFilters.lastId],
+    queryKey: ['/frontWeb/product/productInfoListPaging', lastInfoFilters.lastId, sort],
     queryFn: () =>
       // 인증 토큰 불필요
       publicApi.get('/frontWeb/product/productInfoListPaging', {
         params: {
-          //curPage: pagingOnProduct.curPage,
           pageRowCount: pagingOnProduct.pageRowCount,
           ...lastInfoFilters,
+          ...(sort ? { sort } : {}),
         },
       }),
     refetchOnMount: 'always',
@@ -189,8 +196,22 @@ const Product = (Props: { categoryId: string }) => {
             <span>동기화 시점까지 {timeLeft} 초</span>
           </div>
         )}
-        <div>
-          <button className={styles.sortBtn}>상품정렬 ▽</button>
+        <div className={styles.sortWrap}>
+          <select
+            className={styles.sortSelect}
+            value={sort}
+            onChange={(e) => setSort(e.target.value)}
+          >
+            <option value="">신상품순</option>
+            <option value="PRICE_ASC">낮은 가격순</option>
+            <option value="PRICE_DESC">높은 가격순</option>
+            <option value="POPULAR">인기순</option>
+          </select>
+          <span className={styles.sortArrow}>
+            <svg width="10" height="6" viewBox="0 0 10 6" fill="none">
+              <path d="M1 1l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </span>
         </div>
       </div>
 
@@ -214,7 +235,7 @@ const Product = (Props: { categoryId: string }) => {
               <div className={styles.priceRow}>
                 {product.discountRate && product.discountRate != 0 && <span className={styles.discount}>{Math.round(product.discountRate || 0)}%</span>}
                 <span className={styles.price}>
-                  {((product.sellAmt || 0) - (product.sellAmt || 0) * Math.round(product.discountRate || 0)).toLocaleString()}원
+                  {((product.sellAmt || 0) - Math.floor((product.sellAmt || 0) * ((product.discountRate || 0) / 100))).toLocaleString()}원
                 </span>
                 {product.sellAmt && product.discountRate && product.discountRate != 0 && (
                   <span className={styles.originalPrice}>{product.sellAmt.toLocaleString()}원</span>

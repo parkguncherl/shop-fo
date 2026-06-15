@@ -1,0 +1,32 @@
+@use '../../../styles/variables' as *;
+@use '../../../styles/mixins' as *;
+
+.header {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 16px 0 12px;
+}
+
+.title {
+  font-size: $font-size-md;
+  font-weight: 700;
+  color: $color-black;
+  margin: 0;
+}
+
+.keyword {
+  color: $color-accent;
+}
+
+.count {
+  font-size: $font-size-sm;
+  color: $color-gray-500;
+}
+
+.empty {
+  padding: 60px 0;
+  text-align: center;
+  font-size: $font-size-base;
+  color: $color-gray-400;
+}
