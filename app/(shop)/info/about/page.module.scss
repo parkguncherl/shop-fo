@@ -1,0 +1,110 @@
+@use '../../../../styles/variables' as *;
+@use '../../../../styles/mixins' as *;
+
+.page {
+  @include container;
+  padding-top: $spacing-lg;
+  padding-bottom: $spacing-2xl;
+}
+
+.header {
+  padding-bottom: $spacing-xl;
+  margin-bottom: $spacing-xl;
+  border-bottom: 2px solid $color-black;
+
+  h1 {
+    margin: $spacing-sm 0 0;
+    color: $color-black;
+    font-size: $font-size-2xl;
+    font-weight: 800;
+    line-height: 1.3;
+  }
+}
+
+.eyebrow {
+  margin: 0;
+  color: $color-accent;
+  font-size: $font-size-xs;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.brand {
+  color: $color-accent;
+}
+
+.featureList {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.featureItem {
+  display: flex;
+  gap: $spacing-lg;
+  align-items: flex-start;
+  padding: $spacing-xl 0;
+  border-bottom: 1px solid $color-gray-200;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.featureMark {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: $color-accent;
+  border-radius: 50%;
+  color: $color-white;
+  font-size: $font-size-lg;
+  font-weight: 800;
+  margin-top: 2px;
+}
+
+.featureBody {
+  flex: 1;
+  min-width: 0;
+
+  h2 {
+    margin: 0 0 $spacing-sm;
+    color: $color-black;
+    font-size: $font-size-xl;
+    font-weight: 800;
+  }
+
+  p {
+    margin: 0;
+    color: $color-gray-600;
+    font-size: $font-size-md;
+    line-height: 1.8;
+
+    strong {
+      color: $color-accent;
+      font-weight: 700;
+    }
+  }
+}
+
+@include mobile {
+  .featureItem {
+    gap: $spacing-md;
+  }
+
+  .featureMark {
+    width: 32px;
+    height: 32px;
+    font-size: $font-size-base;
+  }
+
+  .featureBody h2 {
+    font-size: $font-size-lg;
+  }
+}
