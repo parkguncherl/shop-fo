@@ -1,0 +1,148 @@
+@use '../../../../styles/variables' as *;
+@use '../../../../styles/mixins' as *;
+
+.page {
+  @include container;
+  padding-top: $spacing-lg;
+  padding-bottom: $spacing-2xl;
+}
+
+.header {
+  padding-bottom: $spacing-lg;
+  margin-bottom: $spacing-lg;
+  border-bottom: 2px solid $color-black;
+
+  h1 {
+    margin: 0;
+    color: $color-black;
+    font-size: $font-size-2xl;
+    font-weight: 800;
+  }
+
+  p {
+    max-width: 820px;
+    margin: $spacing-sm 0 0;
+    color: $color-gray-600;
+    font-size: $font-size-base;
+    line-height: 1.7;
+  }
+
+  span {
+    display: inline-block;
+    margin-top: $spacing-md;
+    color: $color-gray-500;
+    font-size: $font-size-sm;
+  }
+}
+
+.eyebrow {
+  margin: 0 0 $spacing-xs !important;
+  color: $color-accent !important;
+  font-size: $font-size-xs !important;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.panel {
+  padding: $spacing-lg 0;
+  border-bottom: 1px solid $color-gray-200;
+
+  h2 {
+    margin: 0 0 $spacing-md;
+    color: $color-black;
+    font-size: $font-size-lg;
+    font-weight: 800;
+  }
+
+  p {
+    margin: 0;
+    color: $color-gray-700;
+    font-size: $font-size-base;
+    line-height: 1.75;
+  }
+}
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: $spacing-sm $spacing-lg;
+  margin: 0;
+
+  div {
+    display: flex;
+    gap: $spacing-sm;
+    min-width: 0;
+  }
+
+  dt {
+    flex: 0 0 auto;
+    color: $color-gray-500;
+    font-size: $font-size-sm;
+    font-weight: 700;
+  }
+
+  dd {
+    min-width: 0;
+    margin: 0;
+    color: $color-black;
+    font-size: $font-size-sm;
+    overflow-wrap: anywhere;
+  }
+
+  @include mobile {
+    grid-template-columns: 1fr;
+  }
+}
+
+.fullLine {
+  grid-column: 1 / -1;
+}
+
+.tableWrap {
+  width: 100%;
+  margin-top: $spacing-md;
+  overflow-x: auto;
+  border: 1px solid $color-gray-200;
+  border-radius: $border-radius-md;
+}
+
+.tableWrap table {
+  width: 100%;
+  min-width: 680px;
+  border-collapse: collapse;
+  background: $color-white;
+}
+
+.tableWrap th,
+.tableWrap td {
+  padding: 13px $spacing-md;
+  border-bottom: 1px solid $color-gray-200;
+  text-align: left;
+  vertical-align: top;
+  font-size: $font-size-sm;
+  line-height: 1.6;
+}
+
+.tableWrap th {
+  background: $color-gray-50;
+  color: $color-black;
+  font-weight: 800;
+}
+
+.tableWrap td {
+  color: $color-gray-700;
+}
+
+.tableWrap tr:last-child td {
+  border-bottom: 0;
+}
+
+.list {
+  display: grid;
+  gap: $spacing-xs;
+  margin: $spacing-md 0 0;
+  padding-left: 18px;
+  color: $color-gray-700;
+  font-size: $font-size-base;
+  line-height: 1.7;
+}
