@@ -17,7 +17,6 @@ const MENU_GROUPS = [
     items: [
       { label: '주문내역',   href: '/mypage/orders' },
       { label: '장바구니',   href: '/cart' },
-      { label: '최근본상품', href: '/mypage/recent' },
     ],
   },
   {
