@@ -1,0 +1,147 @@
+@use '../../../../../styles/variables' as *;
+@use '../../../../../styles/mixins' as *;
+
+.section {
+  margin-top: $spacing-2xl;
+  padding-top: $spacing-xl;
+  border-top: 2px solid $color-black;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: baseline;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-md;
+}
+
+.sectionTitle {
+  font-size: $font-size-lg;
+  font-weight: 700;
+  color: $color-black;
+  margin: 0;
+}
+
+.reviewCount {
+  font-size: $font-size-sm;
+  color: $color-gray-500;
+}
+
+// ── 평균 별점 요약 ─────────────────────────────────────────
+.summary {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: $spacing-md $spacing-lg;
+  background: $color-gray-50;
+  border-radius: $border-radius-md;
+  margin-bottom: $spacing-lg;
+}
+
+.avgScore {
+  font-size: $font-size-xl;
+  font-weight: 700;
+  color: $color-black;
+}
+
+.summaryCount {
+  font-size: $font-size-sm;
+  color: $color-gray-500;
+}
+
+// ── 별점 표시 ──────────────────────────────────────────────
+.starDisplay {
+  display: inline-flex;
+  gap: 1px;
+}
+
+.starOn  { color: #f5a623; }
+.starOff { color: $color-gray-200; }
+
+// ── 빈 상태 ────────────────────────────────────────────────
+.empty {
+  padding: $spacing-2xl 0;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+
+  p {
+    margin: 0;
+    font-size: $font-size-base;
+    font-weight: 600;
+    color: $color-black;
+  }
+
+  span {
+    font-size: $font-size-sm;
+    color: $color-gray-500;
+  }
+}
+
+// ── 리뷰 목록 ──────────────────────────────────────────────
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.card {
+  padding: $spacing-lg 0;
+  border-bottom: 1px solid $color-gray-100;
+
+  &:last-child { border-bottom: none; }
+}
+
+.cardTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-sm;
+}
+
+.date {
+  font-size: $font-size-xs;
+  color: $color-gray-400;
+}
+
+.content {
+  margin: 0;
+  font-size: $font-size-sm;
+  color: $color-gray-700;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+// ── 리뷰 이미지 ────────────────────────────────────────────
+.imageList {
+  display: flex;
+  gap: $spacing-sm;
+  margin-top: $spacing-md;
+  flex-wrap: wrap;
+}
+
+.reviewImage {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: $border-radius-sm;
+  border: 1px solid $color-gray-100;
+}
+
+// ── 스켈레톤 ──────────────────────────────────────────────
+.skeleton {
+  height: 200px;
+  border-radius: $border-radius-md;
+  background: linear-gradient(90deg, $color-gray-100 25%, $color-gray-50 50%, $color-gray-100 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.4s infinite linear;
+}
+
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position:  400px 0; }
+}

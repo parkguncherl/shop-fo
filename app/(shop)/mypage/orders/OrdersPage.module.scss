@@ -392,6 +392,42 @@
   }
 }
 
+.reviewBtn {
+  @include reset-button;
+  display: block;
+  margin-top: $spacing-xs;
+  min-height: 28px;
+  padding: 0 10px;
+  border: 1px solid $color-black;
+  border-radius: $border-radius-sm;
+  background: $color-white;
+  color: $color-black;
+  font-size: $font-size-xs;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+
+  &:hover { background: $color-black; color: $color-white; }
+}
+
+.reviewDoneBtn {
+  @include reset-button;
+  display: block;
+  margin-top: $spacing-xs;
+  min-height: 28px;
+  padding: 0 10px;
+  border: 1px solid $color-gray-300;
+  border-radius: $border-radius-sm;
+  background: $color-white;
+  color: $color-gray-500;
+  font-size: $font-size-xs;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+
+  &:hover { border-color: $color-gray-500; color: $color-gray-700; }
+}
+
 .deliveryBox {
   padding: $spacing-md $spacing-lg $spacing-lg;
   border-top: 1px solid $color-gray-100;

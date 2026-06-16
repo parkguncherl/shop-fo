@@ -8,6 +8,7 @@ import { useWebCommonStore } from '@/stores/useWebCommonStore';
 import { usePartnerCodeStore } from '@/stores/usePartnerCodeStore';
 import { useAddCartItem, useCartQuery } from '@/hooks/useCart';
 import { toastSuccess, toastError } from '@/components/common/Others/ToastMessage';
+import ReviewSection from './ReviewSection';
 import styles from './ProductDet.module.scss';
 import { usePageViewLog } from '@/hooks/usePageViewLog';
 
@@ -312,6 +313,9 @@ const ProductDet = ({ productId }: { productId: number }) => {
           {isAdding ? '담는 중...' : '장바구니에 담기'}
         </button>
       </div>
+
+      {/* ── 구매 후기 ── */}
+      <ReviewSection productId={product.id} />
     </div>
   );
 };

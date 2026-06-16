@@ -9,6 +9,7 @@ import { authApi } from '@/libs/api';
 import { useWebCommonStore } from '@/stores/useWebCommonStore';
 import { toastError, toastSuccess } from '@/components/common/Others/ToastMessage';
 import { useConfirm } from '@/components/common/ConfirmModal/ConfirmProvider';
+import ReviewForm from './ReviewForm';
 import styles from './OrdersPage.module.scss';
 
 interface OrderHistoryItem {
@@ -182,10 +183,19 @@ const useOrderHistoryQuery = (socialAccountId?: number, fromDate?: string, toDat
   });
 };
 
+interface ReviewFormTarget {
+  orderItemId: number;
+  productId: number;
+  productDetId?: number | null;
+  productName: string;
+  existingReview?: { id: number; rating: number; content: string } | null;
+}
+
 export default function OrdersPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
   const socialAccountId = session?.socialAccountId;
+  const [reviewTarget, setReviewTarget] = useState<ReviewFormTarget | null>(null);
   const [draftFromDate, setDraftFromDate] = useState(defaultFromDate);
   const [draftToDate, setDraftToDate] = useState(defaultToDate);
   const [fromDate, setFromDate] = useState(defaultFromDate);
@@ -193,6 +203,20 @@ export default function OrdersPage() {
   const queryClient = useQueryClient();
   const confirm = useConfirm();
   const { data: orderData, isLoading, isError, refetch } = useOrderHistoryQuery(socialAccountId, fromDate, toDate);
+
+  const { data: myReviews } = useQuery<{ id: number; orderItemId: number; rating: number; content: string }[]>({
+    queryKey: ['myReviews', socialAccountId],
+    enabled: Boolean(socialAccountId),
+    queryFn: async () => {
+      const res = await authApi.get('/frontWeb/review/my', { params: { socialAccountId } });
+      return res.data?.body ?? [];
+    },
+  });
+  const reviewedMap = useMemo(() => {
+    const map = new Map<number, { id: number; rating: number; content: string }>();
+    (myReviews ?? []).forEach((r) => map.set(r.orderItemId, { id: r.id, rating: r.rating, content: r.content }));
+    return map;
+  }, [myReviews]);
   const orders = orderData ?? EMPTY_ORDER_HISTORY;
   const getFileUrl = useWebCommonStore((state) => state.getFileUrl);
   const [imageMap, setImageMap] = useState<Record<number, string>>({});
@@ -426,7 +450,39 @@ export default function OrdersPage() {
                         {item.quantity}개 · {formatWon(item.unitPrice)}
                       </span>
                     </div>
-                    <div className={styles.itemAmount}>{formatWon(item.paymentAmount)}</div>
+                    <div className={styles.itemAmount}>
+                      {formatWon(item.paymentAmount)}
+                      {paymentStatus === 'P' && (
+                        reviewedMap.has(item.orderItemId) ? (
+                          <button
+                            type="button"
+                            className={styles.reviewDoneBtn}
+                            onClick={() => setReviewTarget({
+                              orderItemId: item.orderItemId,
+                              productId: item.productId,
+                              productDetId: item.productDetId,
+                              productName: item.productName,
+                              existingReview: reviewedMap.get(item.orderItemId),
+                            })}
+                          >
+                            리뷰 수정
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            className={styles.reviewBtn}
+                            onClick={() => setReviewTarget({
+                              orderItemId: item.orderItemId,
+                              productId: item.productId,
+                              productDetId: item.productDetId,
+                              productName: item.productName,
+                            })}
+                          >
+                            리뷰 작성
+                          </button>
+                        )
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -466,6 +522,18 @@ export default function OrdersPage() {
           );
         })}
       </div>
+
+      {reviewTarget && (
+        <ReviewForm
+          socialAccountId={socialAccountId!}
+          orderItemId={reviewTarget.orderItemId}
+          productId={reviewTarget.productId}
+          productDetId={reviewTarget.productDetId}
+          productName={reviewTarget.productName}
+          existingReview={reviewTarget.existingReview}
+          onClose={() => setReviewTarget(null)}
+        />
+      )}
     </main>
   );
 }
