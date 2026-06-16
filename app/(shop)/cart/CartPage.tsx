@@ -8,6 +8,7 @@ import { useCartQuery, useUpdateCartItem, useRemoveCartItem, useClearCart } from
 import { toastError } from '@/components/common/Others/ToastMessage';
 import { useConfirm } from '@/components/common/ConfirmModal/ConfirmProvider';
 import { useWebCommonStore } from '@/stores/useWebCommonStore';
+import PointHistory from './PointHistory';
 import styles from './CartPage.module.scss';
 
 export default function CartPage() {
@@ -281,6 +282,8 @@ export default function CartPage() {
           </div>
         </div>
       </div>
+
+      <PointHistory />
     </div>
   );
 }

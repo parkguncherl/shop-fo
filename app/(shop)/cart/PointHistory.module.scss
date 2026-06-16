@@ -1,0 +1,195 @@
+@use '../../../styles/variables' as *;
+@use '../../../styles/mixins' as *;
+
+.wrap {
+  margin-top: $spacing-xl;
+  border: 1px solid $color-gray-200;
+  border-radius: $border-radius-md;
+  overflow: hidden;
+}
+
+// ── 토글 버튼 ──────────────────────────────────────────────
+.toggle {
+  @include reset-button;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: $spacing-md $spacing-lg;
+  background: $color-gray-50;
+  cursor: pointer;
+  transition: background $transition-fast;
+
+  &:hover {
+    background: $color-gray-100;
+  }
+}
+
+.toggleLabel {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  font-size: $font-size-base;
+  font-weight: 700;
+  color: $color-black;
+  flex: 1;
+}
+
+.balanceBadge {
+  font-size: $font-size-sm;
+  font-weight: 700;
+  color: #157a3b;
+  background: #eef8f1;
+  padding: 2px 10px;
+  border-radius: 999px;
+}
+
+.arrow {
+  color: $color-gray-500;
+  transition: transform $transition-fast;
+  flex-shrink: 0;
+}
+
+.arrowOpen {
+  transform: rotate(180deg);
+}
+
+// ── 펼쳐진 패널 ────────────────────────────────────────────
+.panel {
+  padding: $spacing-md $spacing-lg $spacing-lg;
+  background: $color-white;
+  border-top: 1px solid $color-gray-100;
+}
+
+.skeleton {
+  height: 120px;
+  border-radius: $border-radius-sm;
+  background: linear-gradient(90deg, $color-gray-100 25%, $color-gray-50 50%, $color-gray-100 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.4s infinite linear;
+}
+
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position:  400px 0; }
+}
+
+.empty {
+  text-align: center;
+  padding: $spacing-lg 0;
+  color: $color-gray-500;
+  font-size: $font-size-sm;
+  margin: 0;
+}
+
+// ── 잔액 행 ────────────────────────────────────────────────
+.balanceRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: $spacing-sm 0 $spacing-md;
+  border-bottom: 1px solid $color-gray-100;
+  margin-bottom: $spacing-sm;
+
+  span {
+    font-size: $font-size-sm;
+    color: $color-gray-600;
+  }
+
+  strong {
+    font-size: $font-size-lg;
+    font-weight: 700;
+    color: #157a3b;
+  }
+}
+
+// ── 내역 목록 ──────────────────────────────────────────────
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: $spacing-md;
+  padding: $spacing-sm 0;
+  border-bottom: 1px solid $color-gray-100;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  @include mobile {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: $spacing-xs;
+  }
+}
+
+.rowLeft {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  min-width: 0;
+}
+
+.typeBadge {
+  flex-shrink: 0;
+  font-size: $font-size-xs;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.earn {
+  background: #eef8f1;
+  color: #157a3b;
+}
+
+.use {
+  background: $color-gray-100;
+  color: $color-gray-600;
+}
+
+.desc {
+  font-size: $font-size-sm;
+  color: $color-gray-700;
+  @include line-clamp(1);
+}
+
+.rowRight {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  flex-shrink: 0;
+
+  @include mobile {
+    flex-direction: row;
+    align-items: center;
+    gap: $spacing-sm;
+  }
+}
+
+.amount {
+  font-size: $font-size-base;
+  font-weight: 700;
+}
+
+.amountEarn {
+  color: #157a3b;
+}
+
+.amountUse {
+  color: $color-gray-700;
+}
+
+.date {
+  font-size: $font-size-xs;
+  color: $color-gray-400;
+}
