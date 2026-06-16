@@ -41,6 +41,7 @@ export const authOptions: NextAuthOptions = {
             nickname: data.body.nickname,
             profileImage: data.body.profileImage,
             email: data.body.email,
+            partnerId: data.body.partnerId ?? null,
           };
           return true;
         }
@@ -65,6 +66,7 @@ export const authOptions: NextAuthOptions = {
       session.provider = token.provider as string;
       session.socialAccountId = shopToken?.socialAccountId;
       session.email = shopToken?.email;
+      session.partnerId = shopToken?.partnerId ?? null;
       if (session.user && shopToken) {
         session.user.name = shopToken.nickname;
         session.user.image = shopToken.profileImage;

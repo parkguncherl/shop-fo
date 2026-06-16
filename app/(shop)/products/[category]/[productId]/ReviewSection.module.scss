@@ -116,20 +116,129 @@
   word-break: break-word;
 }
 
-// ── 리뷰 이미지 ────────────────────────────────────────────
-.imageList {
-  display: flex;
-  gap: $spacing-sm;
+// ── 리뷰 이미지 스와이퍼 ──────────────────────────────────
+.swiper {
   margin-top: $spacing-md;
-  flex-wrap: wrap;
+  position: relative;
+  border-radius: $border-radius-md;
+  overflow: hidden;
+  max-width: 33.333%;
 }
 
-.reviewImage {
-  width: 80px;
-  height: 80px;
+.swiperTrack {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  @include hidden-scrollbar;
+}
+
+.swiperSlide {
+  flex-shrink: 0;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  scroll-snap-align: start;
+  overflow: hidden;
+  background: $color-gray-100;
+}
+
+.swiperImg {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
+  cursor: zoom-in;
+  display: block;
+  transition: opacity $transition-fast;
+
+  &:hover { opacity: 0.92; }
+}
+
+// 이전/다음 버튼
+.navBtn {
+  @include reset-button;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.88);
+  border-radius: 50%;
+  @include flex-center;
+  color: $color-black;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+  cursor: pointer;
+  z-index: 1;
+  transition: background $transition-fast;
+
+  &:hover { background: $color-white; }
+}
+
+.navPrev { left: 8px; }
+.navNext { right: 8px; }
+
+.dots {
+  position: absolute;
+  bottom: 8px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+}
+
+.dot {
+  @include reset-button;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.55);
+  cursor: pointer;
+  transition: background $transition-fast, transform $transition-fast;
+}
+
+.dotActive {
+  background: $color-white;
+  transform: scale(1.3);
+}
+
+// ── 라이트박스 ─────────────────────────────────────────────
+.lightboxOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.92);
+  z-index: $z-modal;
+  @include flex-center;
+  animation: fadeIn 0.2s ease;
+  cursor: zoom-out;
+}
+
+.lightboxImg {
+  max-width: 92vw;
+  max-height: 88vh;
+  object-fit: contain;
   border-radius: $border-radius-sm;
-  border: 1px solid $color-gray-100;
+}
+
+.lightboxClose {
+  @include reset-button;
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  width: 40px;
+  height: 40px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 50%;
+  @include flex-center;
+  color: $color-white;
+  cursor: pointer;
+  transition: background $transition-fast;
+
+  &:hover { background: rgba(255,255,255,0.25); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 // ── 스켈레톤 ──────────────────────────────────────────────

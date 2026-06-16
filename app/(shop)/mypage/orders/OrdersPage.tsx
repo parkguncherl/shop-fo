@@ -188,7 +188,7 @@ interface ReviewFormTarget {
   productId: number;
   productDetId?: number | null;
   productName: string;
-  existingReview?: { id: number; rating: number; content: string } | null;
+  existingReview?: { id: number; rating: number; content: string; fileId?: number | null } | null;
 }
 
 export default function OrdersPage() {
@@ -204,7 +204,7 @@ export default function OrdersPage() {
   const confirm = useConfirm();
   const { data: orderData, isLoading, isError, refetch } = useOrderHistoryQuery(socialAccountId, fromDate, toDate);
 
-  const { data: myReviews } = useQuery<{ id: number; orderItemId: number; rating: number; content: string }[]>({
+  const { data: myReviews } = useQuery<{ id: number; orderItemId: number; rating: number; content: string; fileId?: number | null }[]>({
     queryKey: ['myReviews', socialAccountId],
     enabled: Boolean(socialAccountId),
     queryFn: async () => {
@@ -213,8 +213,8 @@ export default function OrdersPage() {
     },
   });
   const reviewedMap = useMemo(() => {
-    const map = new Map<number, { id: number; rating: number; content: string }>();
-    (myReviews ?? []).forEach((r) => map.set(r.orderItemId, { id: r.id, rating: r.rating, content: r.content }));
+    const map = new Map<number, { id: number; rating: number; content: string; fileId?: number | null }>();
+    (myReviews ?? []).forEach((r) => map.set(r.orderItemId, { id: r.id, rating: r.rating, content: r.content, fileId: r.fileId }));
     return map;
   }, [myReviews]);
   const orders = orderData ?? EMPTY_ORDER_HISTORY;

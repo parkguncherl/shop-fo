@@ -12,6 +12,7 @@ declare module 'next-auth' {
     token: JwtAuthToken;
     provider?: string;
     socialAccountId?: number;
+    partnerId?: number | null;
     email?: string;
     error?: string;
   }

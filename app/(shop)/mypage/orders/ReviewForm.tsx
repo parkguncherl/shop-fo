@@ -1,10 +1,13 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { authApi } from '@/libs/api';
 import { toastSuccess, toastError } from '@/components/common/Others/ToastMessage';
+import { useWebCommonStore } from '@/stores/useWebCommonStore';
 import styles from './ReviewForm.module.scss';
+
+const MAX_IMAGES = 5;
 
 interface ReviewFormProps {
   socialAccountId: number;
@@ -16,6 +19,7 @@ interface ReviewFormProps {
     id: number;
     rating: number;
     content: string;
+    fileId?: number | null;
   } | null;
   onClose: () => void;
 }
@@ -33,10 +37,17 @@ export default function ReviewForm({
 }: ReviewFormProps) {
   const queryClient = useQueryClient();
   const isEdit = Boolean(existingReview);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { selectFileList, getFileUrl } = useWebCommonStore();
 
   const [rating, setRating] = useState(existingReview?.rating ?? 5);
   const [hoverRating, setHoverRating] = useState(0);
   const [content, setContent] = useState(existingReview?.content ?? '');
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+
+  // 수정 모드: 기존 이미지 URL (서버에 이미 저장된 이미지)
+  const [existingImageUrls, setExistingImageUrls] = useState<string[]>([]);
 
   // 배경 스크롤 잠금
   useEffect(() => {
@@ -44,13 +55,62 @@ export default function ReviewForm({
     return () => { document.body.style.overflow = ''; };
   }, []);
 
+  // 수정 모드에서 기존 이미지 로드
+  useEffect(() => {
+    if (!isEdit || !existingReview?.fileId) return;
+    (async () => {
+      const files = await selectFileList(existingReview.fileId!);
+      const urls = await Promise.all(
+        files.map((f) => f.sysFileNm ? getFileUrl(f.sysFileNm) : Promise.resolve(''))
+      );
+      setExistingImageUrls(urls.filter(Boolean));
+    })();
+  }, []);
+
+  // 미리보기 URL 정리
+  useEffect(() => {
+    return () => { previewUrls.forEach((url) => URL.revokeObjectURL(url)); };
+  }, [previewUrls]);
+
+  const totalImageCount = existingImageUrls.length + imageFiles.length;
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? []);
+    const remaining = MAX_IMAGES - totalImageCount;
+    if (remaining <= 0) return;
+    const accepted = files.slice(0, remaining);
+    setImageFiles((prev) => [...prev, ...accepted]);
+    setPreviewUrls((prev) => [...prev, ...accepted.map((f) => URL.createObjectURL(f))]);
+    e.target.value = '';
+  };
+
+  const removeImage = (index: number) => {
+    URL.revokeObjectURL(previewUrls[index]);
+    setImageFiles((prev) => prev.filter((_, i) => i !== index));
+    setPreviewUrls((prev) => prev.filter((_, i) => i !== index));
+  };
+
   const mutation = useMutation({
     mutationFn: async () => {
+      // 이미지가 있으면 먼저 업로드해서 fileId 획득
+      let fileId: number | undefined = existingReview?.fileId ?? undefined;
+      if (imageFiles.length > 0) {
+        const formData = new FormData();
+        formData.append('fileId', String(fileId ?? 0));
+        imageFiles.forEach((f) => formData.append('uploadFiles', f));
+        const uploadRes = await authApi.post('/frontWeb/webCommon/imgfile/uploads', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+          timeout: 30000,
+        });
+        fileId = uploadRes.data?.body ?? fileId;
+      }
+
       if (isEdit && existingReview) {
         const { data } = await authApi.put(`/frontWeb/review/${existingReview.id}`, {
           socialAccountId,
           rating,
           content,
+          fileId,
         });
         return data?.body;
       } else {
@@ -61,6 +121,7 @@ export default function ReviewForm({
           productDetId,
           rating,
           content,
+          fileId,
         });
         return data?.body;
       }
@@ -78,8 +139,8 @@ export default function ReviewForm({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (content.trim().length < 10) {
-      toastError('리뷰 내용을 10자 이상 입력해주세요.');
+    if (content.trim().length < 3) {
+      toastError('리뷰 내용을 3자 이상 입력해주세요.');
       return;
     }
     mutation.mutate();
@@ -123,6 +184,47 @@ export default function ReviewForm({
             </div>
           </div>
 
+          {/* 이미지 업로드 */}
+          <div className={styles.imageUploadWrap}>
+            <span className={styles.label}>사진 첨부 <span className={styles.labelSub}>(선택 · 최대 {MAX_IMAGES}장)</span></span>
+            <div className={styles.imagePreviewList}>
+              {/* 기존 이미지 (수정 모드) */}
+              {existingImageUrls.map((url, i) => (
+                <div key={`existing-${i}`} className={`${styles.previewItem} ${styles.existingItem}`}>
+                  <img src={url} alt={`기존 이미지 ${i + 1}`} className={styles.previewImg} />
+                  <span className={styles.existingBadge}>저장됨</span>
+                </div>
+              ))}
+              {/* 새로 추가한 이미지 */}
+              {previewUrls.map((url, i) => (
+                <div key={`new-${i}`} className={styles.previewItem}>
+                  <img src={url} alt={`미리보기 ${i + 1}`} className={styles.previewImg} />
+                  <button type="button" className={styles.removeBtn} onClick={() => removeImage(i)} aria-label="이미지 삭제">
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                      <path d="M1 1l10 10M11 1L1 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                    </svg>
+                  </button>
+                </div>
+              ))}
+              {totalImageCount < MAX_IMAGES && (
+                <button type="button" className={styles.addImageBtn} onClick={() => fileInputRef.current?.click()}>
+                  <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                    <path d="M11 4v14M4 11h14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                  </svg>
+                  <span>{totalImageCount}/{MAX_IMAGES}</span>
+                </button>
+              )}
+            </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              multiple
+              className={styles.hiddenInput}
+              onChange={handleImageChange}
+            />
+          </div>
+
           {/* 내용 */}
           <div className={styles.contentWrap}>
             <label className={styles.label} htmlFor="review-content">
@@ -131,7 +233,7 @@ export default function ReviewForm({
             <textarea
               id="review-content"
               className={styles.textarea}
-              placeholder="상품에 대한 솔직한 리뷰를 작성해주세요. (최소 10자)"
+              placeholder="상품에 대한 솔직한 리뷰를 작성해주세요. (최소 3자)"
               value={content}
               onChange={(e) => setContent(e.target.value)}
               maxLength={1000}

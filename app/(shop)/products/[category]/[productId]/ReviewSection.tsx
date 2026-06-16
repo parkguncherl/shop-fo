@@ -1,10 +1,83 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import publicApi from '@/libs/publicApi';
 import { useWebCommonStore } from '@/stores/useWebCommonStore';
 import styles from './ReviewSection.module.scss';
+
+function ReviewImageSwiper({ images }: { images: string[] }) {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [lightbox, setLightbox] = useState<string | null>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+
+  const goTo = (idx: number) => {
+    const el = trackRef.current;
+    if (!el) return;
+    el.scrollTo({ left: el.offsetWidth * idx, behavior: 'smooth' });
+    setActiveIndex(idx);
+  };
+
+  const handleScroll = () => {
+    const el = trackRef.current;
+    if (!el) return;
+    setActiveIndex(Math.round(el.scrollLeft / el.offsetWidth));
+  };
+
+  return (
+    <>
+      <div className={styles.swiper}>
+        <div className={styles.swiperTrack} ref={trackRef} onScroll={handleScroll}>
+          {images.map((src, i) => (
+            <div key={i} className={styles.swiperSlide}>
+              <img
+                src={src}
+                alt={`리뷰 이미지 ${i + 1}`}
+                className={styles.swiperImg}
+                onClick={() => setLightbox(src)}
+              />
+            </div>
+          ))}
+        </div>
+
+        {images.length > 1 && (
+          <>
+            {activeIndex > 0 && (
+              <button className={`${styles.navBtn} ${styles.navPrev}`} onClick={() => goTo(activeIndex - 1)} aria-label="이전">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </button>
+            )}
+            {activeIndex < images.length - 1 && (
+              <button className={`${styles.navBtn} ${styles.navNext}`} onClick={() => goTo(activeIndex + 1)} aria-label="다음">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M6 3l5 5-5 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </button>
+            )}
+            <div className={styles.dots}>
+              {images.map((_, i) => (
+                <button key={i} className={`${styles.dot} ${i === activeIndex ? styles.dotActive : ''}`} onClick={() => goTo(i)} aria-label={`${i + 1}번 이미지`} />
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+
+      {lightbox && (
+        <div className={styles.lightboxOverlay} onClick={() => setLightbox(null)}>
+          <img src={lightbox} alt="리뷰 이미지 확대" className={styles.lightboxImg} />
+          <button className={styles.lightboxClose} onClick={() => setLightbox(null)} aria-label="닫기">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <path d="M18 6L6 18M6 6l12 12" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+            </svg>
+          </button>
+        </div>
+      )}
+    </>
+  );
+}
 
 interface ReviewItem {
   id: number;
@@ -41,7 +114,7 @@ const StarDisplay = ({ rating, size = 16 }: { rating: number; size?: number }) =
 );
 
 export default function ReviewSection({ productId }: { productId: number }) {
-  const selectFileList = useWebCommonStore((s) => s.selectFileList);
+  const { selectFileList, getFileUrl } = useWebCommonStore();
   const [imageMap, setImageMap] = useState<Record<number, string[]>>({});
 
   const { data, isLoading } = useQuery<ProductReviewData>({
@@ -57,7 +130,7 @@ export default function ReviewSection({ productId }: { productId: number }) {
   const avgRating = data?.avgRating ?? 0;
   const reviewCount = data?.reviewCount ?? 0;
 
-  // 리뷰 이미지 로드
+  // 리뷰 이미지 로드 — sysFileNm → getFileUrl() 로 presigned URL 변환
   useEffect(() => {
     if (!reviews.length) return;
     const reviewsWithFile = reviews.filter((r) => r.fileId);
@@ -67,8 +140,10 @@ export default function ReviewSection({ productId }: { productId: number }) {
       const entries = await Promise.all(
         reviewsWithFile.map(async (r) => {
           const files = await selectFileList(r.fileId!);
-          const urls = files.map((f) => f.sysFileNm ?? '').filter(Boolean);
-          return [r.id, urls] as [number, string[]];
+          const urls = await Promise.all(
+            files.map((f) => f.sysFileNm ? getFileUrl(f.sysFileNm) : Promise.resolve(''))
+          );
+          return [r.id, urls.filter(Boolean)] as [number, string[]];
         }),
       );
       setImageMap(Object.fromEntries(entries));
@@ -118,11 +193,7 @@ export default function ReviewSection({ productId }: { productId: number }) {
                 </div>
                 <p className={styles.content}>{review.content}</p>
                 {images.length > 0 && (
-                  <div className={styles.imageList}>
-                    {images.map((src, i) => (
-                      <img key={i} src={src} alt={`리뷰 이미지 ${i + 1}`} className={styles.reviewImage} />
-                    ))}
-                  </div>
+                  <ReviewImageSwiper images={images} />
                 )}
               </li>
             );
