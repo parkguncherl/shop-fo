@@ -12,6 +12,7 @@
   align-items: baseline;
   gap: $spacing-sm;
   margin-bottom: $spacing-md;
+  padding-inline: $spacing-md;
 }
 
 .sectionTitle {
@@ -89,7 +90,7 @@
 }
 
 .card {
-  padding: $spacing-lg 0;
+  padding: $spacing-lg $spacing-md;
   border-bottom: 1px solid $color-gray-100;
 
   &:last-child { border-bottom: none; }
@@ -131,8 +132,10 @@
   -webkit-overflow-scrolling: touch;
   @include hidden-scrollbar;
   // 양옆 15% padding으로 인접 슬라이드가 살짝 보이게
-  padding-inline: 15%;
-  scroll-padding-inline: 15%;
+  padding-inline-start: $spacing-md;
+  padding-inline-end: 15%;
+  scroll-padding-inline-start: $spacing-md;
+  scroll-padding-inline-end: 15%;
   box-sizing: border-box;
 }
 
