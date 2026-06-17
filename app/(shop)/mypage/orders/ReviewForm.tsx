@@ -3,8 +3,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { authApi } from '@/libs/api';
+import publicApi from '@/libs/publicApi';
 import { toastSuccess, toastError } from '@/components/common/Others/ToastMessage';
 import { useWebCommonStore } from '@/stores/useWebCommonStore';
+import { FileDet } from '@/generated';
 import styles from './ReviewForm.module.scss';
 
 const MAX_IMAGES = 5;
@@ -46,8 +48,8 @@ export default function ReviewForm({
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
 
-  // 수정 모드: 기존 이미지 URL (서버에 이미 저장된 이미지)
-  const [existingImageUrls, setExistingImageUrls] = useState<string[]>([]);
+  // 수정 모드: 기존 이미지 (FileDet + presigned URL)
+  const [existingImages, setExistingImages] = useState<{ fileDet: FileDet; url: string }[]>([]);
 
   // 배경 스크롤 잠금
   useEffect(() => {
@@ -60,10 +62,13 @@ export default function ReviewForm({
     if (!isEdit || !existingReview?.fileId) return;
     (async () => {
       const files = await selectFileList(existingReview.fileId!);
-      const urls = await Promise.all(
-        files.map((f) => f.sysFileNm ? getFileUrl(f.sysFileNm) : Promise.resolve(''))
+      const entries = await Promise.all(
+        files.map(async (f) => {
+          const url = f.sysFileNm ? await getFileUrl(f.sysFileNm) : '';
+          return url ? { fileDet: f, url } : null;
+        })
       );
-      setExistingImageUrls(urls.filter(Boolean));
+      setExistingImages(entries.filter(Boolean) as { fileDet: FileDet; url: string }[]);
     })();
   }, []);
 
@@ -72,7 +77,18 @@ export default function ReviewForm({
     return () => { previewUrls.forEach((url) => URL.revokeObjectURL(url)); };
   }, [previewUrls]);
 
-  const totalImageCount = existingImageUrls.length + imageFiles.length;
+  const totalImageCount = existingImages.length + imageFiles.length;
+
+  const removeExistingImage = async (index: number) => {
+    const target = existingImages[index];
+    if (!target) return;
+    try {
+      await publicApi.delete(`/frontWeb/webCommon/fileDet/${target.fileDet.id}`);
+      setExistingImages((prev) => prev.filter((_, i) => i !== index));
+    } catch {
+      toastError('이미지 삭제 중 오류가 발생했습니다.');
+    }
+  };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
@@ -92,11 +108,13 @@ export default function ReviewForm({
 
   const mutation = useMutation({
     mutationFn: async () => {
-      // 이미지가 있으면 먼저 업로드해서 fileId 획득
-      let fileId: number | undefined = existingReview?.fileId ?? undefined;
+      // 기존 이미지가 남아있으면 같은 fileId 유지, 전부 삭제됐으면 null
+      const keepExisting = existingImages.length > 0;
+      let fileId: number | null | undefined = keepExisting ? (existingReview?.fileId ?? undefined) : null;
+
       if (imageFiles.length > 0) {
         const formData = new FormData();
-        formData.append('fileId', String(fileId ?? 0));
+        formData.append('fileId', String(keepExisting ? (existingReview?.fileId ?? 0) : 0));
         imageFiles.forEach((f) => formData.append('uploadFiles', f));
         const uploadRes = await authApi.post('/frontWeb/webCommon/imgfile/uploads', formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
@@ -188,11 +206,20 @@ export default function ReviewForm({
           <div className={styles.imageUploadWrap}>
             <span className={styles.label}>사진 첨부 <span className={styles.labelSub}>(선택 · 최대 {MAX_IMAGES}장)</span></span>
             <div className={styles.imagePreviewList}>
-              {/* 기존 이미지 (수정 모드) */}
-              {existingImageUrls.map((url, i) => (
+              {/* 기존 이미지 (수정 모드) — X 클릭 시 즉시 TB_FILE_DET 삭제 */}
+              {existingImages.map(({ url }, i) => (
                 <div key={`existing-${i}`} className={`${styles.previewItem} ${styles.existingItem}`}>
                   <img src={url} alt={`기존 이미지 ${i + 1}`} className={styles.previewImg} />
-                  <span className={styles.existingBadge}>저장됨</span>
+                  <button
+                    type="button"
+                    className={styles.removeBtn}
+                    onClick={() => removeExistingImage(i)}
+                    aria-label="기존 이미지 삭제"
+                  >
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                      <path d="M1 1l10 10M11 1L1 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                    </svg>
+                  </button>
                 </div>
               ))}
               {/* 새로 추가한 이미지 */}

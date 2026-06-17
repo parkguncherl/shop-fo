@@ -120,9 +120,8 @@
 .swiper {
   margin-top: $spacing-md;
   position: relative;
-  border-radius: $border-radius-md;
+  // 트랙보다 좁게 잘라서 양옆 슬라이드가 살짝 보이게
   overflow: hidden;
-  max-width: 33.333%;
 }
 
 .swiperTrack {
@@ -131,14 +130,21 @@
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
   @include hidden-scrollbar;
+  // 양옆 15% padding으로 인접 슬라이드가 살짝 보이게
+  padding-inline: 15%;
+  scroll-padding-inline: 15%;
+  box-sizing: border-box;
 }
 
 .swiperSlide {
   flex-shrink: 0;
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  scroll-snap-align: start;
+  // 중앙 슬라이드를 크게: 컨테이너의 70% 너비
+  width: calc(70% - $spacing-sm * 2);
+  margin-inline: $spacing-sm;
+  aspect-ratio: 1 / 1;
+  scroll-snap-align: center;
   overflow: hidden;
+  border-radius: $border-radius-sm;
   background: $color-gray-100;
 }
 

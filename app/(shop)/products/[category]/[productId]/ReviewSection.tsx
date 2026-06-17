@@ -11,17 +11,31 @@ function ReviewImageSwiper({ images }: { images: string[] }) {
   const [lightbox, setLightbox] = useState<string | null>(null);
   const trackRef = useRef<HTMLDivElement>(null);
 
+  // 슬라이드 1개 너비(margin 포함)를 기준으로 스크롤
+  const getSlideWidth = () => {
+    const el = trackRef.current;
+    if (!el) return 0;
+    const slide = el.querySelector<HTMLElement>(`.${styles.swiperSlide}`);
+    if (!slide) return 0;
+    const style = getComputedStyle(slide);
+    return slide.offsetWidth + parseFloat(style.marginLeft) + parseFloat(style.marginRight);
+  };
+
   const goTo = (idx: number) => {
     const el = trackRef.current;
     if (!el) return;
-    el.scrollTo({ left: el.offsetWidth * idx, behavior: 'smooth' });
+    const slideWidth = getSlideWidth();
+    // padding-inline 만큼 오프셋 보정하여 중앙 슬라이드 정렬
+    el.scrollTo({ left: slideWidth * idx, behavior: 'smooth' });
     setActiveIndex(idx);
   };
 
   const handleScroll = () => {
     const el = trackRef.current;
     if (!el) return;
-    setActiveIndex(Math.round(el.scrollLeft / el.offsetWidth));
+    const slideWidth = getSlideWidth();
+    if (slideWidth === 0) return;
+    setActiveIndex(Math.round(el.scrollLeft / slideWidth));
   };
 
   return (
