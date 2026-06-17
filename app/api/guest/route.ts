@@ -6,13 +6,28 @@ export async function GET() {
   return NextResponse.json({ ok: true });
 }
 
+function decodeJwtPayload(token: string): Record<string, unknown> | null {
+  try {
+    const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+    const padded = base64.padEnd(base64.length + (4 - base64.length % 4) % 4, '=');
+    return JSON.parse(Buffer.from(padded, 'base64').toString('utf-8'));
+  } catch {
+    return null;
+  }
+}
+
 export async function POST(request: NextRequest) {
   console.log('NEXT_PUBLIC_SHOP_API_ENDPOINT ===>', process.env.NEXT_PUBLIC_SHOP_API_ENDPOINT); // ← 추가
   const cookieStore = await cookies();
   const existingToken = cookieStore.get(COOKIE_KEYS.GUEST_TOKEN);
 
   if (existingToken) {
-    return NextResponse.json({ guestToken: existingToken.value });
+    const payload = decodeJwtPayload(existingToken.value);
+    // partnerId 가 없는 구 토큰은 재발급
+    if (payload && payload.partnerId !== undefined) {
+      return NextResponse.json({ guestToken: existingToken.value });
+    }
+    console.log('구 토큰 감지 (partnerId 없음) — 재발급 진행');
   }
 
   const xForwardedFor = request.headers.get('x-forwarded-for') ?? '';
