@@ -428,6 +428,23 @@
   &:hover { border-color: $color-gray-500; color: $color-gray-700; }
 }
 
+.inquiryBtn {
+  @include reset-button;
+  min-height: 28px;
+  padding: 0 10px;
+  border: 1px solid $color-gray-300;
+  border-radius: $border-radius-sm;
+  background: $color-white;
+  color: $color-gray-600;
+  font-size: $font-size-xs;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color $transition-fast, color $transition-fast;
+
+  &:hover { border-color: $color-black; color: $color-black; }
+}
+
 .deliveryBox {
   padding: $spacing-md $spacing-lg $spacing-lg;
   border-top: 1px solid $color-gray-100;

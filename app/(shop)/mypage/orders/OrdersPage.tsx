@@ -10,6 +10,7 @@ import { useWebCommonStore } from '@/stores/useWebCommonStore';
 import { toastError, toastSuccess } from '@/components/common/Others/ToastMessage';
 import { useConfirm } from '@/components/common/ConfirmModal/ConfirmProvider';
 import ReviewForm from './ReviewForm';
+import ComuChat from './ComuChat';
 import styles from './OrdersPage.module.scss';
 
 interface OrderHistoryItem {
@@ -196,6 +197,7 @@ export default function OrdersPage() {
   const { data: session, status } = useSession();
   const socialAccountId = session?.socialAccountId;
   const [reviewTarget, setReviewTarget] = useState<ReviewFormTarget | null>(null);
+  const [comuTarget, setComuTarget] = useState<{ orderId: number; orderNo: string } | null>(null);
   const [draftFromDate, setDraftFromDate] = useState(defaultFromDate);
   const [draftToDate, setDraftToDate] = useState(defaultToDate);
   const [fromDate, setFromDate] = useState(defaultFromDate);
@@ -434,6 +436,13 @@ export default function OrdersPage() {
                       {cancelPayment.isPending ? '취소중' : '결제취소'}
                     </button>
                   )}
+                  <button
+                    type="button"
+                    className={styles.inquiryBtn}
+                    onClick={() => setComuTarget({ orderId: order.orderId, orderNo: order.orderNo })}
+                  >
+                    문의하기
+                  </button>
                 </div>
               </div>
 
@@ -522,6 +531,15 @@ export default function OrdersPage() {
           );
         })}
       </div>
+
+      {comuTarget && (
+        <ComuChat
+          orderId={comuTarget.orderId}
+          orderNo={comuTarget.orderNo}
+          socialAccountId={socialAccountId!}
+          onClose={() => setComuTarget(null)}
+        />
+      )}
 
       {reviewTarget && (
         <ReviewForm

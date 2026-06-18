@@ -28,15 +28,7 @@ interface ReviewFormProps {
 
 const STARS = [1, 2, 3, 4, 5];
 
-export default function ReviewForm({
-  socialAccountId,
-  orderItemId,
-  productId,
-  productDetId,
-  productName,
-  existingReview,
-  onClose,
-}: ReviewFormProps) {
+export default function ReviewForm({ socialAccountId, orderItemId, productId, productDetId, productName, existingReview, onClose }: ReviewFormProps) {
   const queryClient = useQueryClient();
   const isEdit = Boolean(existingReview);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -54,7 +46,9 @@ export default function ReviewForm({
   // 배경 스크롤 잠금
   useEffect(() => {
     document.body.style.overflow = 'hidden';
-    return () => { document.body.style.overflow = ''; };
+    return () => {
+      document.body.style.overflow = '';
+    };
   }, []);
 
   // 수정 모드에서 기존 이미지 로드
@@ -66,7 +60,7 @@ export default function ReviewForm({
         files.map(async (f) => {
           const url = f.sysFileNm ? await getFileUrl(f.sysFileNm) : '';
           return url ? { fileDet: f, url } : null;
-        })
+        }),
       );
       setExistingImages(entries.filter(Boolean) as { fileDet: FileDet; url: string }[]);
     })();
@@ -74,7 +68,9 @@ export default function ReviewForm({
 
   // 미리보기 URL 정리
   useEffect(() => {
-    return () => { previewUrls.forEach((url) => URL.revokeObjectURL(url)); };
+    return () => {
+      previewUrls.forEach((url) => URL.revokeObjectURL(url));
+    };
   }, [previewUrls]);
 
   const totalImageCount = existingImages.length + imageFiles.length;
@@ -110,11 +106,11 @@ export default function ReviewForm({
     mutationFn: async () => {
       // 기존 이미지가 남아있으면 같은 fileId 유지, 전부 삭제됐으면 null
       const keepExisting = existingImages.length > 0;
-      let fileId: number | null | undefined = keepExisting ? (existingReview?.fileId ?? undefined) : null;
+      let fileId: number | null | undefined = keepExisting ? existingReview?.fileId ?? undefined : null;
 
       if (imageFiles.length > 0) {
         const formData = new FormData();
-        formData.append('fileId', String(keepExisting ? (existingReview?.fileId ?? 0) : 0));
+        formData.append('fileId', String(keepExisting ? existingReview?.fileId ?? 0 : 0));
         imageFiles.forEach((f) => formData.append('uploadFiles', f));
         const uploadRes = await authApi.post('/frontWeb/webCommon/imgfile/uploads', formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
@@ -182,10 +178,7 @@ export default function ReviewForm({
           {/* 별점 */}
           <div className={styles.ratingWrap}>
             <span className={styles.label}>별점</span>
-            <div
-              className={styles.stars}
-              onMouseLeave={() => setHoverRating(0)}
-            >
+            <div className={styles.stars} onMouseLeave={() => setHoverRating(0)}>
               {STARS.map((star) => (
                 <button
                   key={star}
@@ -204,20 +197,17 @@ export default function ReviewForm({
 
           {/* 이미지 업로드 */}
           <div className={styles.imageUploadWrap}>
-            <span className={styles.label}>사진 첨부 <span className={styles.labelSub}>(선택 · 최대 {MAX_IMAGES}장)</span></span>
+            <span className={styles.label}>
+              사진 첨부 <span className={styles.labelSub}>(선택 · 최대 {MAX_IMAGES}장)</span>
+            </span>
             <div className={styles.imagePreviewList}>
               {/* 기존 이미지 (수정 모드) — X 클릭 시 즉시 TB_FILE_DET 삭제 */}
               {existingImages.map(({ url }, i) => (
                 <div key={`existing-${i}`} className={`${styles.previewItem} ${styles.existingItem}`}>
                   <img src={url} alt={`기존 이미지 ${i + 1}`} className={styles.previewImg} />
-                  <button
-                    type="button"
-                    className={styles.removeBtn}
-                    onClick={() => removeExistingImage(i)}
-                    aria-label="기존 이미지 삭제"
-                  >
+                  <button type="button" className={styles.removeBtn} onClick={() => removeExistingImage(i)} aria-label="기존 이미지 삭제">
                     <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                      <path d="M1 1l10 10M11 1L1 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                      <path d="M1 1l10 10M11 1L1 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
                     </svg>
                   </button>
                 </div>
@@ -228,7 +218,7 @@ export default function ReviewForm({
                   <img src={url} alt={`미리보기 ${i + 1}`} className={styles.previewImg} />
                   <button type="button" className={styles.removeBtn} onClick={() => removeImage(i)} aria-label="이미지 삭제">
                     <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                      <path d="M1 1l10 10M11 1L1 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                      <path d="M1 1l10 10M11 1L1 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
                     </svg>
                   </button>
                 </div>
@@ -236,20 +226,15 @@ export default function ReviewForm({
               {totalImageCount < MAX_IMAGES && (
                 <button type="button" className={styles.addImageBtn} onClick={() => fileInputRef.current?.click()}>
                   <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-                    <path d="M11 4v14M4 11h14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                    <path d="M11 4v14M4 11h14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
                   </svg>
-                  <span>{totalImageCount}/{MAX_IMAGES}</span>
+                  <span>
+                    {totalImageCount}/{MAX_IMAGES}
+                  </span>
                 </button>
               )}
             </div>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              multiple
-              className={styles.hiddenInput}
-              onChange={handleImageChange}
-            />
+            <input ref={fileInputRef} type="file" accept="image/*" multiple className={styles.hiddenInput} onChange={handleImageChange} />
           </div>
 
           {/* 내용 */}
@@ -272,7 +257,9 @@ export default function ReviewForm({
 
           <div className={styles.footer}>
             {!isEdit && (
-              <p className={styles.pointNotice}>리뷰 작성 시 <strong>100P</strong> 적립</p>
+              <p className={styles.pointNotice}>
+                리뷰 작성 시 <strong>100P</strong> 적립
+              </p>
             )}
             <div className={styles.buttons}>
               <button type="button" className={styles.cancelBtn} onClick={onClose}>

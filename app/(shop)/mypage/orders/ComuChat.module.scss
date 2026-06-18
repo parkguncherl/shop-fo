@@ -1,0 +1,545 @@
+@use '../../../../styles/variables' as *;
+@use '../../../../styles/mixins' as *;
+
+// ── 오버레이 ───────────────────────────────────────────────
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: $z-modal;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+
+  @include desktop {
+    align-items: center;
+  }
+}
+
+// ── 모달 공통 ──────────────────────────────────────────────
+.modal {
+  background: $color-white;
+  border-radius: $border-radius-md $border-radius-md 0 0;
+  width: 100%;
+  max-width: 520px;
+  box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.12);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  @include desktop {
+    border-radius: $border-radius-md;
+    max-height: 90vh;
+  }
+}
+
+.typeSelectModal {
+  border-radius: $border-radius-md $border-radius-md 0 0;
+  @include desktop { border-radius: $border-radius-md; }
+}
+
+.chatModal {
+  height: 80vh;
+  max-height: 700px;
+  @include desktop { height: 75vh; }
+}
+
+// ── 헤더 ──────────────────────────────────────────────────
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-md $spacing-lg;
+  border-bottom: 1px solid $color-gray-100;
+  flex-shrink: 0;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+
+  h2 {
+    margin: 0;
+    font-size: $font-size-base;
+    font-weight: 700;
+    color: $color-black;
+  }
+}
+
+.orderNo {
+  display: block;
+  font-size: $font-size-xs;
+  color: $color-gray-400;
+  margin-top: 2px;
+}
+
+.backBtn {
+  @include reset-button;
+  color: $color-gray-600;
+  cursor: pointer;
+  padding: 4px;
+  &:hover { color: $color-black; }
+}
+
+.closeBtn {
+  @include reset-button;
+  color: $color-gray-500;
+  cursor: pointer;
+  padding: 4px;
+  &:hover { color: $color-black; }
+}
+
+// ── 목록 ──────────────────────────────────────────────────
+.listBody {
+  flex: 1;
+  overflow-y: auto;
+  padding: $spacing-md;
+  min-height: 200px;
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-xs;
+  padding: $spacing-2xl 0;
+  text-align: center;
+
+  p {
+    margin: 0;
+    font-size: $font-size-base;
+    font-weight: 600;
+    color: $color-black;
+  }
+
+  span {
+    font-size: $font-size-sm;
+    color: $color-gray-500;
+  }
+}
+
+.threadList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.threadItem {
+  padding: $spacing-md;
+  border: 1px solid $color-gray-100;
+  border-radius: $border-radius-sm;
+  cursor: pointer;
+  transition: background $transition-fast;
+
+  &:hover { background: $color-gray-50; }
+}
+
+.threadTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-xs;
+}
+
+.typeBadge {
+  display: inline-block;
+  padding: 2px 8px;
+  background: $color-black;
+  color: $color-white;
+  border-radius: 100px;
+  font-size: $font-size-xs;
+  font-weight: 600;
+}
+
+.threadDate {
+  font-size: $font-size-xs;
+  color: $color-gray-400;
+}
+
+.threadPreview {
+  margin: 0;
+  font-size: $font-size-sm;
+  color: $color-gray-600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.listFooter {
+  padding: $spacing-md $spacing-lg;
+  border-top: 1px solid $color-gray-100;
+  flex-shrink: 0;
+}
+
+.newBtn {
+  @include reset-button;
+  width: 100%;
+  height: 44px;
+  background: $color-black;
+  color: $color-white;
+  border-radius: $border-radius-sm;
+  font-size: $font-size-sm;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity $transition-fast;
+
+  &:hover { opacity: 0.85; }
+}
+
+// ── 유형 선택 ──────────────────────────────────────────────
+.typeGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $spacing-sm;
+  padding: $spacing-lg;
+}
+
+.typeBtn {
+  @include reset-button;
+  padding: $spacing-sm $spacing-xs;
+  border: 1.5px solid $color-gray-200;
+  border-radius: $border-radius-sm;
+  font-size: $font-size-sm;
+  color: $color-gray-700;
+  cursor: pointer;
+  transition: border-color $transition-fast, background $transition-fast, color $transition-fast;
+  text-align: center;
+  line-height: 1.4;
+
+  &:hover {
+    border-color: $color-black;
+    color: $color-black;
+  }
+}
+
+.typeBtnActive {
+  border-color: $color-black;
+  background: $color-black;
+  color: $color-white;
+}
+
+.typeBtnUsed {
+  border-color: $color-gray-100;
+  background: $color-gray-50;
+  color: $color-gray-400;
+  cursor: not-allowed;
+  position: relative;
+
+  &:hover {
+    border-color: $color-gray-100;
+    color: $color-gray-400;
+  }
+}
+
+.usedLabel {
+  display: block;
+  font-size: 10px;
+  color: $color-gray-400;
+  margin-top: 2px;
+}
+
+// ── 채팅 바디 ──────────────────────────────────────────────
+.chatBody {
+  flex: 1;
+  overflow-y: auto;
+  padding: $spacing-md;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  background: $color-gray-50;
+}
+
+.chatGuide {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: $spacing-lg 0;
+  text-align: center;
+
+  p {
+    margin: 0;
+    font-size: $font-size-sm;
+    color: $color-gray-500;
+  }
+}
+
+.skeleton {
+  height: 200px;
+  border-radius: $border-radius-sm;
+  background: linear-gradient(90deg, $color-gray-100 25%, $color-gray-50 50%, $color-gray-100 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.4s infinite linear;
+}
+
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position:  400px 0; }
+}
+
+// ── 메시지 버블 ────────────────────────────────────────────
+.messageRow {
+  display: flex;
+  gap: $spacing-xs;
+  max-width: 85%;
+
+  &.mine {
+    align-self: flex-end;
+    flex-direction: row-reverse;
+  }
+
+  &.theirs {
+    align-self: flex-start;
+  }
+}
+
+.avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: $color-gray-200;
+  color: $color-gray-700;
+  font-size: $font-size-xs;
+  font-weight: 700;
+  @include flex-center;
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+.bubbleWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  max-width: 100%;
+}
+
+.senderName {
+  font-size: $font-size-xs;
+  color: $color-gray-500;
+  margin-left: 2px;
+}
+
+.bubbleGroup {
+  display: flex;
+  align-items: flex-end;
+  gap: $spacing-xs;
+
+  .mine & {
+    flex-direction: row-reverse;
+  }
+}
+
+.bubble {
+  background: $color-white;
+  border-radius: 14px 14px 14px 2px;
+  padding: $spacing-sm $spacing-md;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  max-width: 100%;
+  word-break: break-word;
+
+  .mine & {
+    background: $color-black;
+    color: $color-white;
+    border-radius: 14px 14px 2px 14px;
+  }
+}
+
+.bubbleText {
+  margin: 0;
+  font-size: $font-size-sm;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.imageGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: $spacing-xs;
+}
+
+.bubbleImg {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: $border-radius-sm;
+  cursor: zoom-in;
+}
+
+.bubbleMeta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+}
+
+.time {
+  font-size: 10px;
+  color: $color-gray-400;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.deleteBtn {
+  @include reset-button;
+  font-size: 10px;
+  color: $color-gray-400;
+  cursor: pointer;
+  text-decoration: underline;
+  &:hover { color: #c00; }
+}
+
+// ── 타이핑 인디케이터 ──────────────────────────────────────
+.typingBubble {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: $spacing-sm $spacing-md;
+  min-width: 52px;
+}
+
+.typingDot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: $color-gray-400;
+  animation: typingBounce 1.2s infinite ease-in-out;
+
+  &:nth-child(1) { animation-delay: 0s; }
+  &:nth-child(2) { animation-delay: 0.2s; }
+  &:nth-child(3) { animation-delay: 0.4s; }
+}
+
+@keyframes typingBounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+  30%            { transform: translateY(-5px); opacity: 1; }
+}
+
+// ── 라이트박스 ─────────────────────────────────────────────
+.lightboxOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.92);
+  z-index: $z-modal + 10;
+  @include flex-center;
+  cursor: zoom-out;
+}
+
+.lightboxImg {
+  max-width: 92vw;
+  max-height: 88vh;
+  object-fit: contain;
+  border-radius: $border-radius-sm;
+}
+
+// ── 입력 영역 ──────────────────────────────────────────────
+.inputArea {
+  border-top: 1px solid $color-gray-100;
+  background: $color-white;
+  flex-shrink: 0;
+}
+
+.previewRow {
+  display: flex;
+  gap: $spacing-xs;
+  padding: $spacing-xs $spacing-md 0;
+  flex-wrap: wrap;
+}
+
+.previewThumb {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  border-radius: $border-radius-sm;
+  overflow: hidden;
+  flex-shrink: 0;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.thumbRemove {
+  @include reset-button;
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 16px;
+  height: 16px;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 50%;
+  color: $color-white;
+  font-size: 12px;
+  @include flex-center;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.inputRow {
+  display: flex;
+  align-items: flex-end;
+  gap: $spacing-xs;
+  padding: $spacing-sm $spacing-md;
+}
+
+.imageBtn {
+  @include reset-button;
+  color: $color-gray-500;
+  cursor: pointer;
+  padding: 6px;
+  flex-shrink: 0;
+  transition: color $transition-fast;
+
+  &:hover:not(:disabled) { color: $color-black; }
+  &:disabled { opacity: 0.4; cursor: not-allowed; }
+}
+
+.hiddenInput { display: none; }
+
+.inputBox {
+  flex: 1;
+  border: 1px solid $color-gray-200;
+  border-radius: 20px;
+  padding: 8px 14px;
+  font-size: $font-size-sm;
+  font-family: inherit;
+  resize: none;
+  max-height: 100px;
+  overflow-y: auto;
+  line-height: 1.5;
+  color: $color-black;
+  transition: border-color $transition-fast;
+
+  &:focus {
+    outline: none;
+    border-color: $color-gray-400;
+  }
+
+  &::placeholder { color: $color-gray-400; }
+}
+
+.sendBtn {
+  @include reset-button;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: $color-gray-200;
+  color: $color-white;
+  @include flex-center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background $transition-fast;
+
+  &:disabled { cursor: not-allowed; }
+}
+
+.sendBtnActive {
+  background: $color-black;
+}
