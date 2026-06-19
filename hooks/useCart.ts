@@ -63,6 +63,7 @@ export const useCartQuery = () => {
 // ── 상품 추가 ─────────────────────────────────────────────────
 export const useAddCartItem = () => {
   const queryClient = useQueryClient();
+  const { data: session } = useSession();
   return useMutation({
     mutationFn: async (params: {
       productDetId: number;
@@ -70,7 +71,8 @@ export const useAddCartItem = () => {
       unitPrice:    number;
     }) => {
       const guestId = getGuestId();
-      const { data } = await publicApi.post('/frontWeb/cart/item', { guestId, ...params });
+      const socialAccountId = session?.socialAccountId ?? null;
+      const { data } = await publicApi.post('/frontWeb/cart/item', { guestId, socialAccountId, ...params });
       return data?.body;
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: CART_QUERY_KEY }),
