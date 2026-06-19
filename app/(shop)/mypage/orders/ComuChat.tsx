@@ -79,7 +79,7 @@ function MessageBubble({
     if (!msg.fileId) return;
     (async () => {
       const files = await selectFileList(msg.fileId!);
-      const urls = await Promise.all(files.map((f) => f.sysFileNm ? getFileUrl(f.sysFileNm) : Promise.resolve('')));
+      const urls = await Promise.all(files.map((f) => (f.sysFileNm ? getFileUrl(f.sysFileNm) : Promise.resolve(''))));
       setImageUrls(urls.filter(Boolean));
     })();
   }, [msg.fileId]);
@@ -154,7 +154,9 @@ export default function ComuChat({ orderId, orderNo, socialAccountId, paymentSta
       try {
         await authApi.delete(`/frontWeb/comu/${selectedThread.id}`);
         queryClient.invalidateQueries({ queryKey: ['comuList', orderId] });
-      } catch { /* 삭제 실패해도 모달은 닫음 */ }
+      } catch {
+        /* 삭제 실패해도 모달은 닫음 */
+      }
     }
     onClose();
   };
@@ -162,12 +164,16 @@ export default function ComuChat({ orderId, orderNo, socialAccountId, paymentSta
   // 배경 스크롤 잠금
   useEffect(() => {
     document.body.style.overflow = 'hidden';
-    return () => { document.body.style.overflow = ''; };
+    return () => {
+      document.body.style.overflow = '';
+    };
   }, []);
 
   // 신규 이미지 미리보기 정리
   useEffect(() => {
-    return () => { previewUrls.forEach((url) => URL.revokeObjectURL(url)); };
+    return () => {
+      previewUrls.forEach((url) => URL.revokeObjectURL(url));
+    };
   }, [previewUrls]);
 
   // 상담 유형 코드 목록
@@ -175,9 +181,7 @@ export default function ComuChat({ orderId, orderNo, socialAccountId, paymentSta
     queryKey: ['comuTypes'],
     queryFn: async () => {
       const res = await publicApi.get('/frontWeb/webCommon/lower/10130');
-      return (res.data?.body ?? [])
-        .filter((c: any) => String(c.codeCd ?? '').startsWith('A'))
-        .map((c: any) => ({ codeCd: c.codeCd, codeNm: c.codeNm }));
+      return (res.data?.body ?? []).filter((c: any) => String(c.codeCd ?? '').startsWith('A')).map((c: any) => ({ codeCd: c.codeCd, codeNm: c.codeNm }));
     },
     staleTime: 1000 * 60 * 10,
   });
@@ -203,7 +207,10 @@ export default function ComuChat({ orderId, orderNo, socialAccountId, paymentSta
   useEffect(() => {
     if (revealedCount === null) return;
     const total = selectedThread?.messages?.length ?? 0;
-    if (revealedCount >= total) { setShowTyping(false); return; }
+    if (revealedCount >= total) {
+      setShowTyping(false);
+      return;
+    }
 
     // typing indicator 표시 후 메시지 공개
     setShowTyping(true);
@@ -336,14 +343,21 @@ export default function ComuChat({ orderId, orderNo, socialAccountId, paymentSta
         {(step === 'type-select' || (step === 'chat' && !selectedThread)) && (
           <button type="button" className={styles.backBtn} onClick={() => setStep('list')}>
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-              <path d="M11 4L6 9l5 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M11 4L6 9l5 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </button>
         )}
         {step === 'chat' && selectedThread && (
-          <button type="button" className={styles.backBtn} onClick={() => { setSelectedThread(null); setStep('list'); }}>
+          <button
+            type="button"
+            className={styles.backBtn}
+            onClick={() => {
+              setSelectedThread(null);
+              setStep('list');
+            }}
+          >
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-              <path d="M11 4L6 9l5 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M11 4L6 9l5 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </button>
         )}
@@ -358,7 +372,7 @@ export default function ComuChat({ orderId, orderNo, socialAccountId, paymentSta
       </div>
       <button type="button" className={styles.closeBtn} onClick={handleClose} aria-label="닫기">
         <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-          <path d="M4 4l12 12M16 4L4 16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+          <path d="M4 4l12 12M16 4L4 16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
         </svg>
       </button>
     </div>
@@ -418,7 +432,10 @@ export default function ComuChat({ orderId, orderNo, socialAccountId, paymentSta
                   type="button"
                   className={`${styles.typeBtn} ${selectedType === t.codeCd ? styles.typeBtnActive : ''} ${used ? styles.typeBtnUsed : ''}`}
                   disabled={used || createComuMutation.isPending}
-                  onClick={() => { setSelectedType(t.codeCd); createComuMutation.mutate(t.codeCd); }}
+                  onClick={() => {
+                    setSelectedType(t.codeCd);
+                    createComuMutation.mutate(t.codeCd);
+                  }}
                 >
                   {t.codeNm}
                   {used && <span className={styles.usedLabel}>문의완료</span>}
@@ -444,13 +461,7 @@ export default function ComuChat({ orderId, orderNo, socialAccountId, paymentSta
 
         <div className={styles.chatBody}>
           {visibleMessages.map((msg) => (
-            <MessageBubble
-              key={msg.id}
-              msg={msg}
-              isMine={msg.reqYn === 'Y'}
-              socialAccountId={socialAccountId}
-              onDelete={handleDelete}
-            />
+            <MessageBubble key={msg.id} msg={msg} isMine={msg.reqYn === 'Y'} socialAccountId={socialAccountId} onDelete={handleDelete} />
           ))}
           {/* 타이핑 인디케이터 */}
           {showTyping && (
@@ -476,7 +487,9 @@ export default function ComuChat({ orderId, orderNo, socialAccountId, paymentSta
               {previewUrls.map((url, i) => (
                 <div key={i} className={styles.previewThumb}>
                   <img src={url} alt={`첨부 ${i + 1}`} />
-                  <button type="button" className={styles.thumbRemove} onClick={() => removeImage(i)}>×</button>
+                  <button type="button" className={styles.thumbRemove} onClick={() => removeImage(i)}>
+                    ×
+                  </button>
                 </div>
               ))}
             </div>
@@ -484,38 +497,40 @@ export default function ComuChat({ orderId, orderNo, socialAccountId, paymentSta
           {isCancelled ? (
             <div className={styles.cancelledNotice}>취소된 주문은 문의를 작성할 수 없습니다.</div>
           ) : (
-          <div className={styles.inputRow}>
-            <button type="button" className={styles.imageBtn} onClick={() => fileInputRef.current?.click()} disabled={imageFiles.length >= MAX_IMAGES}>
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <rect x="2" y="4" width="16" height="12" rx="2" stroke="currentColor" strokeWidth="1.5"/>
-                <circle cx="7" cy="8.5" r="1.5" stroke="currentColor" strokeWidth="1.3"/>
-                <path d="M2 14l4-4 3 3 3-3 4 4" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round"/>
-              </svg>
-            </button>
-            <input ref={fileInputRef} type="file" accept="image/*" multiple className={styles.hiddenInput} onChange={handleImageChange} />
-            <textarea
-              className={styles.inputBox}
-              placeholder="메시지를 입력하세요"
-              value={inputText}
-              onChange={(e) => setInputText(e.target.value)}
-              rows={1}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
-              }}
-            />
-            <button
-              type="button"
-              className={`${styles.sendBtn} ${canSend ? styles.sendBtnActive : ''}`}
-              onClick={handleSend}
-              disabled={!canSend || sendMutation.isPending}
-            >
-              <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                <path d="M2 9l14-7-7 14V9H2z" fill="currentColor"/>
-              </svg>
-            </button>
-          </div>
+            <div className={styles.inputRow}>
+              <button type="button" className={styles.imageBtn} onClick={() => fileInputRef.current?.click()} disabled={imageFiles.length >= MAX_IMAGES}>
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <rect x="2" y="4" width="16" height="12" rx="2" stroke="currentColor" strokeWidth="1.5" />
+                  <circle cx="7" cy="8.5" r="1.5" stroke="currentColor" strokeWidth="1.3" />
+                  <path d="M2 14l4-4 3 3 3-3 4 4" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" />
+                </svg>
+              </button>
+              <input ref={fileInputRef} type="file" accept="image/*" multiple className={styles.hiddenInput} onChange={handleImageChange} />
+              <textarea
+                className={styles.inputBox}
+                placeholder="메시지를 입력하세요"
+                value={inputText}
+                onChange={(e) => setInputText(e.target.value)}
+                rows={1}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSend();
+                  }
+                }}
+              />
+              <button
+                type="button"
+                className={`${styles.sendBtn} ${canSend ? styles.sendBtnActive : ''}`}
+                onClick={handleSend}
+                disabled={!canSend || sendMutation.isPending}
+              >
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                  <path d="M2 9l14-7-7 14V9H2z" fill="currentColor" />
+                </svg>
+              </button>
+            </div>
           )}
-          </div>
         </div>
       </div>
     </div>
