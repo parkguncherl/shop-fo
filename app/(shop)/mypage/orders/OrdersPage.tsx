@@ -197,7 +197,7 @@ export default function OrdersPage() {
   const { data: session, status } = useSession();
   const socialAccountId = session?.socialAccountId;
   const [reviewTarget, setReviewTarget] = useState<ReviewFormTarget | null>(null);
-  const [comuTarget, setComuTarget] = useState<{ orderId: number; orderNo: string } | null>(null);
+  const [comuTarget, setComuTarget] = useState<{ orderId: number; orderNo: string; paymentStatus: string } | null>(null);
   const [draftFromDate, setDraftFromDate] = useState(defaultFromDate);
   const [draftToDate, setDraftToDate] = useState(defaultToDate);
   const [fromDate, setFromDate] = useState(defaultFromDate);
@@ -228,14 +228,21 @@ export default function OrdersPage() {
         socialAccountId,
         reason: '고객 요청',
       });
+      if (data?.resultCode !== 200) {
+        throw new Error(data?.resultMessage ?? '결제 취소 중 오류가 발생했습니다.');
+      }
       return data?.body;
     },
-    onSuccess: () => {
-      toastSuccess('결제가 취소되었습니다.');
+    onSuccess: (data: any) => {
+      if (data?.alreadyCancelled) {
+        toastSuccess('이미 결제가 취소되어 있습니다.');
+      } else {
+        toastSuccess('결제가 취소되었습니다.');
+      }
       queryClient.invalidateQueries({ queryKey: ['orderHistory'] });
     },
-    onError: (error: { message?: string }) => {
-      toastError(error?.message || '결제 취소 중 오류가 발생했습니다.');
+    onError: (error: any) => {
+      toastError(error?.message ?? '결제 취소 중 오류가 발생했습니다.');
     },
   });
 
@@ -439,7 +446,7 @@ export default function OrdersPage() {
                   <button
                     type="button"
                     className={styles.inquiryBtn}
-                    onClick={() => setComuTarget({ orderId: order.orderId, orderNo: order.orderNo })}
+                    onClick={() => setComuTarget({ orderId: order.orderId, orderNo: order.orderNo, paymentStatus })}
                   >
                     문의하기
                   </button>
@@ -537,6 +544,7 @@ export default function OrdersPage() {
           orderId={comuTarget.orderId}
           orderNo={comuTarget.orderNo}
           socialAccountId={socialAccountId!}
+          paymentStatus={comuTarget.paymentStatus}
           onClose={() => setComuTarget(null)}
         />
       )}

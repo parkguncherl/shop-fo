@@ -503,6 +503,14 @@
 
 .hiddenInput { display: none; }
 
+.cancelledNotice {
+  padding: $spacing-md $spacing-lg;
+  text-align: center;
+  font-size: $font-size-sm;
+  color: $color-gray-400;
+  border-top: 1px solid $color-gray-100;
+}
+
 .inputBox {
   flex: 1;
   border: 1px solid $color-gray-200;

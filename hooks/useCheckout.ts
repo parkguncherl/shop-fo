@@ -85,6 +85,10 @@ export const useCreateCheckoutMutation = () => {
         details: payload.payment.details,
       });
 
+      if (data?.resultCode !== 200) {
+        throw new Error(data?.resultMessage ?? '결제 처리 중 오류가 발생했습니다.');
+      }
+
       return data?.body;
     },
     onSuccess: () => {

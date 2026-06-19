@@ -49,6 +49,7 @@ interface Props {
   orderId: number;
   orderNo: string;
   socialAccountId: number;
+  paymentStatus: string;
   onClose: () => void;
 }
 
@@ -122,7 +123,8 @@ function MessageBubble({
   );
 }
 
-export default function ComuChat({ orderId, orderNo, socialAccountId, onClose }: Props) {
+export default function ComuChat({ orderId, orderNo, socialAccountId, paymentStatus, onClose }: Props) {
+  const isCancelled = paymentStatus === 'C';
   const queryClient = useQueryClient();
   const confirm = useConfirm();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -242,6 +244,9 @@ export default function ComuChat({ orderId, orderNo, socialAccountId, onClose }:
           headers: { 'Content-Type': 'multipart/form-data' },
           timeout: 30000,
         });
+        if (up.data?.resultCode !== 200) {
+          throw new Error(up.data?.resultMessage ?? '파일 업로드 중 오류가 발생했습니다.');
+        }
         fileId = up.data?.body;
       }
       const res = await authApi.post(`/frontWeb/comu/${selectedThread.id}/message`, {
@@ -249,6 +254,9 @@ export default function ComuChat({ orderId, orderNo, socialAccountId, onClose }:
         content: inputText,
         fileId,
       });
+      if (res.data?.resultCode !== 200) {
+        throw new Error(res.data?.resultMessage ?? '전송 중 오류가 발생했습니다.');
+      }
       return res.data?.body as ComuThread;
     },
     onSuccess: (thread) => {
@@ -259,7 +267,9 @@ export default function ComuChat({ orderId, orderNo, socialAccountId, onClose }:
       queryClient.invalidateQueries({ queryKey: ['comuList', orderId] });
       setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
     },
-    onError: () => toastError('전송 중 오류가 발생했습니다.'),
+    onError: (err: any) => {
+      toastError(err?.message ?? '전송 중 오류가 발생했습니다.');
+    },
   });
 
   // 메시지 삭제
@@ -286,6 +296,13 @@ export default function ComuChat({ orderId, orderNo, socialAccountId, onClose }:
     const files = Array.from(e.target.files ?? []);
     const remaining = MAX_IMAGES - imageFiles.length;
     const accepted = files.slice(0, remaining);
+    const currentTotal = imageFiles.reduce((sum, f) => sum + f.size, 0);
+    const newTotal = accepted.reduce((sum, f) => sum + f.size, currentTotal);
+    if (newTotal > 200 * 1024 * 1024) {
+      toastError('파일 크기가 너무 큽니다. 전체 200MB 이하로 업로드해 주세요.');
+      e.target.value = '';
+      return;
+    }
     setImageFiles((prev) => [...prev, ...accepted]);
     setPreviewUrls((prev) => [...prev, ...accepted.map((f) => URL.createObjectURL(f))]);
     e.target.value = '';
@@ -464,6 +481,9 @@ export default function ComuChat({ orderId, orderNo, socialAccountId, onClose }:
               ))}
             </div>
           )}
+          {isCancelled ? (
+            <div className={styles.cancelledNotice}>취소된 주문은 문의를 작성할 수 없습니다.</div>
+          ) : (
           <div className={styles.inputRow}>
             <button type="button" className={styles.imageBtn} onClick={() => fileInputRef.current?.click()} disabled={imageFiles.length >= MAX_IMAGES}>
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
@@ -493,6 +513,8 @@ export default function ComuChat({ orderId, orderNo, socialAccountId, onClose }:
                 <path d="M2 9l14-7-7 14V9H2z" fill="currentColor"/>
               </svg>
             </button>
+          </div>
+          )}
           </div>
         </div>
       </div>
