@@ -1,6 +1,6 @@
 export const COOKIE_KEYS = {
-  GUEST_TOKEN: 'gguanggu_guest_token',  // httpOnly JWT (보안)
-  GUEST_ID:    'gguanggu_guest_id',     // 클라이언트 접근 가능 (장바구니 API용)
+  GUEST_TOKEN: 'gguanggu_guestToken_1d',  // httpOnly JWT (보안)
+  GUEST_ID:    'gguanggu_guestId_1d',     // 클라이언트 접근 가능 (장바구니 API용)
 } as const;
 
 export const Contents = {

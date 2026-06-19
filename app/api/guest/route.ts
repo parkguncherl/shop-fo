@@ -83,12 +83,14 @@ export async function POST(request: NextRequest) {
 
     const response = NextResponse.json({ guestToken, guestId });
 
+    const cookieMaxAge = 60 * 60 * 24;
+
     // JWT 토큰 — httpOnly (보안)
     response.cookies.set(COOKIE_KEYS.GUEST_TOKEN, guestToken, {
       httpOnly: true,
       secure: false,
       sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 30,
+      maxAge: cookieMaxAge,
       path: '/',
     });
 
@@ -97,7 +99,7 @@ export async function POST(request: NextRequest) {
       httpOnly: false,
       secure: false,
       sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 30,
+      maxAge: cookieMaxAge,
       path: '/',
     });
 
