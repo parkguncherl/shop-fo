@@ -43,6 +43,7 @@ interface ComuSummary {
   lastMessage?: string;
   lastMessageTm?: string;
   creTm: string;
+  unreadCount?: number;
 }
 
 interface Props {
@@ -195,12 +196,16 @@ export default function ComuChat({ orderId, orderNo, socialAccountId, paymentSta
     },
   });
 
-  // 스레드 상세 조회
+  // 스레드 상세 조회 + 관리자 메시지 읽음 처리
   const loadThread = async (comuId: number) => {
     const res = await authApi.get(`/frontWeb/comu/${comuId}`);
     const thread: ComuThread = res.data?.body;
     setSelectedThread(thread);
     setStep('chat');
+    // 고객이 읽었으므로 관리자 메시지(reqYn='N') 읽음 처리
+    authApi.post(`/frontWeb/comu/${comuId}/read`, null, { params: { isAdmin: false } }).then(() => {
+      queryClient.invalidateQueries({ queryKey: ['comuList', orderId] });
+    });
   };
 
   // 신규 상담 메시지 순차 공개 애니메이션
@@ -398,7 +403,12 @@ export default function ComuChat({ orderId, orderNo, socialAccountId, paymentSta
                   <li key={s.id} className={styles.threadItem} onClick={() => loadThread(s.id)}>
                     <div className={styles.threadTop}>
                       <span className={styles.typeBadge}>{s.comuTypeName ?? s.comuType}</span>
-                      <span className={styles.threadDate}>{formatTime(s.lastMessageTm ?? s.creTm)}</span>
+                      <div className={styles.threadTopRight}>
+                        {(s.unreadCount ?? 0) > 0 && (
+                          <span className={styles.unreadBadge}>{s.unreadCount}</span>
+                        )}
+                        <span className={styles.threadDate}>{formatTime(s.lastMessageTm ?? s.creTm)}</span>
+                      </div>
                     </div>
                     <p className={styles.threadPreview}>{s.lastMessage ?? '메시지 없음'}</p>
                   </li>
