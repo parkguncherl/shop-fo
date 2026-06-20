@@ -11,38 +11,10 @@ import { toastSuccess, toastError } from '@/components/common/Others/ToastMessag
 import ReviewSection from './ReviewSection';
 import styles from './ProductDet.module.scss';
 import { usePageViewLog } from '@/hooks/usePageViewLog';
+import { ProductResponseProductDetail, ProductResponseProductDetInfo, ProductResponseRelatedProductInfo } from '@/generated';
 
-/* ── 타입 ─────────────────────────────────────────────── */
-interface ProductDetInfo {
-  id: number;
-  productDetSeq: number;
-  productDetSize?: string;
-  productDetColor?: string;
-  sysFileNm?: string;
-}
-
-interface RelatedProductInfo {
-  id: number;
-  prodNm?: string;
-  sellAmt?: number;
-  discountRate?: number;
-  sysFileNm?: string;
+interface RelatedProductWithSrc extends ProductResponseRelatedProductInfo {
   src?: string;
-}
-
-interface ProductDetail {
-  id: number;
-  prodNm?: string;
-  sellAmt?: number;
-  orgAmt?: number;
-  discountRate?: number;
-  composition?: string;
-  repSysFileNm?: string;
-  detailSysFileNm?: string;
-  sizeSysFileNm?: string;
-  etcSysFileNm?: string;
-  detList: ProductDetInfo[];
-  relatedList: RelatedProductInfo[];
 }
 
 /* ── 이미지 헬퍼 ──────────────────────────────────────── */
@@ -59,7 +31,7 @@ const ProductDet = ({ productId }: { productId: number }) => {
   const swipeRef = useRef<HTMLDivElement>(null);
 
   const [images, setImages] = useState<{ rep?: string; detail?: string; size?: string; etc?: string }>({});
-  const [relatedWithSrc, setRelatedWithSrc] = useState<RelatedProductInfo[]>([]);
+  const [relatedWithSrc, setRelatedWithSrc] = useState<RelatedProductWithSrc[]>([]);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
 
@@ -70,7 +42,7 @@ const ProductDet = ({ productId }: { productId: number }) => {
     enabled: categoryReady && !!productId,
   });
 
-  const product: ProductDetail | null = isSuccess && data?.data?.resultCode === 200 ? data.data.body : null;
+  const product: ProductResponseProductDetail | null = isSuccess && data?.data?.resultCode === 200 ? data.data.body : null;
 
   /* ── 색상 / 사이즈 목록 파생 ─────────────────────────── */
   const colors = useMemo(() => {
@@ -86,21 +58,21 @@ const ProductDet = ({ productId }: { productId: number }) => {
   }, [product, selectedColor]);
 
   // 색상+사이즈로 매칭되는 det 찾기 → productDetId
-  const matchedDet: ProductDetInfo | null = useMemo(() => {
+  const matchedDet: ProductResponseProductDetInfo | null = useMemo(() => {
     if (!product) return null;
     // 옵션 없는 상품
     if ((product.detList ?? []).length === 0) return null;
     // 색상만 있는 경우
     if (colors.length > 0 && sizes.length === 0 && selectedColor) {
-      return product.detList.find((d) => d.productDetColor === selectedColor) ?? null;
+      return product.detList?.find((d) => d.productDetColor === selectedColor) ?? null;
     }
     // 사이즈만 있는 경우
     if (colors.length === 0 && sizes.length > 0 && selectedSize) {
-      return product.detList.find((d) => d.productDetSize === selectedSize) ?? null;
+      return product.detList?.find((d) => d.productDetSize === selectedSize) ?? null;
     }
     // 색상 + 사이즈 모두 있는 경우
     if (selectedColor && selectedSize) {
-      return product.detList.find((d) => d.productDetColor === selectedColor && d.productDetSize === selectedSize) ?? null;
+      return product.detList?.find((d) => d.productDetColor === selectedColor && d.productDetSize === selectedSize) ?? null;
     }
     return null;
   }, [product, colors, sizes, selectedColor, selectedSize]);
@@ -134,7 +106,7 @@ const ProductDet = ({ productId }: { productId: number }) => {
       ]);
       setImages({ rep, detail, size, etc });
 
-      const related = await Promise.all(
+      const related: RelatedProductWithSrc[] = await Promise.all(
         (product.relatedList ?? []).map(async (r) => ({
           ...r,
           src: r.sysFileNm ? await getFileUrl(r.sysFileNm) : undefined,
@@ -176,16 +148,11 @@ const ProductDet = ({ productId }: { productId: number }) => {
       return;
     }
 
-    const discountedPrice = (product.sellAmt ?? 0) - Math.floor((product.sellAmt ?? 0) * ((product.discountRate ?? 0) / 100));
-
     try {
-      await addCartItem({
-        productDetId,
-        quantity: 1,
-        unitPrice: discountedPrice,
-        optionsSnapshot: selectedColor || selectedSize ? JSON.stringify({ color: selectedColor, size: selectedSize }) : undefined,
-      });
-      toastSuccess('장바구니에 담았습니다 🛒');
+      if (productDetId) {
+        await addCartItem({ productDetId, quantity: 1 });
+        toastSuccess('장바구니에 담았습니다 🛒');
+      }
     } catch {
       toastError('장바구니 담기에 실패했습니다.');
     }
@@ -315,7 +282,7 @@ const ProductDet = ({ productId }: { productId: number }) => {
       </div>
 
       {/* ── 구매 후기 ── */}
-      <ReviewSection productId={product.id} />
+      <ReviewSection productId={product.id ?? 0} />
     </div>
   );
 };

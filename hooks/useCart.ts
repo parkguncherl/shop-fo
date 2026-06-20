@@ -68,7 +68,6 @@ export const useAddCartItem = () => {
     mutationFn: async (params: {
       productDetId: number;
       quantity:     number;
-      unitPrice:    number;
     }) => {
       const guestId = getGuestId();
       const socialAccountId = session?.socialAccountId ?? null;

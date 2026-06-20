@@ -4,6 +4,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import publicApi from '@/libs/publicApi';
 import { useWebCommonStore } from '@/stores/useWebCommonStore';
+import { ReviewResponseProductList, ReviewResponseProductItem } from '@/generated';
+import { Utils } from '@/libs/utils';
 import styles from './ReviewSection.module.scss';
 
 function ReviewImageSwiper({ images }: { images: string[] }) {
@@ -44,12 +46,7 @@ function ReviewImageSwiper({ images }: { images: string[] }) {
         <div className={styles.swiperTrack} ref={trackRef} onScroll={handleScroll}>
           {images.map((src, i) => (
             <div key={i} className={styles.swiperSlide}>
-              <img
-                src={src}
-                alt={`리뷰 이미지 ${i + 1}`}
-                className={styles.swiperImg}
-                onClick={() => setLightbox(src)}
-              />
+              <img src={src} alt={`리뷰 이미지 ${i + 1}`} className={styles.swiperImg} onClick={() => setLightbox(src)} />
             </div>
           ))}
         </div>
@@ -59,20 +56,25 @@ function ReviewImageSwiper({ images }: { images: string[] }) {
             {activeIndex > 0 && (
               <button className={`${styles.navBtn} ${styles.navPrev}`} onClick={() => goTo(activeIndex - 1)} aria-label="이전">
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </button>
             )}
             {activeIndex < images.length - 1 && (
               <button className={`${styles.navBtn} ${styles.navNext}`} onClick={() => goTo(activeIndex + 1)} aria-label="다음">
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <path d="M6 3l5 5-5 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M6 3l5 5-5 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </button>
             )}
             <div className={styles.dots}>
               {images.map((_, i) => (
-                <button key={i} className={`${styles.dot} ${i === activeIndex ? styles.dotActive : ''}`} onClick={() => goTo(i)} aria-label={`${i + 1}번 이미지`} />
+                <button
+                  key={i}
+                  className={`${styles.dot} ${i === activeIndex ? styles.dotActive : ''}`}
+                  onClick={() => goTo(i)}
+                  aria-label={`${i + 1}번 이미지`}
+                />
               ))}
             </div>
           </>
@@ -84,7 +86,7 @@ function ReviewImageSwiper({ images }: { images: string[] }) {
           <img src={lightbox} alt="리뷰 이미지 확대" className={styles.lightboxImg} />
           <button className={styles.lightboxClose} onClick={() => setLightbox(null)} aria-label="닫기">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <path d="M18 6L6 18M6 6l12 12" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+              <path d="M18 6L6 18M6 6l12 12" stroke="white" strokeWidth="2" strokeLinecap="round" />
             </svg>
           </button>
         </div>
@@ -93,29 +95,7 @@ function ReviewImageSwiper({ images }: { images: string[] }) {
   );
 }
 
-interface ReviewItem {
-  id: number;
-  socialAccountId: number;
-  rating: number;
-  content: string;
-  fileId?: number | null;
-  creTm: string;
-}
-
-interface ProductReviewData {
-  productId: number;
-  avgRating: number;
-  reviewCount: number;
-  reviews: ReviewItem[];
-}
-
 const STARS = [1, 2, 3, 4, 5];
-
-const formatDate = (value: string) => {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value.slice(0, 10);
-  return new Intl.DateTimeFormat('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(date);
-};
 
 const StarDisplay = ({ rating, size = 16 }: { rating: number; size?: number }) => (
   <span className={styles.starDisplay} aria-label={`${rating}점`}>
@@ -131,7 +111,7 @@ export default function ReviewSection({ productId }: { productId: number }) {
   const { selectFileList, getFileUrl } = useWebCommonStore();
   const [imageMap, setImageMap] = useState<Record<number, string[]>>({});
 
-  const { data, isLoading } = useQuery<ProductReviewData>({
+  const { data, isLoading } = useQuery<ReviewResponseProductList>({
     queryKey: ['productReviews', productId],
     queryFn: async () => {
       const res = await publicApi.get(`/frontWeb/review/product/${productId}`);
@@ -154,9 +134,7 @@ export default function ReviewSection({ productId }: { productId: number }) {
       const entries = await Promise.all(
         reviewsWithFile.map(async (r) => {
           const files = await selectFileList(r.fileId!);
-          const urls = await Promise.all(
-            files.map((f) => f.sysFileNm ? getFileUrl(f.sysFileNm) : Promise.resolve(''))
-          );
+          const urls = await Promise.all(files.map((f) => (f.sysFileNm ? getFileUrl(f.sysFileNm) : Promise.resolve(''))));
           return [r.id, urls.filter(Boolean)] as [number, string[]];
         }),
       );
@@ -198,17 +176,15 @@ export default function ReviewSection({ productId }: { productId: number }) {
       ) : (
         <ul className={styles.list}>
           {reviews.map((review) => {
-            const images = imageMap[review.id] ?? [];
+            const images = imageMap[review.id ?? 0] ?? [];
             return (
               <li key={review.id} className={styles.card}>
                 <div className={styles.cardTop}>
-                  <StarDisplay rating={review.rating} />
-                  <span className={styles.date}>{formatDate(review.creTm)}</span>
+                  <StarDisplay rating={review.rating ?? 0} />
+                  <span className={styles.date}>{Utils.formatDate(review.creTm)}</span>
                 </div>
                 <p className={styles.content}>{review.content}</p>
-                {images.length > 0 && (
-                  <ReviewImageSwiper images={images} />
-                )}
+                {images.length > 0 && <ReviewImageSwiper images={images} />}
               </li>
             );
           })}

@@ -7,44 +7,11 @@ import publicApi from '@/libs/publicApi';
 import { toastError } from '@/components/common/Others/ToastMessage';
 import { useWebCommonStore } from '@/stores/useWebCommonStore';
 import { useConfirm } from '@/components/common/ConfirmModal/ConfirmProvider';
+import { CodeResponseLowerSelect, ComuResponseMessage, ComuResponseSummary, ComuResponseThread } from '@/generated';
 import styles from './ComuChat.module.scss';
+import { Utils } from '@/libs/utils';
 
 const MAX_IMAGES = 5;
-
-interface ComuType {
-  codeCd: string;
-  codeNm: string;
-}
-
-interface ComuMessage {
-  id: number;
-  comuId: number;
-  reqYn: string;
-  comuCntn: string;
-  fileId?: number | null;
-  creUser: string;
-  creTm: string;
-}
-
-interface ComuThread {
-  id: number;
-  comuType: string;
-  comuTypeName?: string;
-  orderId: number;
-  creTm: string;
-  messages: ComuMessage[];
-}
-
-interface ComuSummary {
-  id: number;
-  comuType: string;
-  comuTypeName?: string;
-  orderId: number;
-  lastMessage?: string;
-  lastMessageTm?: string;
-  creTm: string;
-  unreadCount?: number;
-}
 
 interface Props {
   orderId: number;
@@ -54,20 +21,13 @@ interface Props {
   onClose: () => void;
 }
 
-const formatTime = (value?: string | null) => {
-  if (!value) return '';
-  const d = new Date(value);
-  if (Number.isNaN(d.getTime())) return '';
-  return new Intl.DateTimeFormat('ko-KR', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }).format(d);
-};
-
 function MessageBubble({
   msg,
   isMine,
   socialAccountId,
   onDelete,
 }: {
-  msg: ComuMessage;
+  msg: ComuResponseMessage;
   isMine: boolean;
   socialAccountId: number;
   onDelete: (id: number) => void;
@@ -94,11 +54,11 @@ function MessageBubble({
           {isMine && (
             <div className={styles.bubbleMeta}>
               {msg.reqYn === 'Y' && (
-                <button type="button" className={styles.deleteBtn} onClick={() => onDelete(msg.id)} aria-label="삭제">
+                <button type="button" className={styles.deleteBtn} onClick={() => onDelete(msg.id ?? 0)} aria-label="삭제">
                   삭제
                 </button>
               )}
-              <span className={styles.time}>{formatTime(msg.creTm)}</span>
+              <span className={styles.time}>{Utils.formatMonthDayTime(msg.creTm)}</span>
             </div>
           )}
           <div className={styles.bubble}>
@@ -111,7 +71,7 @@ function MessageBubble({
               </div>
             )}
           </div>
-          {!isMine && <span className={styles.time}>{formatTime(msg.creTm)}</span>}
+          {!isMine && <span className={styles.time}>{Utils.formatMonthDayTime(msg.creTm)}</span>}
         </div>
       </div>
 
@@ -134,7 +94,7 @@ export default function ComuChat({ orderId, orderNo, socialAccountId, paymentSta
 
   // step: 'list' | 'type-select' | 'chat'
   const [step, setStep] = useState<'list' | 'type-select' | 'chat'>('list');
-  const [selectedThread, setSelectedThread] = useState<ComuThread | null>(null);
+  const [selectedThread, setSelectedThread] = useState<ComuResponseThread | null>(null);
   const [selectedType, setSelectedType] = useState<string>('');
   const [inputText, setInputText] = useState('');
   const [imageFiles, setImageFiles] = useState<File[]>([]);
@@ -150,7 +110,7 @@ export default function ComuChat({ orderId, orderNo, socialAccountId, paymentSta
       step === 'chat' &&
       selectedThread &&
       revealedCount !== null && // 신규 생성된 스레드
-      !selectedThread.messages.some((m) => m.reqYn === 'Y')
+      !selectedThread.messages?.some((m) => m.reqYn === 'Y')
     ) {
       try {
         await authApi.delete(`/frontWeb/comu/${selectedThread.id}`);
@@ -178,17 +138,17 @@ export default function ComuChat({ orderId, orderNo, socialAccountId, paymentSta
   }, [previewUrls]);
 
   // 상담 유형 코드 목록
-  const { data: comuTypes = [] } = useQuery<ComuType[]>({
+  const { data: comuTypes = [] } = useQuery<CodeResponseLowerSelect[]>({
     queryKey: ['comuTypes'],
     queryFn: async () => {
       const res = await publicApi.get('/frontWeb/webCommon/lower/10130');
-      return (res.data?.body ?? []).filter((c: any) => String(c.codeCd ?? '').startsWith('A')).map((c: any) => ({ codeCd: c.codeCd, codeNm: c.codeNm }));
+      return (res.data?.body ?? []).filter((c: CodeResponseLowerSelect) => String(c.codeCd ?? '').startsWith('A'));
     },
     staleTime: 1000 * 60 * 10,
   });
 
   // 주문별 상담 목록
-  const { data: summaries = [], isLoading: summariesLoading } = useQuery<ComuSummary[]>({
+  const { data: summaries = [], isLoading: summariesLoading } = useQuery<ComuResponseSummary[]>({
     queryKey: ['comuList', orderId],
     queryFn: async () => {
       const res = await authApi.get(`/frontWeb/comu/order/${orderId}`);
@@ -199,7 +159,7 @@ export default function ComuChat({ orderId, orderNo, socialAccountId, paymentSta
   // 스레드 상세 조회 + 관리자 메시지 읽음 처리
   const loadThread = async (comuId: number) => {
     const res = await authApi.get(`/frontWeb/comu/${comuId}`);
-    const thread: ComuThread = res.data?.body;
+    const thread: ComuResponseThread = res.data?.body;
     setSelectedThread(thread);
     setStep('chat');
     // 고객이 읽었으므로 관리자 메시지(reqYn='N') 읽음 처리
@@ -232,7 +192,7 @@ export default function ComuChat({ orderId, orderNo, socialAccountId, paymentSta
   const createComuMutation = useMutation({
     mutationFn: async (comuType: string) => {
       const res = await authApi.post('/frontWeb/comu', { socialAccountId, comuType, orderId });
-      return res.data?.body as ComuThread;
+      return res.data?.body as ComuResponseThread;
     },
     onSuccess: (thread) => {
       setSelectedThread(thread);
@@ -269,7 +229,7 @@ export default function ComuChat({ orderId, orderNo, socialAccountId, paymentSta
       if (res.data?.resultCode !== 200) {
         throw new Error(res.data?.resultMessage ?? '전송 중 오류가 발생했습니다.');
       }
-      return res.data?.body as ComuThread;
+      return res.data?.body as ComuResponseThread;
     },
     onSuccess: (thread) => {
       if (thread) setSelectedThread(thread);
@@ -400,14 +360,12 @@ export default function ComuChat({ orderId, orderNo, socialAccountId, paymentSta
             ) : (
               <ul className={styles.threadList}>
                 {summaries.map((s) => (
-                  <li key={s.id} className={styles.threadItem} onClick={() => loadThread(s.id)}>
+                  <li key={s.id} className={styles.threadItem} onClick={() => loadThread(s.id ?? 0)}>
                     <div className={styles.threadTop}>
                       <span className={styles.typeBadge}>{s.comuTypeName ?? s.comuType}</span>
                       <div className={styles.threadTopRight}>
-                        {(s.unreadCount ?? 0) > 0 && (
-                          <span className={styles.unreadBadge}>{s.unreadCount}</span>
-                        )}
-                        <span className={styles.threadDate}>{formatTime(s.lastMessageTm ?? s.creTm)}</span>
+                        {(s.unreadCount ?? 0) > 0 && <span className={styles.unreadBadge}>{s.unreadCount}</span>}
+                        <span className={styles.threadDate}>{Utils.formatMonthDayTime(s.lastMessageTm ?? s.creTm)}</span>
                       </div>
                     </div>
                     <p className={styles.threadPreview}>{s.lastMessage ?? '메시지 없음'}</p>
@@ -443,8 +401,8 @@ export default function ComuChat({ orderId, orderNo, socialAccountId, paymentSta
                   className={`${styles.typeBtn} ${selectedType === t.codeCd ? styles.typeBtnActive : ''} ${used ? styles.typeBtnUsed : ''}`}
                   disabled={used || createComuMutation.isPending}
                   onClick={() => {
-                    setSelectedType(t.codeCd);
-                    createComuMutation.mutate(t.codeCd);
+                    setSelectedType(t.codeCd ?? '');
+                    createComuMutation.mutate(t.codeCd ?? '');
                   }}
                 >
                   {t.codeNm}

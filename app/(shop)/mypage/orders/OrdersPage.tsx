@@ -12,89 +12,17 @@ import { useConfirm } from '@/components/common/ConfirmModal/ConfirmProvider';
 import ReviewForm from './ReviewForm';
 import ComuChat from './ComuChat';
 import styles from './OrdersPage.module.scss';
+import { OrderResponseInfo, PaymentResponseListItem, ReviewResponseMyItem } from '@/generated';
+import { Utils } from '@/libs/utils';
 
-interface OrderHistoryItem {
-  orderItemId: number;
-  productId: number;
-  productDetId: number;
-  productName: string;
-  productImage?: string | null;
-  optionName?: string | null;
-  quantity: number;
-  unitPrice: number;
-  discountAmount: number;
-  paymentAmount: number;
+// payment 를 항상 포함한 조합 행 (generated 타입 extend)
+interface OrderHistoryRow extends OrderResponseInfo {
+  payment: PaymentResponseListItem;
 }
 
-interface OrderHistoryDelivery {
-  receiverName?: string | null;
-  receiverPhone?: string | null;
-  zipCode?: string | null;
-  address?: string | null;
-  addressDetail?: string | null;
-  memo?: string | null;
-  deliveryStatus?: string | null;
-  deliveryStatusNm?: string | null;
-  deliveryCompany?: string | null;
-  invoiceNo?: string | null;
-  shippedTm?: string | null;
-  deliveredTm?: string | null;
-}
-
-interface OrderHistoryOrder {
-  orderId: number;
-  orderNo: string;
-  cartId?: number | null;
-  socialAccountId: number;
-  orderStatus: string;
-  productAmount: number;
-  discountAmount: number;
-  usedPoint: number;
-  paymentAmount: number;
-  earnedPoint: number;
-  delivery?: OrderHistoryDelivery | null;
-  creTm?: string | null;
-  items?: OrderHistoryItem[];
-}
-
-interface PaymentHistoryItem {
-  paymentSeq: number;
-  orderId: number;
-  orderNo: string;
-  socialAccountId: number;
-  orderStatus?: string | null;
-  orderStatusNm?: string | null;
-  paymentId: string;
-  paymentStatus: string;
-  paymentStatusNm?: string | null;
-  totalAmount: number;
-  usedPoint: number;
-  paymentAmount: number;
-  earnedPoint: number;
-  currency: string;
-  paidTm?: string | null;
-  creTm?: string | null;
-  receiverName?: string | null;
-  receiverPhone?: string | null;
-  zipCode?: string | null;
-  address?: string | null;
-  addressDetail?: string | null;
-  deliveryStatus?: string | null;
-  deliveryStatusNm?: string | null;
-  deliveryCompany?: string | null;
-  invoiceNo?: string | null;
-}
-
-interface OrderHistoryRow extends OrderHistoryOrder {
-  payment: PaymentHistoryItem;
-}
-
-const currency = new Intl.NumberFormat('ko-KR');
 const EMPTY_ORDER_HISTORY: OrderHistoryRow[] = [];
 const ONE_DAY_MS = 24 * 60 * 60 * 1000;
 const MAX_RANGE_DAYS = 366;
-
-const formatWon = (value?: number | null) => `${currency.format(value ?? 0)}원`;
 
 const toInputDate = (date: Date) => {
   const year = date.getFullYear();
@@ -112,18 +40,6 @@ const addMonths = (date: Date, months: number) => {
 const defaultToDate = () => toInputDate(new Date());
 const defaultFromDate = () => toInputDate(addMonths(new Date(), -1));
 
-const formatDate = (value?: string | null) => {
-  if (!value) return '-';
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value.replace('T', ' ').slice(0, 16);
-  return new Intl.DateTimeFormat('ko-KR', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-  }).format(date);
-};
 
 const getStatusTone = (status?: string | null) => {
   if (status === 'P' || status === 'READY' || status === 'SHIPPED' || status === 'DELIVERED') return styles.good;
@@ -168,13 +84,13 @@ const useOrderHistoryQuery = (socialAccountId?: number, fromDate?: string, toDat
         authApi.get('/frontWeb/payment/list', { params: { socialAccountId, fromDate, toDate } }),
       ]);
 
-      const orders = (orderRes.data?.body ?? []) as OrderHistoryOrder[];
-      const payments = (paymentRes.data?.body ?? []) as PaymentHistoryItem[];
+      const orders = (orderRes.data?.body ?? []) as OrderResponseInfo[];
+      const payments = (paymentRes.data?.body ?? []) as PaymentResponseListItem[];
       const orderMap = new Map(orders.map((order) => [order.orderNo, order]));
 
       return payments
         .map((payment) => {
-          const order = orderMap.get(payment.orderNo);
+          const order = orderMap.get(payment.orderNo!);
           if (!order) return null;
           return { ...order, payment };
         })
@@ -184,12 +100,13 @@ const useOrderHistoryQuery = (socialAccountId?: number, fromDate?: string, toDat
   });
 };
 
+// existingReview 는 generated ReviewResponseMyItem 그대로 사용
 interface ReviewFormTarget {
   orderItemId: number;
   productId: number;
   productDetId?: number | null;
   productName: string;
-  existingReview?: { id: number; rating: number; content: string; fileId?: number | null } | null;
+  existingReview?: ReviewResponseMyItem | null;
 }
 
 export default function OrdersPage() {
@@ -206,7 +123,7 @@ export default function OrdersPage() {
   const confirm = useConfirm();
   const { data: orderData, isLoading, isError, refetch } = useOrderHistoryQuery(socialAccountId, fromDate, toDate);
 
-  const { data: myReviews } = useQuery<{ id: number; orderItemId: number; rating: number; content: string; fileId?: number | null }[]>({
+  const { data: myReviews } = useQuery<ReviewResponseMyItem[]>({
     queryKey: ['myReviews', socialAccountId],
     enabled: Boolean(socialAccountId),
     queryFn: async () => {
@@ -215,8 +132,8 @@ export default function OrdersPage() {
     },
   });
   const reviewedMap = useMemo(() => {
-    const map = new Map<number, { id: number; rating: number; content: string; fileId?: number | null }>();
-    (myReviews ?? []).forEach((r) => map.set(r.orderItemId, { id: r.id, rating: r.rating, content: r.content, fileId: r.fileId }));
+    const map = new Map<number, ReviewResponseMyItem>();
+    (myReviews ?? []).forEach((r) => map.set(r.orderItemId!, r));
     return map;
   }, [myReviews]);
   const orders = orderData ?? EMPTY_ORDER_HISTORY;
@@ -426,7 +343,7 @@ export default function OrdersPage() {
             <article key={`${payment.paymentSeq}-${payment.paymentId}-${order.orderNo}`} className={styles.orderCard}>
               <div className={styles.orderTop}>
                 <div>
-                  <span className={styles.orderDate}>{formatDate(payment.paidTm ?? payment.creTm ?? order.creTm)}</span>
+                  <span className={styles.orderDate}>{Utils.formatDateTime(payment.paidTm ?? payment.creTm ?? order.creTm)}</span>
                   <h2>{itemSummary}</h2>
                   <p>{order.orderNo}</p>
                 </div>
@@ -463,11 +380,11 @@ export default function OrdersPage() {
                       <strong>{item.productName}</strong>
                       {item.optionName && <span>{item.optionName}</span>}
                       <span>
-                        {item.quantity}개 · {formatWon(item.unitPrice)}
+                        {item.quantity}개 · {Utils.formatWon(item.unitPrice)}
                       </span>
                     </div>
                     <div className={styles.itemAmount}>
-                      {formatWon(item.paymentAmount)}
+                      {Utils.formatWon(item.paymentAmount)}
                       {paymentStatus === 'P' && (
                         reviewedMap.has(item.orderItemId) ? (
                           <button
@@ -506,19 +423,19 @@ export default function OrdersPage() {
               <div className={styles.metaGrid}>
                 <div>
                   <span>총 상품금액</span>
-                  <strong>{formatWon(totalAmount)}</strong>
+                  <strong>{Utils.formatWon(totalAmount)}</strong>
                 </div>
                 <div>
                   <span>포인트 사용</span>
-                  <strong>{formatWon(usedPoint)}</strong>
+                  <strong>{Utils.formatWon(usedPoint)}</strong>
                 </div>
                 <div>
                   <span>실 결제금액</span>
-                  <strong>{formatWon(paidAmount)}</strong>
+                  <strong>{Utils.formatWon(paidAmount)}</strong>
                 </div>
                 <div>
                   <span>적립 예정</span>
-                  <strong>{formatWon(payment.earnedPoint ?? order.earnedPoint)}</strong>
+                  <strong>{Utils.formatWon(payment.earnedPoint ?? order.earnedPoint)}</strong>
                 </div>
               </div>
 

@@ -4,45 +4,19 @@ import React, { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useQuery } from '@tanstack/react-query';
 import { authApi } from '@/libs/api';
+import { PointResponseHistoryList, PointResponseHistoryPointType } from '@/generated';
+import { Utils } from '@/libs/utils';
 import styles from './PointHistory.module.scss';
 
-type PointType = 'E' | 'U' | 'R' | 'V' | 'X' | 'A';
-
-interface PointHistoryItem {
-  id: number;
-  socialAccountId: number;
-  orderId?: number | null;
-  paymentId?: string | null;
-  pointType: PointType;
-  pointAmount: number;
-  description?: string | null;
-  creTm: string;
-}
-
-interface PointHistoryResponse {
-  socialAccountId: number;
-  pointBalance: number;
-  histories: PointHistoryItem[];
-}
-
-const POINT_TYPE_LABEL: Record<PointType, string> = {
-  E: '구매 적립',
-  U: '주문 사용',
-  R: '취소 환불',
-  V: '리뷰 적립',
-  X: '만료',
-  A: '관리자 지급',
+const POINT_TYPE_LABEL: Record<string, string> = {
+  [PointResponseHistoryPointType.Earn]:    '구매 적립',
+  [PointResponseHistoryPointType.Use]:     '주문 사용',
+  [PointResponseHistoryPointType.Restore]: '취소 환불',
+  [PointResponseHistoryPointType.Review]:  '리뷰 적립',
+  [PointResponseHistoryPointType.Expire]:  '만료',
+  [PointResponseHistoryPointType.Admin]:   '관리자 지급',
 };
 
-const formatDate = (value: string) => {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value.slice(0, 10);
-  return new Intl.DateTimeFormat('ko-KR', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  }).format(date);
-};
 
 export default function PointHistory() {
   const { data: session, status } = useSession();
@@ -50,7 +24,7 @@ export default function PointHistory() {
 
   const socialAccountId = session?.socialAccountId;
 
-  const { data, isLoading } = useQuery<PointHistoryResponse>({
+  const { data, isLoading } = useQuery<PointResponseHistoryList>({
     queryKey: ['pointHistory', socialAccountId],
     enabled: open && status === 'authenticated' && Boolean(socialAccountId),
     queryFn: async () => {
@@ -123,7 +97,7 @@ export default function PointHistory() {
                         <span className={`${styles.amount} ${isEarn ? styles.amountEarn : styles.amountUse}`}>
                           {isEarn ? '+' : ''}{h.pointAmount.toLocaleString()}P
                         </span>
-                        <span className={styles.date}>{formatDate(h.creTm)}</span>
+                        <span className={styles.date}>{Utils.formatDate(h.creTm)}</span>
                       </div>
                     </li>
                   );
