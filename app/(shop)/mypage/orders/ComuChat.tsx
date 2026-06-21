@@ -142,7 +142,7 @@ export default function ComuChat({ orderId, orderNo, socialAccountId, paymentSta
     queryKey: ['comuTypes'],
     queryFn: async () => {
       const res = await publicApi.get('/frontWeb/webCommon/lower/10130');
-      return (res.data?.body ?? []).filter((c: CodeResponseLowerSelect) => String(c.codeCd ?? '').startsWith('A'));
+      return res.data?.body ?? [];
     },
     staleTime: 1000 * 60 * 10,
   });
