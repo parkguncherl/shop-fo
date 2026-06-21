@@ -157,15 +157,18 @@ export default function ComuChat({ orderId, orderNo, socialAccountId, paymentSta
   });
 
   // 스레드 상세 조회 + 관리자 메시지 읽음 처리
+  const markAdminMessagesRead = (comuId: number) => {
+    authApi.post(`/frontWeb/comu/${comuId}/read`, null, { params: { isAdmin: false } }).then(() => {
+      queryClient.invalidateQueries({ queryKey: ['comuList', orderId] });
+    });
+  };
+
   const loadThread = async (comuId: number) => {
     const res = await authApi.get(`/frontWeb/comu/${comuId}`);
     const thread: ComuResponseThread = res.data?.body;
     setSelectedThread(thread);
     setStep('chat');
-    // 고객이 읽었으므로 관리자 메시지(reqYn='N') 읽음 처리
-    authApi.post(`/frontWeb/comu/${comuId}/read`, null, { params: { isAdmin: false } }).then(() => {
-      queryClient.invalidateQueries({ queryKey: ['comuList', orderId] });
-    });
+    markAdminMessagesRead(comuId);
   };
 
   // 신규 상담 메시지 순차 공개 애니메이션
@@ -232,7 +235,10 @@ export default function ComuChat({ orderId, orderNo, socialAccountId, paymentSta
       return res.data?.body as ComuResponseThread;
     },
     onSuccess: (thread) => {
-      if (thread) setSelectedThread(thread);
+      if (thread) {
+        setSelectedThread(thread);
+        markAdminMessagesRead(thread.id!);
+      }
       setInputText('');
       setImageFiles([]);
       setPreviewUrls([]);
