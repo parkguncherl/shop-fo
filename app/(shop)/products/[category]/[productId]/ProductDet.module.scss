@@ -301,3 +301,121 @@
   font-size: $font-size-sm;
   color: $color-gray-600;
 }
+
+// ── 상품 Q&A ───────────────────────────────────────────────
+.qnaSection {
+  padding: $spacing-lg $spacing-md;
+  border-top: 1px solid $color-gray-200;
+}
+
+.qnaTitle {
+  font-size: $font-size-base;
+  font-weight: 700;
+  color: $color-black;
+  margin-bottom: $spacing-md;
+}
+
+.qnaForm {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-md;
+}
+
+.qnaInput {
+  width: 100%;
+  padding: $spacing-sm;
+  border: 1px solid $color-gray-300;
+  border-radius: $border-radius-sm;
+  font-size: $font-size-sm;
+  resize: none;
+  box-sizing: border-box;
+
+  &:focus { outline: none; border-color: $color-black; }
+}
+
+.qnaSubmitBtn {
+  @include reset-button;
+  align-self: flex-end;
+  padding: 8px $spacing-md;
+  background: $color-black;
+  color: $color-white;
+  font-size: $font-size-sm;
+  border-radius: $border-radius-sm;
+
+  &:disabled { opacity: 0.4; cursor: not-allowed; }
+}
+
+.qnaLoginNote {
+  font-size: $font-size-sm;
+  color: $color-gray-500;
+  margin-bottom: $spacing-md;
+
+  a { color: $color-black; text-decoration: underline; }
+}
+
+.qnaEmpty {
+  font-size: $font-size-sm;
+  color: $color-gray-400;
+  text-align: center;
+  padding: $spacing-lg 0;
+}
+
+.qnaList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.qnaItem {
+  border: 1px solid $color-gray-200;
+  border-radius: $border-radius-md;
+  overflow: hidden;
+}
+
+.qnaQ, .qnaA {
+  display: flex;
+  gap: $spacing-sm;
+  padding: $spacing-sm $spacing-md;
+}
+
+.qnaA {
+  background: $color-gray-50;
+  border-top: 1px solid $color-gray-200;
+}
+
+.qnaBadge {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: $color-black;
+  color: $color-white;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2px;
+}
+
+.qnaBadgeA {
+  background: $color-gray-500;
+}
+
+.qnaContent {
+  font-size: $font-size-sm;
+  color: $color-black;
+  line-height: 1.6;
+  margin: 0 0 4px;
+  white-space: pre-wrap;
+}
+
+.qnaMeta {
+  font-size: $font-size-xs;
+  color: $color-gray-400;
+  margin: 0;
+}

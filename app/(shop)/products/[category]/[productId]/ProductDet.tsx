@@ -2,8 +2,10 @@
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useSession } from 'next-auth/react';
 import publicApi from '@/libs/publicApi';
+import { authApi } from '@/libs/api';
 import { useWebCommonStore } from '@/stores/useWebCommonStore';
 import { usePartnerCodeStore } from '@/stores/usePartnerCodeStore';
 import { useAddCartItem, useCartQuery } from '@/hooks/useCart';
@@ -287,10 +289,118 @@ const ProductDet = ({ productId }: { productId: number }) => {
         </button>
       </div>
 
+      {/* ── 상품 Q&A ── */}
+      {/* <ProductQnaSection productId={product.id ?? 0} /> */}
+
       {/* ── 구매 후기 ── */}
       <ReviewSection productId={product.id ?? 0} />
     </div>
   );
 };
+
+/* ── 상품 Q&A 섹션 ───────────────────────────────────────── */
+interface ProductQnaItem {
+  comuId: number;
+  question: string;
+  creUser: string;
+  creTm: string;
+  answer?: string;
+  answerTm?: string;
+}
+
+const maskName = (name: string) => {
+  if (!name) return '***';
+  if (name.length <= 1) return name + '**';
+  return name[0] + '*'.repeat(name.length - 1);
+};
+
+function ProductQnaSection({ productId }: { productId: number }) {
+  const { data: session } = useSession();
+  const socialAccountId = (session as any)?.socialAccountId;
+  const queryClient = useQueryClient();
+  const [content, setContent] = useState('');
+
+  const { data: qnaList = [] } = useQuery<ProductQnaItem[]>({
+    queryKey: ['productQna', productId],
+    queryFn: async () => {
+      const res = await publicApi.get(`/frontWeb/comu/product/${productId}/qna`);
+      return res.data?.body ?? [];
+    },
+  });
+
+  const submitMutation = useMutation({
+    mutationFn: async () => {
+      const { data } = await authApi.post(`/frontWeb/comu/product/${productId}/qna`, {
+        socialAccountId,
+        content,
+      });
+      if (data?.resultCode !== 200) throw new Error(data?.resultMessage ?? '등록 실패');
+    },
+    onSuccess: () => {
+      setContent('');
+      toastSuccess('문의가 등록되었습니다.');
+      queryClient.invalidateQueries({ queryKey: ['productQna', productId] });
+    },
+    onError: (e: any) => toastError(e?.message ?? '문의 등록에 실패했습니다.'),
+  });
+
+  return (
+    <section className={styles.qnaSection}>
+      <p className={styles.qnaTitle}>상품 Q&amp;A</p>
+
+      {/* 질문 작성 */}
+      {session ? (
+        <div className={styles.qnaForm}>
+          <textarea
+            className={styles.qnaInput}
+            placeholder="상품에 대해 궁금한 점을 남겨주세요."
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            rows={3}
+          />
+          <button
+            className={styles.qnaSubmitBtn}
+            onClick={() => submitMutation.mutate()}
+            disabled={!content.trim() || submitMutation.isPending}
+          >
+            문의 등록
+          </button>
+        </div>
+      ) : (
+        <p className={styles.qnaLoginNote}>
+          <Link href="/login">로그인</Link> 후 문의를 남길 수 있습니다.
+        </p>
+      )}
+
+      {/* Q&A 목록 */}
+      {qnaList.length === 0 ? (
+        <p className={styles.qnaEmpty}>등록된 문의가 없습니다.</p>
+      ) : (
+        <ul className={styles.qnaList}>
+          {qnaList.map((item) => (
+            <li key={item.comuId} className={styles.qnaItem}>
+              <div className={styles.qnaQ}>
+                <span className={styles.qnaBadge}>Q</span>
+                <div>
+                  <p className={styles.qnaContent}>{item.question}</p>
+                  <p className={styles.qnaMeta}>{maskName(item.creUser)} · {new Date(item.creTm).toLocaleDateString()}</p>
+                </div>
+              </div>
+              {item.answer && (
+                <div className={styles.qnaA}>
+                  <span className={`${styles.qnaBadge} ${styles.qnaBadgeA}`}>A</span>
+                  <div>
+                    <p className={styles.qnaContent}>{item.answer}</p>
+                    <p className={styles.qnaMeta}>{item.answerTm ? new Date(item.answerTm).toLocaleDateString() : ''}</p>
+                  </div>
+                </div>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  );
+}
 
 export default ProductDet;
