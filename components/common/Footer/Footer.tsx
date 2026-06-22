@@ -4,7 +4,7 @@ import styles from './Footer.module.scss';
 
 const BUSINESS_INFO = {
   brand: 'GGUANGGU',
-  companyName: 'GGUANGGU',
+  companyName: '지성네트웍 태양광발전소',
   representative: '박근철',
   businessNumber: '204-19-967-02',
   phone: '010-2746-6297',
