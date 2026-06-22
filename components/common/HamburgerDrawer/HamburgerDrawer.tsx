@@ -34,6 +34,8 @@ const MENU_GROUPS = [
   },
 ];
 
+const CS_GROUP_TITLE = '고객센터';
+
 export default function HamburgerDrawer({ isOpen, onClose }: Props) {
   const { data: session } = useSession();
   const router = useRouter();
@@ -141,23 +143,22 @@ export default function HamburgerDrawer({ isOpen, onClose }: Props) {
                     </Link>
                   </li>
                 ))}
+                {/* 고객센터 그룹 하단에 탈퇴 버튼 — 로그인 상태에서만 */}
+                {session && group.title === CS_GROUP_TITLE && (
+                  <li>
+                    <button
+                      className={`${styles.menuItem} ${styles.withdrawBtn}`}
+                      onClick={handleWithdraw}
+                      disabled={withdrawMutation.isPending}
+                    >
+                      회원 탈퇴
+                    </button>
+                  </li>
+                )}
               </ul>
             </div>
           ))}
         </nav>
-
-        {/* 탈퇴 버튼 — 로그인 상태에서만 표시 */}
-        {session && (
-          <div className={styles.withdrawArea}>
-            <button
-              className={styles.withdrawBtn}
-              onClick={handleWithdraw}
-              disabled={withdrawMutation.isPending}
-            >
-              회원 탈퇴
-            </button>
-          </div>
-        )}
       </aside>
     </>
   );
