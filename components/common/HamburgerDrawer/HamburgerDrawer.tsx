@@ -28,7 +28,6 @@ const MENU_GROUPS = [
     items: [
       { label: '배송문의',     href: '/cs/delivery' },
       { label: '상품문의',     href: '/cs/product' },
-      { label: '취소변경내역', href: '/cs/cancel' },
       { label: '나의리뷰',     href: '/cs/review' },
     ],
   },
