@@ -26,7 +26,6 @@ const MENU_GROUPS = [
   {
     title: '고객센터',
     items: [
-      { label: '배송문의',     href: '/cs/delivery' },
       { label: '상품문의',     href: '/cs/product' },
       { label: '나의리뷰',     href: '/cs/review' },
     ],
