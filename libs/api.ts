@@ -52,6 +52,12 @@ authApi.interceptors.request.use(
     }
 
     config.headers.Authorization = `Bearer ${session.token.accessToken}`;
+
+    const guestToken = getCookie(COOKIE_KEYS.GUEST_TOKEN);
+    if (guestToken) {
+      config.headers.set('X-Guest-Token', guestToken as string);
+    }
+
     return config;
   },
   (error) => Promise.reject(error),

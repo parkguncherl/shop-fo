@@ -40,7 +40,6 @@ const addMonths = (date: Date, months: number) => {
 const defaultToDate = () => toInputDate(new Date());
 const defaultFromDate = () => toInputDate(addMonths(new Date(), -1));
 
-
 const getStatusTone = (status?: string | null) => {
   if (status === 'P' || status === 'READY' || status === 'SHIPPED' || status === 'DELIVERED') return styles.good;
   if (status === 'C') return styles.neutral;
@@ -49,7 +48,7 @@ const getStatusTone = (status?: string | null) => {
 };
 
 const canCancelPayment = (paymentStatus?: string | null, deliveryStatus?: string | null) =>
-  paymentStatus === 'P' && (!deliveryStatus || deliveryStatus === 'READY');
+  paymentStatus === 'P' && (!deliveryStatus || deliveryStatus === 'R' || deliveryStatus === 'READY');
 
 const getRangeByMonths = (months: number) => {
   const to = new Date();
@@ -106,7 +105,7 @@ interface ReviewFormTarget {
   productId: number;
   productDetId?: number | null;
   productName: string;
-  existingReview?: ReviewResponseMyItem | null;
+  existingReview?: { id: number; rating: number; content: string; fileId?: number | null } | null;
 }
 
 export default function OrdersPage() {
@@ -153,12 +152,6 @@ export default function OrdersPage() {
       toastError(error?.message ?? '탈퇴 처리 중 오류가 발생했습니다.');
     },
   });
-
-  const handleWithdraw = async () => {
-    const ok = await confirm('정말 탈퇴하시겠습니까?\n탈퇴 시 개인정보가 즉시 삭제되며 복구할 수 없습니다.');
-    if (!ok) return;
-    withdrawMutation.mutate();
-  };
 
   const cancelPayment = useMutation({
     mutationFn: async (paymentSeq: number) => {
@@ -370,21 +363,23 @@ export default function OrdersPage() {
                 </div>
                 <div className={styles.statusGroup}>
                   <span className={`${styles.status} ${getStatusTone(paymentStatus)}`}>{paymentStatusLabel}</span>
-                  {paymentStatus != 'C' && <span className={`${styles.status} ${getStatusTone(deliveryStatus)}`}>{deliveryStatusLabel}</span>}
+                  {paymentStatus != 'C' && deliveryStatus && deliveryStatus !== 'R' && (
+                    <span className={`${styles.status} ${getStatusTone(deliveryStatus)}`}>{deliveryStatusLabel}</span>
+                  )}
                   {cancellable && (
                     <button
                       type="button"
                       className={styles.cancelBtn}
-                      onClick={() => handleCancelPayment(payment.paymentSeq)}
+                      onClick={() => handleCancelPayment(payment.paymentSeq ?? 0)}
                       disabled={cancelPayment.isPending}
                     >
-                      {cancelPayment.isPending ? '취소중' : '결제취소'}
+                      {cancelPayment.isPending ? '취소 중' : '결제 취소'}
                     </button>
                   )}
                   <button
                     type="button"
                     className={styles.inquiryBtn}
-                    onClick={() => setComuTarget({ orderId: order.orderId, orderNo: order.orderNo, paymentStatus })}
+                    onClick={() => setComuTarget({ orderId: order.orderId ?? 0, orderNo: order.orderNo ?? '', paymentStatus: paymentStatus ?? '' })}
                   >
                     문의하기
                   </button>
@@ -395,7 +390,7 @@ export default function OrdersPage() {
                 {items.map((item) => (
                   <div key={`${order.orderNo}-${item.orderItemId}-${item.productDetId}`} className={styles.itemRow}>
                     <div className={styles.itemImage}>
-                      {imageMap[item.orderItemId] ? <img src={imageMap[item.orderItemId]} alt={item.productName} /> : <span />}
+                      {imageMap[item.orderItemId ?? 0] ? <img src={imageMap[item.orderItemId ?? 0]} alt={item.productName} /> : <span />}
                     </div>
                     <div className={styles.itemInfo}>
                       <strong>{item.productName}</strong>
@@ -406,18 +401,20 @@ export default function OrdersPage() {
                     </div>
                     <div className={styles.itemAmount}>
                       {Utils.formatWon(item.paymentAmount)}
-                      {paymentStatus === 'P' && (
-                        reviewedMap.has(item.orderItemId) ? (
+                      {paymentStatus === 'P' &&
+                        (reviewedMap.has(item.orderItemId ?? 0) ? (
                           <button
                             type="button"
                             className={styles.reviewDoneBtn}
-                            onClick={() => setReviewTarget({
-                              orderItemId: item.orderItemId,
-                              productId: item.productId,
-                              productDetId: item.productDetId,
-                              productName: item.productName,
-                              existingReview: reviewedMap.get(item.orderItemId),
-                            })}
+                            onClick={() =>
+                              setReviewTarget({
+                                orderItemId: item.orderItemId ?? 0,
+                                productId: item.productId ?? 0,
+                                productDetId: item.productDetId ?? 0,
+                                productName: item.productName ?? '',
+                                existingReview: reviewedMap.get(item.orderItemId ?? 0) as { id: number; rating: number; content: string; fileId?: number | null } | undefined,
+                              })
+                            }
                           >
                             리뷰 수정
                           </button>
@@ -425,17 +422,18 @@ export default function OrdersPage() {
                           <button
                             type="button"
                             className={styles.reviewBtn}
-                            onClick={() => setReviewTarget({
-                              orderItemId: item.orderItemId,
-                              productId: item.productId,
-                              productDetId: item.productDetId,
-                              productName: item.productName,
-                            })}
+                            onClick={() =>
+                              setReviewTarget({
+                                orderItemId: item.orderItemId ?? 0,
+                                productId: item.productId ?? 0,
+                                productDetId: item.productDetId ?? 0,
+                                productName: item.productName ?? '',
+                              })
+                            }
                           >
                             리뷰 작성
                           </button>
-                        )
-                      )}
+                        ))}
                     </div>
                   </div>
                 ))}
@@ -498,7 +496,6 @@ export default function OrdersPage() {
           onClose={() => setReviewTarget(null)}
         />
       )}
-
     </main>
   );
 }
