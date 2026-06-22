@@ -499,11 +499,6 @@ export default function OrdersPage() {
         />
       )}
 
-      <div className={styles.withdrawWrap}>
-        <button className={styles.withdrawBtn} onClick={handleWithdraw} disabled={withdrawMutation.isPending}>
-          회원 탈퇴
-        </button>
-      </div>
     </main>
   );
 }

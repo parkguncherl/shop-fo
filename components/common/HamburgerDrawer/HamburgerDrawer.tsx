@@ -3,6 +3,10 @@ import React, { useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { signIn, signOut, useSession } from 'next-auth/react';
+import { useMutation } from '@tanstack/react-query';
+import { authApi } from '@/libs/api';
+import { toastError } from '@/components/common/Others/ToastMessage';
+import { useConfirm } from '@/components/common/ConfirmModal/ConfirmProvider';
 import CartIcon from '@/components/shop/CartIcon/CartIcon';
 import styles from './HamburgerDrawer.module.scss';
 
@@ -46,10 +50,32 @@ export default function HamburgerDrawer({ isOpen, onClose }: Props) {
     return () => window.removeEventListener('keydown', onKey);
   }, [onClose]);
 
+  const confirm = useConfirm();
+
   const handleLogout = async () => {
     await signOut({ redirect: false });
     onClose();
     router.push('/');
+  };
+
+  const withdrawMutation = useMutation({
+    mutationFn: async () => {
+      const socialAccountId = (session as any)?.socialAccountId;
+      const { data } = await authApi.delete('/frontWeb/login/withdraw', { params: { socialAccountId } });
+      if (data?.resultCode !== 200) throw new Error(data?.resultMessage ?? '탈퇴 처리 중 오류가 발생했습니다.');
+    },
+    onSuccess: async () => {
+      await signOut({ callbackUrl: '/' });
+    },
+    onError: (error: any) => {
+      toastError(error?.message ?? '탈퇴 처리 중 오류가 발생했습니다.');
+    },
+  });
+
+  const handleWithdraw = async () => {
+    const ok = await confirm('정말 탈퇴하시겠습니까?\n탈퇴 시 개인정보가 즉시 삭제되며 복구할 수 없습니다.');
+    if (!ok) return;
+    withdrawMutation.mutate();
   };
 
   return (
@@ -119,6 +145,19 @@ export default function HamburgerDrawer({ isOpen, onClose }: Props) {
             </div>
           ))}
         </nav>
+
+        {/* 탈퇴 버튼 — 로그인 상태에서만 표시 */}
+        {session && (
+          <div className={styles.withdrawArea}>
+            <button
+              className={styles.withdrawBtn}
+              onClick={handleWithdraw}
+              disabled={withdrawMutation.isPending}
+            >
+              회원 탈퇴
+            </button>
+          </div>
+        )}
       </aside>
     </>
   );
