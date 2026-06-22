@@ -282,3 +282,22 @@
 
   &:hover { opacity: 0.85; }
 }
+
+.deliveryInfo {
+  padding: 16px $spacing-md;
+  border-top: 1px solid $color-gray-200;
+  border-bottom: 1px solid $color-gray-200;
+  margin-bottom: $spacing-md;
+}
+
+.deliveryTitle {
+  font-size: $font-size-sm;
+  font-weight: 600;
+  color: $color-black;
+  margin-bottom: 6px;
+}
+
+.deliveryDesc {
+  font-size: $font-size-sm;
+  color: $color-gray-600;
+}

@@ -11,6 +11,7 @@ const BUSINESS_INFO = {
   address: '경기도 이천시 신둔면 원적로 155번길 86-21',
   businessType: '의류 및 패션잡화 소매업',
   items: '의류, 악세사리, 패션잡화',
+  email: 'ilovegguanggu@gmail.com',
 };
 
 export default function Footer() {
@@ -55,6 +56,10 @@ export default function Footer() {
           <div>
             <dt>판매품목</dt>
             <dd>{BUSINESS_INFO.items}</dd>
+          </div>
+          <div>
+            <dt>이메일</dt>
+            <dd>{BUSINESS_INFO.email}</dd>
           </div>
         </dl>
 
