@@ -1,5 +1,6 @@
 import type { NextAuthOptions } from 'next-auth';
 import KakaoProvider from 'next-auth/providers/kakao';
+import CredentialsProvider from 'next-auth/providers/credentials';
 import axios from 'axios';
 import { cookies } from 'next/headers';
 import { COOKIE_KEYS } from '@/libs/const';
@@ -9,6 +10,39 @@ const KAKAO_CLIENT_SECRET = process.env.KAKAO_CLIENT_SECRET?.trim();
 
 export const authOptions: NextAuthOptions = {
   providers: [
+    CredentialsProvider({
+      id: 'credentials',
+      name: '아이디/패스워드',
+      credentials: {
+        email: { label: '이메일', type: 'email' },
+        password: { label: '비밀번호', type: 'password' },
+      },
+      async authorize(credentials) {
+        try {
+          const { data } = await axios.post(`${BASE_URL}/frontWeb/login/test`, {
+            email: credentials?.email,
+            password: credentials?.password,
+          });
+          if (data?.body?.accessToken) {
+            return {
+              id: String(data.body.memberId),
+              shopToken: {
+                accessToken: data.body.accessToken,
+                refreshToken: data.body.refreshToken,
+                socialAccountId: data.body.memberId,
+                nickname: data.body.nickname,
+                profileImage: data.body.profileImage,
+                email: data.body.email,
+                partnerId: data.body.partnerId ?? null,
+              },
+            };
+          }
+          return null;
+        } catch {
+          return null;
+        }
+      },
+    }),
     KakaoProvider({
       clientId: process.env.KAKAO_CLIENT_ID!,
       clientSecret: KAKAO_CLIENT_SECRET ?? '',
@@ -20,6 +54,9 @@ export const authOptions: NextAuthOptions = {
 
   callbacks: {
     async signIn({ user, account }) {
+      // credentials 로그인은 authorize()에서 이미 처리 완료
+      if (account?.provider === 'credentials') return true;
+
       try {
         const cookieStore = await cookies();
         const guestId = cookieStore.get(COOKIE_KEYS.GUEST_ID)?.value ?? null;
