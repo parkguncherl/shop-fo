@@ -13,7 +13,7 @@ const BUSINESS_INFO = {
 const collectionRows = [
   {
     purpose: '회원 식별 및 로그인',
-    items: '카카오 계정 식별값, 이름 또는 닉네임, 이메일, 프로필 정보, 로그인 이력',
+    items: '카카오 계정 식별값, 닉네임, 이메일, 로그인 이력',
     retention: '회원 탈퇴 시까지',
   },
   {

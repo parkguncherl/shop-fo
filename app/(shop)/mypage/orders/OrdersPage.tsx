@@ -139,6 +139,27 @@ export default function OrdersPage() {
   const orders = orderData ?? EMPTY_ORDER_HISTORY;
   const getFileUrl = useWebCommonStore((state) => state.getFileUrl);
   const [imageMap, setImageMap] = useState<Record<number, string>>({});
+
+  const withdrawMutation = useMutation({
+    mutationFn: async () => {
+      const { data } = await authApi.delete('/frontWeb/login/withdraw', { params: { socialAccountId } });
+      if (data?.resultCode !== 200) throw new Error(data?.resultMessage ?? '탈퇴 처리 중 오류가 발생했습니다.');
+    },
+    onSuccess: async () => {
+      const { signOut } = await import('next-auth/react');
+      await signOut({ callbackUrl: '/' });
+    },
+    onError: (error: any) => {
+      toastError(error?.message ?? '탈퇴 처리 중 오류가 발생했습니다.');
+    },
+  });
+
+  const handleWithdraw = async () => {
+    const ok = await confirm('정말 탈퇴하시겠습니까?\n탈퇴 시 개인정보가 즉시 삭제되며 복구할 수 없습니다.');
+    if (!ok) return;
+    withdrawMutation.mutate();
+  };
+
   const cancelPayment = useMutation({
     mutationFn: async (paymentSeq: number) => {
       const { data } = await authApi.post(`/frontWeb/payment/${paymentSeq}/cancel`, {
@@ -477,6 +498,12 @@ export default function OrdersPage() {
           onClose={() => setReviewTarget(null)}
         />
       )}
+
+      <div className={styles.withdrawWrap}>
+        <button className={styles.withdrawBtn} onClick={handleWithdraw} disabled={withdrawMutation.isPending}>
+          회원 탈퇴
+        </button>
+      </div>
     </main>
   );
 }
