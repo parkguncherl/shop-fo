@@ -41,9 +41,15 @@ export function usePageViewLog({ pageType, productId, categoryCd }: PageViewLogP
       const staySeconds = Math.round((Date.now() - startTimeRef.current) / 1000);
       const isBounce = staySeconds < 3 ? 'Y' : 'N';
 
+      // 이전 페이지 URL에서 상품 ID 추출 (예: /products/all/3 → 3)
+      const referrer = document.referrer;
+      const refMatch = referrer ? referrer.match(/\/products\/[^/]+\/(\d+)/) : null;
+      const befProductId = refMatch ? Number(refMatch[1]) : undefined;
+
       const data = JSON.stringify({
         pageType,
-        pageUrl: window.location.href,
+        pageUrl: referrer || undefined,
+        befProductId,
         productId,
         categoryCd,
         staySeconds,

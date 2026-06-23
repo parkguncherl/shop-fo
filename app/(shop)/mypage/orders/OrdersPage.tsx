@@ -14,6 +14,7 @@ import ComuChat from './ComuChat';
 import styles from './OrdersPage.module.scss';
 import { OrderResponseInfo, PaymentResponseListItem, ReviewResponseMyItem } from '@/generated';
 import { Utils } from '@/libs/utils';
+import { usePageViewLog } from '@/hooks/usePageViewLog';
 
 // payment 를 항상 포함한 조합 행 (generated 타입 extend)
 interface OrderHistoryRow extends OrderResponseInfo {
@@ -109,6 +110,7 @@ interface ReviewFormTarget {
 }
 
 export default function OrdersPage() {
+  usePageViewLog({ pageType: OrdersPage.name });
   const router = useRouter();
   const { data: session, status } = useSession();
   const socialAccountId = session?.socialAccountId;

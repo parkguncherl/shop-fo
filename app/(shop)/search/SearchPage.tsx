@@ -11,6 +11,7 @@ import { useWebCommonStore } from '@/stores/useWebCommonStore';
 import styles from '@/app/(shop)/page.module.scss';
 import searchStyles from './SearchPage.module.scss';
 import useUpdateEffect from '@/customHook/useUpdateEffect';
+import { usePageViewLog } from '@/hooks/usePageViewLog';
 
 interface ExtendedProductInfo extends ProductResponseProductInfo {
   src?: string;
@@ -19,6 +20,7 @@ interface ExtendedProductInfo extends ProductResponseProductInfo {
 const PAGE_ROW = 20;
 
 export default function SearchPage({ keyword }: { keyword: string }) {
+  usePageViewLog({ pageType: SearchPage.name });
   const searchParams = useSearchParams();
   const q = searchParams.get('q') ?? keyword;
 
@@ -83,9 +85,7 @@ export default function SearchPage({ keyword }: { keyword: string }) {
         <>
           <div className={styles.grid}>
             {list.map((product, index) => {
-              const discounted =
-                (Number(product.sellAmt) ?? 0) -
-                Math.floor((Number(product.sellAmt) ?? 0) * ((Number(product.discountRate) ?? 0) / 100));
+              const discounted = (Number(product.sellAmt) ?? 0) - Math.floor((Number(product.sellAmt) ?? 0) * ((Number(product.discountRate) ?? 0) / 100));
               return (
                 <div key={index} className={styles.card}>
                   <div className={styles.imageWrap}>
@@ -100,9 +100,7 @@ export default function SearchPage({ keyword }: { keyword: string }) {
                   <Link href={`/products/all/${product.id}`} className={styles.info}>
                     <p className={styles.name}>{product.prodNm}</p>
                     <div className={styles.priceRow}>
-                      {(Number(product.discountRate) ?? 0) > 0 && (
-                        <span className={styles.discount}>{product.discountRate}%</span>
-                      )}
+                      {(Number(product.discountRate) ?? 0) > 0 && <span className={styles.discount}>{product.discountRate}%</span>}
                       <span className={styles.price}>{discounted.toLocaleString()}원</span>
                       {(Number(product.discountRate) ?? 0) > 0 && product.sellAmt && (
                         <span className={styles.originalPrice}>{Number(product.sellAmt).toLocaleString()}원</span>

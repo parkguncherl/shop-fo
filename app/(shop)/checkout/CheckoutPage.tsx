@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { type Address } from 'react-daum-postcode';
@@ -15,6 +15,7 @@ import { PaymentMethod, useCreateCheckoutMutation, usePointBalanceQuery } from '
 import { DeliveryAddress, useDeliveryAddressListQuery, useSaveDeliveryAddressMutation } from '@/hooks/useDeliveryAddress';
 import { requestPortOnePayment } from '@/libs/portone';
 import styles from './CheckoutPage.module.scss';
+import { usePageViewLog } from '@/hooks/usePageViewLog';
 
 const FREE_SHIPPING_THRESHOLD = 50000;
 const makeOrderNo = () => `ORD-${Date.now()}`;
@@ -22,6 +23,7 @@ const makePaymentId = () => `PAY-${Date.now()}`;
 const PENDING_ORDER_KEY = 'pending_checkout_data';
 
 export default function CheckoutPage() {
+  usePageViewLog({ pageType: CheckoutPage.name });
   const router = useRouter();
   const searchParams = useSearchParams();
   const { data: session, status } = useSession();
@@ -101,7 +103,10 @@ export default function CheckoutPage() {
           });
         }
 
-        await createCheckout.mutateAsync({ ...pending.payload, payment: { paymentId: returnedPaymentId, totalAmount: pending.orderAmount, currency: 'KRW', details } });
+        await createCheckout.mutateAsync({
+          ...pending.payload,
+          payment: { paymentId: returnedPaymentId, totalAmount: pending.orderAmount, currency: 'KRW', details },
+        });
 
         if (pending.saveAddressChecked && pending.addressAlias) {
           await saveAddress.mutateAsync({ ...pending.addressPayload });
@@ -115,22 +120,22 @@ export default function CheckoutPage() {
     })();
   }, [searchParams]);
 
-  // 저장된 배송지 중 기본 배송지를 최초 자동 선택
-  useEffect(() => {
-    if (savedAddresses.length > 0 && !receiverName) {
-      const defaultAddr = savedAddresses.find((a) => a.isDefault === 'Y') ?? savedAddresses[0];
-      fillFormFromAddress(defaultAddr);
-    }
-  }, [savedAddresses]);
-
-  const fillFormFromAddress = (addr: DeliveryAddress) => {
+  const fillFormFromAddress = useCallback((addr: DeliveryAddress) => {
     setReceiverName(addr.receiverName);
     setReceiverPhone(addr.receiverPhone);
     setZipCode(addr.zipCode);
     setAddress(addr.address);
     setAddressDetail(addr.addressDetail ?? '');
     setMemo(addr.memo ?? '');
-  };
+  }, []);
+
+  // 저장된 배송지 중 기본 배송지를 최초 자동 선택
+  useEffect(() => {
+    if (savedAddresses.length > 0 && !receiverName) {
+      const defaultAddr = savedAddresses.find((a) => a.isDefault === 'Y') ?? savedAddresses[0];
+      fillFormFromAddress(defaultAddr);
+    }
+  }, [savedAddresses, fillFormFromAddress]);
 
   const items = cart?.items ?? [];
   const productAmount = useMemo(() => items.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0), [items]);
@@ -227,16 +232,31 @@ export default function CheckoutPage() {
           paymentAmount: item.unitPrice * item.quantity,
         })),
       };
-      sessionStorage.setItem(PENDING_ORDER_KEY, JSON.stringify({
-        payload: pendingPayload,
-        orderAmount,
-        cappedUsedPoint,
-        paymentAmount,
-        method,
-        saveAddressChecked,
-        addressAlias: addressAlias.trim(),
-        addressPayload: saveAddressChecked ? { socialAccountId: socialAccountId!, alias: addressAlias.trim(), receiverName, receiverPhone, zipCode, address, addressDetail, memo, isDefault: setAsDefault ? 'Y' as const : 'N' as const } : null,
-      }));
+      sessionStorage.setItem(
+        PENDING_ORDER_KEY,
+        JSON.stringify({
+          payload: pendingPayload,
+          orderAmount,
+          cappedUsedPoint,
+          paymentAmount,
+          method,
+          saveAddressChecked,
+          addressAlias: addressAlias.trim(),
+          addressPayload: saveAddressChecked
+            ? {
+                socialAccountId: socialAccountId!,
+                alias: addressAlias.trim(),
+                receiverName,
+                receiverPhone,
+                zipCode,
+                address,
+                addressDetail,
+                memo,
+                isDefault: setAsDefault ? ('Y' as const) : ('N' as const),
+              }
+            : null,
+        }),
+      );
 
       let portOneResponse: Awaited<ReturnType<typeof requestPortOnePayment>> | null = null;
       if (paymentAmount > 0) {
@@ -303,120 +323,113 @@ export default function CheckoutPage() {
 
   return (
     <>
-    <AddressSearchModal
-      open={addressModalOpen}
-      onClose={() => setAddressModalOpen(false)}
-      onComplete={handleAddressComplete}
-    />
-    <main className={styles.page}>
-      <header className={styles.header}>
-        <h1>주문/결제</h1>
-        <p>카카오 로그인 회원만 주문할 수 있습니다.</p>
-      </header>
+      <AddressSearchModal open={addressModalOpen} onClose={() => setAddressModalOpen(false)} onComplete={handleAddressComplete} />
+      <main className={styles.page}>
+        <header className={styles.header}>
+          <h1>주문/결제</h1>
+          <p>카카오 로그인 회원만 주문할 수 있습니다.</p>
+        </header>
 
-      <div className={styles.layout}>
-        <section className={styles.left}>
-          <section className={styles.panel}>
-            <h2>배송지 정보</h2>
+        <div className={styles.layout}>
+          <section className={styles.left}>
+            <section className={styles.panel}>
+              <h2>배송지 정보</h2>
 
-            {/* 저장된 배송지 선택 */}
-            {savedAddresses.length > 0 && (
-              <DeliveryAddressSelector
-                addresses={savedAddresses}
-                socialAccountId={socialAccountId!}
-                onSelect={fillFormFromAddress}
-                onEdit={(addr) => setEditingAddress(addr)}
-              />
-            )}
-
-            <div className={styles.formGrid}>
-              <label>
-                <span>수령인</span>
-                <input value={receiverName} onChange={(e) => setReceiverName(e.target.value)} placeholder="이름" />
-              </label>
-              <label>
-                <span>연락처</span>
-                <input value={receiverPhone} onChange={handleReceiverPhoneChange} inputMode="numeric" placeholder="010-0000-0000" />
-              </label>
-              <label>
-                <span>이메일</span>
-                <input value={buyerEmail} onChange={(e) => setBuyerEmail(e.target.value)} inputMode="email" placeholder="email@example.com" />
-              </label>
-              <div className={styles.addressSearchField}>
-                <label>
-                  <span>우편번호</span>
-                  <input value={zipCode} readOnly placeholder="우편번호" />
-                </label>
-                <button type="button" className={styles.addressSearchBtn} onClick={() => setAddressModalOpen(true)}>
-                  주소검색
-                </button>
-              </div>
-              <label className={styles.fullLine}>
-                <span>주소</span>
-                <input value={address} readOnly placeholder="주소검색을 눌러 기본주소를 입력해주세요" />
-              </label>
-              <label className={styles.fullLine}>
-                <span>상세주소</span>
-                <input ref={addressDetailRef} value={addressDetail} onChange={(e) => setAddressDetail(e.target.value)} placeholder="상세주소를 입력해주세요" />
-              </label>
-              <label className={styles.fullLine}>
-                <span>배송 메모</span>
-                <input value={memo} onChange={(e) => setMemo(e.target.value)} placeholder="배송 요청사항" />
-              </label>
-            </div>
-
-            {/* 배송지 저장 옵션 */}
-            <div className={styles.saveAddressWrap}>
-              <label className={styles.checkboxLabel}>
-                <input
-                  type="checkbox"
-                  checked={saveAddressChecked}
-                  onChange={(e) => setSaveAddressChecked(e.target.checked)}
+              {/* 저장된 배송지 선택 */}
+              {savedAddresses.length > 0 && (
+                <DeliveryAddressSelector
+                  addresses={savedAddresses}
+                  socialAccountId={socialAccountId!}
+                  onSelect={fillFormFromAddress}
+                  onEdit={(addr) => setEditingAddress(addr)}
                 />
-                <span>이 배송지를 저장하기</span>
-              </label>
-              {saveAddressChecked && (
-                <div className={styles.saveAddressOptions}>
-                  <input
-                    className={styles.aliasInput}
-                    value={addressAlias}
-                    onChange={(e) => setAddressAlias(e.target.value)}
-                    placeholder="별칭 입력 (예: 집, 회사)"
-                    maxLength={20}
-                  />
-                  <label className={styles.checkboxLabel}>
-                    <input
-                      type="checkbox"
-                      checked={setAsDefault}
-                      onChange={(e) => setSetAsDefault(e.target.checked)}
-                    />
-                    <span>기본 배송지로 설정</span>
-                  </label>
-                </div>
               )}
-            </div>
+
+              <div className={styles.formGrid}>
+                <label>
+                  <span>수령인</span>
+                  <input value={receiverName} onChange={(e) => setReceiverName(e.target.value)} placeholder="이름" />
+                </label>
+                <label>
+                  <span>연락처</span>
+                  <input value={receiverPhone} onChange={handleReceiverPhoneChange} inputMode="numeric" placeholder="010-0000-0000" />
+                </label>
+                <label>
+                  <span>이메일</span>
+                  <input value={buyerEmail} onChange={(e) => setBuyerEmail(e.target.value)} inputMode="email" placeholder="email@example.com" />
+                </label>
+                <div className={styles.addressSearchField}>
+                  <label>
+                    <span>우편번호</span>
+                    <input value={zipCode} readOnly placeholder="우편번호" />
+                  </label>
+                  <button type="button" className={styles.addressSearchBtn} onClick={() => setAddressModalOpen(true)}>
+                    주소검색
+                  </button>
+                </div>
+                <label className={styles.fullLine}>
+                  <span>주소</span>
+                  <input value={address} readOnly placeholder="주소검색을 눌러 기본주소를 입력해주세요" />
+                </label>
+                <label className={styles.fullLine}>
+                  <span>상세주소</span>
+                  <input
+                    ref={addressDetailRef}
+                    value={addressDetail}
+                    onChange={(e) => setAddressDetail(e.target.value)}
+                    placeholder="상세주소를 입력해주세요"
+                  />
+                </label>
+                <label className={styles.fullLine}>
+                  <span>배송 메모</span>
+                  <input value={memo} onChange={(e) => setMemo(e.target.value)} placeholder="배송 요청사항" />
+                </label>
+              </div>
+
+              {/* 배송지 저장 옵션 */}
+              <div className={styles.saveAddressWrap}>
+                <label className={styles.checkboxLabel}>
+                  <input type="checkbox" checked={saveAddressChecked} onChange={(e) => setSaveAddressChecked(e.target.checked)} />
+                  <span>이 배송지를 저장하기</span>
+                </label>
+                {saveAddressChecked && (
+                  <div className={styles.saveAddressOptions}>
+                    <input
+                      className={styles.aliasInput}
+                      value={addressAlias}
+                      onChange={(e) => setAddressAlias(e.target.value)}
+                      placeholder="별칭 입력 (예: 집, 회사)"
+                      maxLength={20}
+                    />
+                    <label className={styles.checkboxLabel}>
+                      <input type="checkbox" checked={setAsDefault} onChange={(e) => setSetAsDefault(e.target.checked)} />
+                      <span>기본 배송지로 설정</span>
+                    </label>
+                  </div>
+                )}
+              </div>
+            </section>
+
+            <section className={styles.panel}>
+              <PaymentForm
+                productAmount={orderAmount}
+                pointBalance={pointBalance}
+                usedPoint={cappedUsedPoint}
+                onUsedPointChange={setUsedPoint}
+                onPay={handlePay}
+                loading={createCheckout.isPending}
+              />
+            </section>
           </section>
 
-          <section className={styles.panel}>
-            <PaymentForm
-              productAmount={orderAmount}
-              pointBalance={pointBalance}
-              usedPoint={cappedUsedPoint}
-              onUsedPointChange={setUsedPoint}
-              onPay={handlePay}
-              loading={createCheckout.isPending}
-            />
-          </section>
-        </section>
-
-        <aside className={styles.right}>
-          <OrderSummary items={summaryItems} shippingFee={shippingFee} usedPoint={cappedUsedPoint} expectedPoint={earnedPoint} />
-          <Button variant="outline" size="full" className={styles.backBtn} onClick={() => router.push('/cart')}>
-            장바구니로 돌아가기
-          </Button>
-        </aside>
-      </div>
-    </main>
+          <aside className={styles.right}>
+            <OrderSummary items={summaryItems} shippingFee={shippingFee} usedPoint={cappedUsedPoint} expectedPoint={earnedPoint} />
+            <Button variant="outline" size="full" className={styles.backBtn} onClick={() => router.push('/cart')}>
+              장바구니로 돌아가기
+            </Button>
+          </aside>
+        </div>
+      </main>
     </>
   );
 }

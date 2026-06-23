@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { signIn, useSession } from 'next-auth/react';
 import { useCartQuery, useUpdateCartItem, useRemoveCartItem, useClearCart } from '@/hooks/useCart';
+import { usePageViewLog } from '@/hooks/usePageViewLog';
 import { toastError } from '@/components/common/Others/ToastMessage';
 import { useConfirm } from '@/components/common/ConfirmModal/ConfirmProvider';
 import { useWebCommonStore } from '@/stores/useWebCommonStore';
@@ -12,6 +13,7 @@ import PointHistory from './PointHistory';
 import styles from './CartPage.module.scss';
 
 export default function CartPage() {
+  usePageViewLog({ pageType: CartPage.name });
   const router = useRouter();
   const { status } = useSession();
   const { data: cart, isLoading } = useCartQuery();
@@ -224,11 +226,7 @@ export default function CartPage() {
                   </div>
 
                   {/* 삭제 */}
-                  <button
-                    className={styles.removeBtn}
-                    aria-label="삭제"
-                    onClick={() => handleDeleteItem(item.cartId)}
-                  >
+                  <button className={styles.removeBtn} aria-label="삭제" onClick={() => handleDeleteItem(item.cartId)}>
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                       <path d="M3 3l10 10M13 3L3 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
                     </svg>
@@ -264,11 +262,7 @@ export default function CartPage() {
               <span>{checkedTotal === 0 ? '0원' : `${finalTotal.toLocaleString()}원`}</span>
             </div>
 
-            <button
-              className={styles.orderBtn}
-              disabled={checkedIds.size === 0 || status === 'loading'}
-              onClick={handleOrder}
-            >
+            <button className={styles.orderBtn} disabled={checkedIds.size === 0 || status === 'loading'} onClick={handleOrder}>
               주문하기 ({checkedCount}개)
             </button>
 
