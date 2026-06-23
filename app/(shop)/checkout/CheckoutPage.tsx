@@ -23,7 +23,7 @@ const makePaymentId = () => `PAY-${Date.now()}`;
 const PENDING_ORDER_KEY = 'pending_checkout_data';
 
 export default function CheckoutPage() {
-  usePageViewLog({ pageType: 'CheckoutPage' });
+  usePageViewLog({ pageType: 'Checkout' });
   const router = useRouter();
   const searchParams = useSearchParams();
   const { data: session, status } = useSession();

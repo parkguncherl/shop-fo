@@ -20,7 +20,7 @@ interface ExtendedProductInfo extends ProductResponseProductInfo {
 const PAGE_ROW = 20;
 
 export default function SearchPage({ keyword }: { keyword: string }) {
-  usePageViewLog({ pageType: 'SearchPage' });
+  usePageViewLog({ pageType: 'Search' });
   const searchParams = useSearchParams();
   const q = searchParams.get('q') ?? keyword;
 

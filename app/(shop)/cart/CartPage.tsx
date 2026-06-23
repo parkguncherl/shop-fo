@@ -13,7 +13,7 @@ import PointHistory from './PointHistory';
 import styles from './CartPage.module.scss';
 
 export default function CartPage() {
-  usePageViewLog({ pageType: 'CartPage' });
+  usePageViewLog({ pageType: 'Cart' });
   const router = useRouter();
   const { status } = useSession();
   const { data: cart, isLoading } = useCartQuery();
