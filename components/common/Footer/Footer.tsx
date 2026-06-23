@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import styles from './Footer.module.scss';
 
@@ -19,7 +20,16 @@ export default function Footer() {
     <footer className={styles.footer}>
       <div className={styles.inner}>
         <div className={styles.top}>
-          <span className={styles.brand}>{BUSINESS_INFO.brand}</span>
+          <div className={styles.brandWrap}>
+            <Image
+              src="/images/logo_100x100.png"
+              alt="GGUANGGU 로고"
+              width={52}
+              height={52}
+              className={styles.logoImg}
+            />
+            <span className={styles.brand}>{BUSINESS_INFO.brand}</span>
+          </div>
           <nav className={styles.links} aria-label="푸터 메뉴">
             <Link href="/info/about">브랜드 소개</Link>
             <Link href="/info/privacy">개인정보처리방침</Link>

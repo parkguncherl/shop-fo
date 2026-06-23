@@ -29,6 +29,18 @@
   }
 }
 
+.brandWrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logoImg {
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
 .brand {
   font-size: $font-size-base;
   font-weight: 700;
