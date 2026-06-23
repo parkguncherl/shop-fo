@@ -24,7 +24,7 @@ const ProductImage = ({ src, alt }: { src?: string; alt: string }) => (src ? <im
 
 /* ── 컴포넌트 ─────────────────────────────────────────── */
 const ProductDet = ({ productId }: { productId: number }) => {
-  usePageViewLog({ pageType: ProductDet.name, productId: productId });
+  usePageViewLog({ pageType: 'ProductDet', productId: productId });
 
   const getFileUrl = useWebCommonStore((s) => s.getFileUrl);
   const categoryReady = usePartnerCodeStore((s) => s.categoryReady);

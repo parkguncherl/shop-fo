@@ -110,7 +110,7 @@ interface ReviewFormTarget {
 }
 
 export default function OrdersPage() {
-  usePageViewLog({ pageType: OrdersPage.name });
+  usePageViewLog({ pageType: 'OrdersPage' });
   const router = useRouter();
   const { data: session, status } = useSession();
   const socialAccountId = session?.socialAccountId;

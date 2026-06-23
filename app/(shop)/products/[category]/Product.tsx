@@ -71,7 +71,7 @@ function ProductInfosOfHomePageForEnumReducerFn(state: ProductInfoState, action:
 /** 상품 - 카테고리 (조건부) 페이지 */
 const Product = (Props: { categoryId: string }) => {
   /** 홈페이지 전역 스토어 - State */
-  usePageViewLog({ pageType: Product.name, categoryCd: Props.categoryId });
+  usePageViewLog({ pageType: 'Product', categoryCd: Props.categoryId });
   const [pagingOnProduct, setPagingOnProduct] = useProductStore((s) => [s.paging, s.setPaging]);
   const [getFileUrl] = useWebCommonStore((s) => [s.getFileUrl]);
   const [isBlocked, timeLeft] = useBlockStore((s) => [s.isBlocked, s.timeLeft]);
