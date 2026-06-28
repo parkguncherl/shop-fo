@@ -105,6 +105,82 @@
   color: #f5a623;
 }
 
+// ── 설문 (사이즈/키/몸무게) ───────────────────────────────
+.surveyWrap {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.surveyTrack {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: $spacing-sm 0 $spacing-xs;
+}
+
+.surveyItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
+.surveyLine {
+  position: absolute;
+  top: 17px;
+  right: 50%;
+  left: -50%;
+  height: 2px;
+  background: $color-gray-200;
+  z-index: 0;
+}
+
+.surveyCircle {
+  @include reset-button;
+  position: relative;
+  z-index: 1;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 2px solid $color-gray-300;
+  background: $color-white;
+  cursor: pointer;
+  transition: border-color $transition-fast, background $transition-fast;
+  flex-shrink: 0;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 5px;
+    border-radius: 50%;
+    background: $color-gray-300;
+    transition: background $transition-fast;
+  }
+
+  &:hover {
+    border-color: $color-gray-500;
+    &::after { background: $color-gray-400; }
+  }
+}
+
+.surveyCircleActive {
+  border-color: $color-black;
+  &::after { background: $color-black; }
+}
+
+.surveyItemLabel {
+  font-size: 11px;
+  color: $color-gray-600;
+  text-align: center;
+  line-height: 1.4;
+  word-break: keep-all;
+  max-width: 56px;
+}
+
 // ── 이미지 업로드 ──────────────────────────────────────────
 .imageUploadWrap {}
 

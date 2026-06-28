@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { authApi } from '@/libs/api';
 import publicApi from '@/libs/publicApi';
+import { usePartnerCode } from '@/hooks/usePartnerCode';
 import { toastSuccess, toastError } from '@/components/common/Others/ToastMessage';
 import { useWebCommonStore } from '@/stores/useWebCommonStore';
 import { FileDet } from '@/generated';
@@ -22,6 +23,9 @@ interface ReviewFormProps {
     rating: number;
     content: string;
     fileId?: number | null;
+    myFit?: string | null;
+    myWeight?: string | null;
+    myHeight?: string | null;
   } | null;
   onClose: () => void;
 }
@@ -37,6 +41,13 @@ export default function ReviewForm({ socialAccountId, orderItemId, productId, pr
   const [rating, setRating] = useState(existingReview?.rating ?? 5);
   const [hoverRating, setHoverRating] = useState(0);
   const [content, setContent] = useState(existingReview?.content ?? '');
+  const [myFit, setMyFit] = useState(existingReview?.myFit ?? '');
+  const [myWeight, setMyWeight] = useState(existingReview?.myWeight ?? '');
+  const [myHeight, setMyHeight] = useState(existingReview?.myHeight ?? '');
+
+  const { data: fitOptions = [] } = usePartnerCode('P0003');
+  const { data: heightOptions = [] } = usePartnerCode('P0004');
+  const { data: weightOptions = [] } = usePartnerCode('P0005');
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
 
@@ -125,6 +136,9 @@ export default function ReviewForm({ socialAccountId, orderItemId, productId, pr
           rating,
           content,
           fileId,
+          myFit: myFit || null,
+          myWeight: myWeight || null,
+          myHeight: myHeight || null,
         });
         return data?.body;
       } else {
@@ -136,6 +150,9 @@ export default function ReviewForm({ socialAccountId, orderItemId, productId, pr
           rating,
           content,
           fileId,
+          myFit: myFit || null,
+          myWeight: myWeight || null,
+          myHeight: myHeight || null,
         });
         return data?.body;
       }
@@ -153,10 +170,9 @@ export default function ReviewForm({ socialAccountId, orderItemId, productId, pr
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (content.trim().length < 3) {
-      toastError('리뷰 내용을 3자 이상 입력해주세요.');
-      return;
-    }
+    if (!myFit) { toastError('사이즈를 선택해주세요.'); return; }
+    if (!myHeight) { toastError('키를 선택해주세요.'); return; }
+    if (!myWeight) { toastError('몸무게를 선택해주세요.'); return; }
     mutation.mutate();
   };
 
@@ -194,6 +210,33 @@ export default function ReviewForm({ socialAccountId, orderItemId, productId, pr
               <span className={styles.ratingText}>{hoverRating || rating}점</span>
             </div>
           </div>
+
+          {/* 설문 */}
+          {[
+            { label: '사이즈는 어떤가요?', options: fitOptions, value: myFit, setValue: setMyFit },
+            { label: '키는 어떤가요?', options: heightOptions, value: myHeight, setValue: setMyHeight },
+            { label: '몸무게는 어떤가요?', options: weightOptions, value: myWeight, setValue: setMyWeight },
+          ].map(({ label, options, value, setValue }) =>
+            options.length > 0 ? (
+              <div key={label} className={styles.surveyWrap}>
+                <span className={styles.label}>{label}</span>
+                <div className={styles.surveyTrack}>
+                  {options.map((opt, idx) => (
+                    <div key={opt.codeCd} className={styles.surveyItem}>
+                      {idx > 0 && <div className={styles.surveyLine} />}
+                      <button
+                        type="button"
+                        className={`${styles.surveyCircle} ${value === opt.codeCd ? styles.surveyCircleActive : ''}`}
+                        onClick={() => setValue(value === opt.codeCd ? '' : opt.codeCd!)}
+                        aria-label={opt.codeNm}
+                      />
+                      <span className={styles.surveyItemLabel}>{opt.codeNm}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : null
+          )}
 
           {/* 이미지 업로드 */}
           <div className={styles.imageUploadWrap}>
@@ -245,12 +288,11 @@ export default function ReviewForm({ socialAccountId, orderItemId, productId, pr
             <textarea
               id="review-content"
               className={styles.textarea}
-              placeholder="상품에 대한 솔직한 리뷰를 작성해주세요. (최소 3자)"
+              placeholder="상품에 대한 솔직한 리뷰를 작성해주세요. (선택)"
               value={content}
               onChange={(e) => setContent(e.target.value)}
               maxLength={1000}
               rows={5}
-              required
             />
             <span className={styles.charCount}>{content.length} / 1000</span>
           </div>
