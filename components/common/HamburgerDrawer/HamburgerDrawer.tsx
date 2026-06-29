@@ -19,14 +19,13 @@ const MENU_GROUPS = [
   {
     title: '마이페이지',
     items: [
-      { label: '주문내역',   href: '/mypage/orders' },
-      { label: '장바구니',   href: '/cart' },
+      { label: '주문내역', href: '/mypage/orders' },
+      { label: '장바구니', href: '/cart' },
     ],
   },
   {
     title: '고객센터',
-    items: [
-    ],
+    items: [],
   },
 ];
 
@@ -38,12 +37,16 @@ export default function HamburgerDrawer({ isOpen, onClose }: Props) {
   // 드로어 열릴 때 배경 스크롤 잠금
   useEffect(() => {
     document.body.style.overflow = isOpen ? 'hidden' : '';
-    return () => { document.body.style.overflow = ''; };
+    return () => {
+      document.body.style.overflow = '';
+    };
   }, [isOpen]);
 
   // ESC 키로 닫기
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [onClose]);
@@ -71,7 +74,7 @@ export default function HamburgerDrawer({ isOpen, onClose }: Props) {
   });
 
   const handleWithdraw = async () => {
-    const ok = await confirm('정말 탈퇴하시겠습니까?\n탈퇴 시 개인정보가 즉시 삭제되며 복구할 수 없습니다.');
+    const ok = await confirm({ message: '정말 탈퇴하시겠습니까?\n탈퇴 시 개인정보가 즉시 삭제되며 복구할 수 없습니다.' });
     if (!ok) return;
     withdrawMutation.mutate();
   };
@@ -79,29 +82,24 @@ export default function HamburgerDrawer({ isOpen, onClose }: Props) {
   return (
     <>
       {/* 딤 배경 */}
-      <div
-        className={`${styles.overlay} ${isOpen ? styles.overlayVisible : ''}`}
-        onClick={onClose}
-        aria-hidden="true"
-      />
+      <div className={`${styles.overlay} ${isOpen ? styles.overlayVisible : ''}`} onClick={onClose} aria-hidden="true" />
 
       {/* 드로어 패널 */}
       <aside className={`${styles.drawer} ${isOpen ? styles.drawerOpen : ''}`} aria-label="메뉴">
-
         {/* 상단: 카트 / 검색 / 닫기 */}
         <div className={styles.topBar}>
           <CartIcon className={styles.topIconCart} />
 
           <Link href="/search" className={styles.topIcon} onClick={onClose} aria-label="검색">
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-              <circle cx="9" cy="9" r="6" stroke="currentColor" strokeWidth="1.5"/>
-              <path d="M13.5 13.5L17 17" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              <circle cx="9" cy="9" r="6" stroke="currentColor" strokeWidth="1.5" />
+              <path d="M13.5 13.5L17 17" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
             </svg>
           </Link>
 
           <button className={styles.topIcon} onClick={onClose} aria-label="닫기">
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-              <path d="M4 4l12 12M16 4L4 16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              <path d="M4 4l12 12M16 4L4 16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
             </svg>
           </button>
         </div>
@@ -142,11 +140,7 @@ export default function HamburgerDrawer({ isOpen, onClose }: Props) {
                 {/* 고객센터 그룹 하단에 탈퇴 버튼 — 로그인 상태에서만 */}
                 {session && group.title === CS_GROUP_TITLE && (
                   <li>
-                    <button
-                      className={`${styles.menuItem} ${styles.withdrawBtn}`}
-                      onClick={handleWithdraw}
-                      disabled={withdrawMutation.isPending}
-                    >
+                    <button className={`${styles.menuItem} ${styles.withdrawBtn}`} onClick={handleWithdraw} disabled={withdrawMutation.isPending}>
                       회원 탈퇴
                     </button>
                   </li>

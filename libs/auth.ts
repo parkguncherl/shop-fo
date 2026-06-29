@@ -35,7 +35,7 @@ export const authOptions: NextAuthOptions = {
                 email: data.body.email,
                 partnerId: data.body.partnerId ?? null,
               },
-            };
+            } as any;
           }
           return null;
         } catch {

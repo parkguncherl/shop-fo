@@ -4,8 +4,8 @@ import { immer } from 'zustand/middleware/immer';
 import { FileDet } from '@/generated';
 import { AxiosPromise } from 'axios';
 import publicApi from '@/libs/publicApi';
-import { ApiResponse } from '@/generated/src/model/api-response';
-import { CommonRequestFileRearrangementRequest } from '@/generated/src/model/common-request-file-rearrangement-request';
+type ApiResponse = any;
+type CommonRequestFileRearrangementRequest = { fileId: number; fileSeq: number; stepsToMove: number };
 
 type ModalType = 'UPLOAD' | 'UPLOADS' | 'IMAGES' | 'PRIVACY' | 'FILES';
 

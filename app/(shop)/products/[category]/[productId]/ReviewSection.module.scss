@@ -108,6 +108,41 @@
   color: $color-gray-400;
 }
 
+.ratingRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.ratingNum {
+  font-size: $font-size-xs;
+  font-weight: 600;
+  color: #f5a623;
+  margin-right: 2px;
+}
+
+// 키/몸무게 뱃지 (회색)
+.fitBadge {
+  display: inline-block;
+  padding: 2px 8px;
+  font-size: 11px;
+  color: $color-gray-600;
+  background: $color-gray-50;
+  border: 1px solid $color-gray-200;
+  border-radius: 20px;
+  line-height: 1.5;
+}
+
+// 사이즈 핏 뱃지 (강조)
+.fitBadgeFit {
+  @extend .fitBadge;
+  color: #7a5c2e;
+  background: rgba($color-accent, 0.12);
+  border-color: rgba($color-accent, 0.4);
+  font-weight: 600;
+}
+
 .content {
   margin: 0;
   font-size: $font-size-sm;
