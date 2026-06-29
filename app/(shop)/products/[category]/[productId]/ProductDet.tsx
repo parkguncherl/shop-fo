@@ -59,6 +59,15 @@ const ProductDet = ({ productId }: { productId: number }) => {
     return [...new Set(filtered.map((d) => d.productDetSize).filter(Boolean))] as string[];
   }, [product, selectedColor]);
 
+  /* ── 옵션별 재고 조회 ─────────────────────────────────── */
+  const stockMap = useMemo(() => {
+    const map: Record<number, number> = {};
+    (product?.detList ?? []).forEach((d) => {
+      if (d.id != null) map[d.id] = d.stock ?? 0;
+    });
+    return map;
+  }, [product]);
+
   // 색상+사이즈로 매칭되는 det 찾기 → productDetId
   const matchedDet: ProductResponseProductDetInfo | null = useMemo(() => {
     if (!product) return null;
@@ -138,6 +147,10 @@ const ProductDet = ({ productId }: { productId: number }) => {
         toastError('선택한 옵션을 찾을 수 없습니다.');
         return;
       }
+      if (matchedDet.id != null && (stockMap[matchedDet.id] ?? 0) <= 0) {
+        toastError('재고가 없습니다.');
+        return;
+      }
     }
 
     // 옵션 없는 상품 → det 첫 번째 항목 사용 (없으면 productId 로 대체)
@@ -214,15 +227,24 @@ const ProductDet = ({ productId }: { productId: number }) => {
                 {selectedColor && <span className={styles.skuSelected}> · {selectedColor}</span>}
               </p>
               <div className={styles.skuList}>
-                {colors.map((color) => (
-                  <button
-                    key={color}
-                    className={`${styles.skuChip} ${selectedColor === color ? styles.skuChipSelected : ''}`}
-                    onClick={() => handleColorSelect(color)}
-                  >
-                    {color}
-                  </button>
-                ))}
+                {colors.map((color) => {
+                  // 해당 컬러의 모든 det 재고 합계
+                  const colorStock = (product?.detList ?? [])
+                    .filter((d) => d.productDetColor === color)
+                    .reduce((sum, d) => sum + (d.id != null ? (stockMap[d.id] ?? 0) : 0), 0);
+                  const soldOut = colorStock <= 0;
+                  return (
+                    <button
+                      key={color}
+                      className={`${styles.skuChip} ${selectedColor === color ? styles.skuChipSelected : ''} ${soldOut ? styles.skuChipSoldOut : ''}`}
+                      onClick={() => !soldOut && handleColorSelect(color)}
+                      disabled={soldOut}
+                    >
+                      {color}
+                      {soldOut && <span className={styles.soldOutBadge}> 품절</span>}
+                    </button>
+                  );
+                })}
               </div>
             </>
           )}
@@ -235,16 +257,31 @@ const ProductDet = ({ productId }: { productId: number }) => {
                 {selectedSize && <span className={styles.skuSelected}> · {selectedSize}</span>}
               </p>
               <div className={styles.skuList}>
-                {sizes.map((size) => (
-                  <button
-                    key={size}
-                    className={`${styles.skuChip} ${selectedSize === size ? styles.skuChipSelected : ''}`}
-                    onClick={() => setSelectedSize((prev) => (prev === size ? null : size))}
-                  >
-                    {size}
-                  </button>
-                ))}
+                {sizes.map((size) => {
+                  const det = (product?.detList ?? []).find(
+                    (d) => d.productDetColor === selectedColor && d.productDetSize === size
+                  ) ?? (product?.detList ?? []).find((d) => d.productDetSize === size);
+                  const sizeStock = det?.id != null ? (stockMap[det.id] ?? 0) : 0;
+                  const soldOut = sizeStock <= 0;
+                  return (
+                    <button
+                      key={size}
+                      className={`${styles.skuChip} ${selectedSize === size ? styles.skuChipSelected : ''} ${soldOut ? styles.skuChipSoldOut : ''}`}
+                      onClick={() => !soldOut && setSelectedSize((prev) => (prev === size ? null : size))}
+                      disabled={soldOut}
+                    >
+                      {size}
+                      {soldOut && <span className={styles.soldOutBadge}> 품절</span>}
+                    </button>
+                  );
+                })}
               </div>
+              {/* 선택된 옵션의 재고 표시 */}
+              {matchedDet?.id != null && (
+                <p className={styles.stockInfo}>
+                  재고: <strong>{Math.max(0, stockMap[matchedDet.id] ?? 0)}</strong>개
+                </p>
+              )}
             </div>
           )}
         </section>
@@ -284,9 +321,20 @@ const ProductDet = ({ productId }: { productId: number }) => {
 
       {/* ── 하단 버튼 ── */}
       <div className={styles.bottomBar}>
-        <button className={styles.cartBtn} onClick={handleAddToCart} disabled={isAdding} aria-label="장바구니 담기">
-          {isAdding ? '담는 중...' : '장바구니에 담기'}
-        </button>
+        {(() => {
+          const noStock = matchedDet?.id != null && (stockMap[matchedDet.id] ?? 0) <= 0;
+          return (
+            <button
+              className={styles.cartBtn}
+              onClick={handleAddToCart}
+              disabled={isAdding || noStock}
+              aria-label="장바구니 담기"
+              style={noStock ? { background: '#ccc', cursor: 'not-allowed' } : undefined}
+            >
+              {isAdding ? '담는 중...' : noStock ? '품절' : '장바구니에 담기'}
+            </button>
+          );
+        })()}
       </div>
 
       {/* ── 상품 Q&A ── */}

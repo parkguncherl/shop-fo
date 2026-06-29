@@ -419,3 +419,34 @@
   color: $color-gray-400;
   margin: 0;
 }
+
+.skuChipSoldOut {
+  opacity: 0.45;
+  cursor: not-allowed !important;
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+}
+
+.soldOutBadge {
+  display: inline-block;
+  font-size: 10px;
+  color: #fff;
+  background: #f56c6c;
+  border-radius: 2px;
+  padding: 1px 4px;
+  margin-left: 4px;
+  vertical-align: middle;
+  line-height: 1.4;
+  pointer-events: none;
+}
+
+.stockInfo {
+  font-size: $font-size-xs;
+  color: $color-gray-500;
+  margin: 4px 0 0;
+}
