@@ -11,6 +11,7 @@ import { usePartnerCodeStore } from '@/stores/usePartnerCodeStore';
 import { useAddCartItem, useCartQuery } from '@/hooks/useCart';
 import { toastSuccess, toastError } from '@/components/common/Others/ToastMessage';
 import ReviewSection from './ReviewSection';
+import ProductAiChat from './ProductAiChat';
 import styles from './ProductDet.module.scss';
 import { usePageViewLog } from '@/hooks/usePageViewLog';
 import { ProductResponseProductDetail, ProductResponseProductDetInfo, ProductResponseRelatedProductInfo } from '@/generated';
@@ -336,6 +337,9 @@ const ProductDet = ({ productId }: { productId: number }) => {
           );
         })()}
       </div>
+
+      {/* ── AI 상품 채팅 ── */}
+      <ProductAiChat productId={product.id ?? 0} />
 
       {/* ── 상품 Q&A ── */}
       {/* <ProductQnaSection productId={product.id ?? 0} /> */}
