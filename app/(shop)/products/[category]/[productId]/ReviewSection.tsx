@@ -183,12 +183,8 @@ export default function ReviewSection({ productId }: { productId: number }) {
                   <div className={styles.ratingRow}>
                     <StarDisplay rating={review.rating ?? 0} />
                     <span className={styles.ratingNum}>{review.rating ?? 0}</span>
-                    {review.myHeightWeightNm && (
-                      <span className={styles.fitBadge}>{review.myHeightWeightNm}</span>
-                    )}
-                    {review.fitGroup && (
-                      <span className={styles.fitBadgeFit}>{review.fitGroup}</span>
-                    )}
+                    {review.myHeightWeightNm && <span className={styles.fitBadge}>{review.myHeightWeightNm}</span>}
+                    {review.fitGroup && <span className={styles.fitBadgeFit}>{review.fitGroup}</span>}
                   </div>
                   <span className={styles.date}>{Utils.formatDate(review.creTm)}</span>
                 </div>
