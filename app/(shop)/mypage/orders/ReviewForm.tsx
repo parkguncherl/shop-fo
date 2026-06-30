@@ -170,9 +170,6 @@ export default function ReviewForm({ socialAccountId, orderItemId, productId, pr
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!myFit) { toastError('사이즈를 선택해주세요.'); return; }
-    if (!myHeight) { toastError('키를 선택해주세요.'); return; }
-    if (!myWeight) { toastError('몸무게를 선택해주세요.'); return; }
     mutation.mutate();
   };
 
@@ -219,7 +216,9 @@ export default function ReviewForm({ socialAccountId, orderItemId, productId, pr
           ].map(({ label, options, value, setValue }) =>
             options.length > 0 ? (
               <div key={label} className={styles.surveyWrap}>
-                <span className={styles.label}>{label}</span>
+                <span className={styles.label}>
+                  {label} <span className={styles.labelSub}>(선택)</span>
+                </span>
                 <div className={styles.surveyTrack}>
                   {options.map((opt, idx) => (
                     <div key={opt.codeCd} className={styles.surveyItem}>
@@ -235,7 +234,7 @@ export default function ReviewForm({ socialAccountId, orderItemId, productId, pr
                   ))}
                 </div>
               </div>
-            ) : null
+            ) : null,
           )}
 
           {/* 이미지 업로드 */}

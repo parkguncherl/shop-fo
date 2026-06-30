@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import publicApi from '@/libs/publicApi';
 import { useWebCommonStore } from '@/stores/useWebCommonStore';
-import { ReviewResponseProductList, ReviewResponseProductItem } from '@/generated';
+import { ReviewResponseProductList } from '@/generated';
 import { Utils } from '@/libs/utils';
 import styles from './ReviewSection.module.scss';
 
@@ -180,10 +180,15 @@ export default function ReviewSection({ productId }: { productId: number }) {
             return (
               <li key={review.id} className={styles.card}>
                 <div className={styles.cardTop}>
-                  <StarDisplay rating={review.rating ?? 0} />
+                  <div className={styles.ratingRow}>
+                    <StarDisplay rating={review.rating ?? 0} />
+                    <span className={styles.ratingNum}>{review.rating ?? 0}</span>
+                    {review.myHeightWeightNm && <span className={styles.fitBadge}>{review.myHeightWeightNm}</span>}
+                    {review.fitGroup && <span className={styles.fitBadgeFit}>{review.fitGroup}</span>}
+                  </div>
                   <span className={styles.date}>{Utils.formatDate(review.creTm)}</span>
                 </div>
-                <p className={styles.content}>{review.content}</p>
+                {review.content && <p className={styles.content}>{review.content}</p>}
                 {images.length > 0 && <ReviewImageSwiper images={images} />}
               </li>
             );
