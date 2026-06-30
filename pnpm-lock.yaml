@@ -26,12 +26,6 @@ importers:
       '@aws-sdk/s3-request-presigner':
         specifier: ^3.864.0
         version: 3.1032.0
-      '@emotion/react':
-        specifier: ^11.10.5
-        version: 11.14.0(@types/react@18.0.26)(react@19.2.4)
-      '@emotion/styled':
-        specifier: ^11.10.5
-        version: 11.14.1(@emotion/react@11.14.0(@types/react@18.0.26)(react@19.2.4))(@types/react@18.0.26)(react@19.2.4)
       '@fontsource/roboto':
         specifier: ^4.5.8
         version: 4.5.8
@@ -664,16 +658,6 @@ packages:
 
   '@emotion/sheet@1.4.0':
     resolution: {integrity: sha512-fTBW9/8r2w3dXWYM4HCB1Rdp8NLibOw2+XELH5m5+AkWiL/KqYX6dc0kKYlaYyKjrQ6ds33MCdMPEwgs2z1rqg==}
-
-  '@emotion/styled@11.14.1':
-    resolution: {integrity: sha512-qEEJt42DuToa3gurlH4Qqc1kVpNq8wO8cJtDzU46TjlzWjDlsVyevtYCRijVq3SrHsROS+gVQ8Fnea108GnKzw==}
-    peerDependencies:
-      '@emotion/react': ^11.0.0-rc.0
-      '@types/react': '*'
-      react: '>=16.8.0'
-    peerDependenciesMeta:
-      '@types/react':
-        optional: true
 
   '@emotion/stylis@0.8.5':
     resolution: {integrity: sha512-h6KtPihKFn3T9fuIrwvXXUOwlx3rfUvfZIcP5a6rh8Y7zjE3O06hT5Ss4S/YI1AYhuZ1kjaE/5EaOOI2NqSylQ==}
@@ -6415,21 +6399,6 @@ snapshots:
       csstype: 3.2.3
 
   '@emotion/sheet@1.4.0': {}
-
-  '@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.0.26)(react@19.2.4))(@types/react@18.0.26)(react@19.2.4)':
-    dependencies:
-      '@babel/runtime': 7.29.2
-      '@emotion/babel-plugin': 11.13.5
-      '@emotion/is-prop-valid': 1.4.0
-      '@emotion/react': 11.14.0(@types/react@18.0.26)(react@19.2.4)
-      '@emotion/serialize': 1.3.3
-      '@emotion/use-insertion-effect-with-fallbacks': 1.2.0(react@19.2.4)
-      '@emotion/utils': 1.4.2
-      react: 19.2.4
-    optionalDependencies:
-      '@types/react': 18.0.26
-    transitivePeerDependencies:
-      - supports-color
 
   '@emotion/stylis@0.8.5': {}
 
