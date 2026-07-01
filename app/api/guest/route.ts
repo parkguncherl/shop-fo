@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
   }
 
   const xForwardedFor = request.headers.get('x-forwarded-for') ?? '';
-  const xRealIp = '210.97.63.13';
+  const xRealIp = request.headers.get('x-real-ip') ?? '';
   const body = await request.json().catch(() => ({}));
   const userAgent = request.headers.get('user-agent') ?? '';
   const clientIp = xRealIp || xForwardedFor.split(',')[0].trim();
