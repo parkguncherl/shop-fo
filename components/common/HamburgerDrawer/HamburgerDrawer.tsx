@@ -19,8 +19,8 @@ const MENU_GROUPS = [
   {
     title: '마이페이지',
     items: [
-      { label: '주문내역', href: '/mypage/orders' },
-      { label: '장바구니', href: '/cart' },
+      { label: '주문내역', href: '/mypage/orders', authRequired: true },
+      { label: '장바구니', href: '/cart', authRequired: false },
     ],
   },
   {
@@ -126,28 +126,32 @@ export default function HamburgerDrawer({ isOpen, onClose }: Props) {
 
         {/* 메뉴 그룹 */}
         <nav className={styles.nav}>
-          {MENU_GROUPS.map((group) => (
-            <div key={group.title} className={styles.group}>
-              <p className={styles.groupTitle}>{group.title}</p>
-              <ul className={styles.groupList}>
-                {group.items.map((item) => (
-                  <li key={item.href}>
-                    <Link href={item.href} className={styles.menuItem} onClick={onClose}>
-                      {item.label}
-                    </Link>
-                  </li>
-                ))}
-                {/* 고객센터 그룹 하단에 탈퇴 버튼 — 로그인 상태에서만 */}
-                {session && group.title === CS_GROUP_TITLE && (
-                  <li>
-                    <button className={`${styles.menuItem} ${styles.withdrawBtn}`} onClick={handleWithdraw} disabled={withdrawMutation.isPending}>
-                      회원 탈퇴
-                    </button>
-                  </li>
-                )}
-              </ul>
-            </div>
-          ))}
+          {MENU_GROUPS.map((group) => {
+            const visibleItems = group.items.filter((item) => !item.authRequired || !!session);
+            if (!session && group.title !== CS_GROUP_TITLE && visibleItems.length === 0) return null;
+            return (
+              <div key={group.title} className={styles.group}>
+                <p className={styles.groupTitle}>{group.title}</p>
+                <ul className={styles.groupList}>
+                  {visibleItems.map((item) => (
+                    <li key={item.href}>
+                      <Link href={item.href} className={styles.menuItem} onClick={onClose}>
+                        {item.label}
+                      </Link>
+                    </li>
+                  ))}
+                  {/* 고객센터 그룹 하단에 탈퇴 버튼 — 로그인 상태에서만 */}
+                  {session && group.title === CS_GROUP_TITLE && (
+                    <li>
+                      <button className={`${styles.menuItem} ${styles.withdrawBtn}`} onClick={handleWithdraw} disabled={withdrawMutation.isPending}>
+                        회원 탈퇴
+                      </button>
+                    </li>
+                  )}
+                </ul>
+              </div>
+            );
+          })}
         </nav>
       </aside>
     </>
