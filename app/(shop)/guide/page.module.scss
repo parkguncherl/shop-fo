@@ -1,0 +1,107 @@
+@use '../../../styles/variables' as *;
+@use '../../../styles/mixins' as *;
+
+.wrap {
+  min-height: 100vh;
+  padding-bottom: 80px;
+}
+
+.header {
+  padding: 32px 20px 20px;
+  border-bottom: 1px solid $color-gray-100;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 700;
+  color: $color-black;
+  letter-spacing: -0.03em;
+  margin: 0 0 6px;
+}
+
+.subtitle {
+  font-size: 13px;
+  color: $color-gray-400;
+  margin: 0;
+}
+
+.list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.card {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 20px;
+  border-bottom: 1px solid $color-gray-100;
+  text-decoration: none;
+  color: inherit;
+  transition: background $transition-fast;
+
+  &:active {
+    background: $color-gray-50;
+  }
+}
+
+.cardNo {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1.5px solid $color-gray-300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: $color-gray-500;
+  margin-top: 2px;
+}
+
+.cardBody {
+  flex: 1;
+  min-width: 0;
+}
+
+.tag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 500;
+  color: $color-gray-500;
+  background: $color-gray-100;
+  border-radius: 4px;
+  padding: 2px 7px;
+  margin-bottom: 6px;
+  letter-spacing: 0.01em;
+}
+
+.cardTitle {
+  display: block;
+  font-size: 15px;
+  font-weight: 600;
+  color: $color-black;
+  letter-spacing: -0.02em;
+  line-height: 1.4;
+  margin-bottom: 4px;
+}
+
+.cardSummary {
+  font-size: 13px;
+  color: $color-gray-400;
+  line-height: 1.5;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.readTime {
+  flex-shrink: 0;
+  font-size: 11px;
+  color: $color-gray-400;
+  padding-top: 4px;
+}

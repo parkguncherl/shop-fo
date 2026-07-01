@@ -1,0 +1,36 @@
+@use '../../../../styles/variables' as *;
+
+.wrap {
+  min-height: 100vh;
+  padding-bottom: 80px;
+}
+
+.header {
+  padding: 32px 20px 24px;
+  border-bottom: 1px solid $color-gray-100;
+}
+
+.tag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 500;
+  color: $color-gray-500;
+  background: $color-gray-100;
+  border-radius: 4px;
+  padding: 2px 8px;
+  margin-bottom: 10px;
+  letter-spacing: 0.01em;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 700;
+  color: $color-black;
+  letter-spacing: -0.03em;
+  line-height: 1.35;
+  margin: 0;
+}
+
+.body {
+  padding: 28px 20px;
+}
