@@ -232,7 +232,7 @@ const ProductDet = ({ productId }: { productId: number }) => {
                   // 해당 컬러의 모든 det 재고 합계
                   const colorStock = (product?.detList ?? [])
                     .filter((d) => d.productDetColor === color)
-                    .reduce((sum, d) => sum + (d.id != null ? (stockMap[d.id] ?? 0) : 0), 0);
+                    .reduce((sum, d) => sum + (d.id != null ? stockMap[d.id] ?? 0 : 0), 0);
                   const soldOut = colorStock <= 0;
                   return (
                     <button
@@ -259,10 +259,10 @@ const ProductDet = ({ productId }: { productId: number }) => {
               </p>
               <div className={styles.skuList}>
                 {sizes.map((size) => {
-                  const det = (product?.detList ?? []).find(
-                    (d) => d.productDetColor === selectedColor && d.productDetSize === size
-                  ) ?? (product?.detList ?? []).find((d) => d.productDetSize === size);
-                  const sizeStock = det?.id != null ? (stockMap[det.id] ?? 0) : 0;
+                  const det =
+                    (product?.detList ?? []).find((d) => d.productDetColor === selectedColor && d.productDetSize === size) ??
+                    (product?.detList ?? []).find((d) => d.productDetSize === size);
+                  const sizeStock = det?.id != null ? stockMap[det.id] ?? 0 : 0;
                   const soldOut = sizeStock <= 0;
                   return (
                     <button
@@ -410,11 +410,7 @@ function ProductQnaSection({ productId }: { productId: number }) {
             onChange={(e) => setContent(e.target.value)}
             rows={3}
           />
-          <button
-            className={styles.qnaSubmitBtn}
-            onClick={() => submitMutation.mutate()}
-            disabled={!content.trim() || submitMutation.isPending}
-          >
+          <button className={styles.qnaSubmitBtn} onClick={() => submitMutation.mutate()} disabled={!content.trim() || submitMutation.isPending}>
             문의 등록
           </button>
         </div>
@@ -435,7 +431,9 @@ function ProductQnaSection({ productId }: { productId: number }) {
                 <span className={styles.qnaBadge}>Q</span>
                 <div>
                   <p className={styles.qnaContent}>{item.question}</p>
-                  <p className={styles.qnaMeta}>{maskName(item.creUser)} · {new Date(item.creTm).toLocaleDateString()}</p>
+                  <p className={styles.qnaMeta}>
+                    {maskName(item.creUser)} · {new Date(item.creTm).toLocaleDateString()}
+                  </p>
                 </div>
               </div>
               {item.answer && (
