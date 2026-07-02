@@ -51,10 +51,12 @@ function LogoBadge() {
 export default function GguaguStory() {
   return (
     <article className={styles.article}>
+      {/*
       <p className={styles.lead}>
         꾸안꾸는 <strong>`나이가 들어도 이쁘게 입자 티나지 않게`</strong>를 모토로 합니다. <strong>나를 포기하지 마세요</strong> 자연럽고 깔끔한 옷 차림이
         서로에게 많은것을 줄수 있습니다. <span className={styles.purple}>66사이즈여도 40 대 이상이 입을수 있는 66 사이즈 편하고 자유로우면서도 이쁜!!!</span>
       </p>
+*/}
 
       <LogoBadge />
 
