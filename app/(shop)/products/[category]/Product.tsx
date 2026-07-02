@@ -13,7 +13,6 @@ import { useWebCommonStore } from '@/stores/useWebCommonStore';
 import { useBlockStore } from '@/stores/useBlockStore';
 import useUpdateEffect from '@/customHook/useUpdateEffect';
 import { usePageViewLog } from '@/hooks/usePageViewLog';
-import BrandStrip from '@/components/shop/BrandStrip/BrandStrip';
 
 interface ExtendedProductResponseProductInfo extends ProductResponseProductInfo {
   src?: string;
@@ -185,8 +184,6 @@ const Product = (Props: { categoryId: string }) => {
 
   return (
     <div className={styles.page}>
-      {/* 브랜드 철학 스트립 — 전체 탭에서만 노출 */}
-      {Props.categoryId === 'all' && <BrandStrip />}
       {/* 필터 행 */}
       <div className={styles.filterRow}>
         {!isBlocked ? (
