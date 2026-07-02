@@ -42,7 +42,7 @@ export default function Header() {
             <CartIcon />
 
             <button className={styles.iconBtn} onClick={() => setSearchOpen((v) => !v)} aria-label="검색">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <svg width="24" height="24" viewBox="0 0 20 20" fill="none">
                 <circle cx="9" cy="9" r="6" stroke="currentColor" strokeWidth="1.5" />
                 <path d="M13.5 13.5L17 17" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
               </svg>
@@ -50,7 +50,7 @@ export default function Header() {
 
             {/* 햄버거 → 드로어 오픈 */}
             <button className={styles.iconBtn} onClick={() => setDrawerOpen(true)} aria-label="메뉴 열기" aria-expanded={drawerOpen}>
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <svg width="24" height="24" viewBox="0 0 20 20" fill="none">
                 <path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
               </svg>
             </button>
