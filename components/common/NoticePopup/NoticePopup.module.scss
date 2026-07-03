@@ -12,8 +12,8 @@
   background: #fff;
   border-radius: 12px;
   overflow: hidden;
-  width: 340px;
-  max-width: 90vw;
+  width: 260px;
+  max-width: 85vw;
   display: flex;
   flex-direction: column;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
@@ -21,7 +21,7 @@
 
 .imageArea {
   width: 100%;
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 3 / 4;
   overflow: hidden;
   background: #f0f0f0;
 }
@@ -33,28 +33,24 @@
   display: block;
 }
 
-.noImage {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 15px;
-  color: #666;
-  padding: 16px;
+.title {
+  padding: 10px 14px 6px;
+  font-size: 13px;
+  color: #333;
   text-align: center;
+  line-height: 1.4;
 }
 
 .dots {
   display: flex;
   justify-content: center;
-  gap: 6px;
-  padding: 10px 0 4px;
+  gap: 5px;
+  padding: 6px 0 8px;
 }
 
 .dot {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   background: #ccc;
   border: none;
@@ -67,41 +63,6 @@
   background: #4f46e5;
 }
 
-.arrows {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  padding: 4px 0 8px;
-}
-
-.arrow {
-  background: none;
-  border: 1px solid #ddd;
-  border-radius: 50%;
-  width: 32px;
-  height: 32px;
-  font-size: 20px;
-  line-height: 1;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #333;
-  transition: background 0.2s;
-
-  &:hover {
-    background: #f5f5f5;
-  }
-}
-
-.counter {
-  font-size: 13px;
-  color: #888;
-  min-width: 40px;
-  text-align: center;
-}
-
 .footer {
   display: flex;
   border-top: 1px solid #eee;
@@ -110,11 +71,11 @@
 .btnHide,
 .btnClose {
   flex: 1;
-  padding: 14px 0;
+  padding: 12px 0;
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 12px;
   color: #555;
   transition: background 0.15s;
 

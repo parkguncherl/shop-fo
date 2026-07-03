@@ -60,7 +60,7 @@ const NoticePopup = () => {
     <div className={styles.overlay}>
       <div className={styles.popup}>
         <div className={styles.imageArea}>
-          {current.imgUrl ? (
+          {current.imgUrl && (
             <img
               src={current.imgUrl}
               alt={current.title}
@@ -68,10 +68,10 @@ const NoticePopup = () => {
               style={{ cursor: current.moveUri ? 'pointer' : 'default' }}
               onClick={handleImageClick}
             />
-          ) : (
-            <div className={styles.noImage}>{current.title}</div>
           )}
         </div>
+
+        <p className={styles.title}>{current.title}</p>
 
         {notices.length > 1 && (
           <div className={styles.dots}>
@@ -82,14 +82,6 @@ const NoticePopup = () => {
                 onClick={() => setIndex(i)}
               />
             ))}
-          </div>
-        )}
-
-        {notices.length > 1 && (
-          <div className={styles.arrows}>
-            <button className={styles.arrow} onClick={() => setIndex((i) => (i - 1 + notices.length) % notices.length)}>‹</button>
-            <span className={styles.counter}>{index + 1} / {notices.length}</span>
-            <button className={styles.arrow} onClick={() => setIndex((i) => (i + 1) % notices.length)}>›</button>
           </div>
         )}
 
