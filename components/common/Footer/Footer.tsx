@@ -31,7 +31,6 @@ export default function Footer() {
             <span className={styles.brand}>{BUSINESS_INFO.brand}</span>
           </div>
           <nav className={styles.links} aria-label="푸터 메뉴">
-            <Link href="/info/about">브랜드 소개</Link>
             <Link href="/info/privacy">개인정보처리방침</Link>
             <Link href="/info/terms">이용약관</Link>
             <Link href="/info/shipping">배송/반품 안내</Link>

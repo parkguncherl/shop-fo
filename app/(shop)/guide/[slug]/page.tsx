@@ -6,7 +6,7 @@ import styles from './page.module.scss';
 
 const GUIDES: Record<string, { title: string; tag: string; content: React.ReactNode }> = {
   'brand-story': {
-    title: '꾸안꾸 브랜드 이야기',
+    title: '브랜드 소개',
     tag: '브랜드',
     content: <GguaguStory />,
   },

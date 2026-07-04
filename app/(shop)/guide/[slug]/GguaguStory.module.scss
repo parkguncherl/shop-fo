@@ -41,6 +41,58 @@
   margin: 0;
 }
 
+.eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #7B3FA0;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.featureList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.featureItem {
+  display: flex;
+  gap: 12px;
+  background: $color-gray-50;
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.featureMark {
+  font-size: 16px;
+  color: #7B3FA0;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.featureBody {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.featureTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: $color-black;
+}
+
+.featureDesc {
+  font-size: 13px;
+  line-height: 1.6;
+  color: $color-gray-600;
+  margin: 0;
+}
+
 .section {
   display: flex;
   flex-direction: column;
