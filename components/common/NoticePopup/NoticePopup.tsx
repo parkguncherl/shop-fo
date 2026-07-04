@@ -18,14 +18,13 @@ const COOKIE_KEY = 'popup_notice_hidden';
 
 const NoticePopup = () => {
   const getFileUrl = useWebCommonStore((s) => s.getFileUrl);
+  const noticeVisible = useWebCommonStore((s) => s.noticeVisible);
+  const showNotice = useWebCommonStore((s) => s.showNotice);
+  const hideNotice = useWebCommonStore((s) => s.hideNotice);
   const [notices, setNotices] = useState<(PopupNotice & { imgUrl?: string })[]>([]);
   const [index, setIndex] = useState(0);
-  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    const hidden = getCookie(COOKIE_KEY);
-    if (hidden === new Date().toISOString().slice(0, 10)) return;
-
     publicApi.get('/frontWeb/notice/popupList').then(async ({ data }) => {
       if (data?.resultCode !== 200 || !data.body?.length) return;
       const items: PopupNotice[] = data.body;
@@ -36,21 +35,25 @@ const NoticePopup = () => {
         }))
       );
       setNotices(withUrls);
-      setVisible(true);
+
+      const hidden = getCookie(COOKIE_KEY);
+      if (hidden !== new Date().toISOString().slice(0, 10)) {
+        showNotice();
+      }
     }).catch(() => {});
   }, []);
 
-  if (!visible || notices.length === 0) return null;
+  if (!noticeVisible || notices.length === 0) return null;
 
   const current = notices[index];
 
   const handleHideToday = () => {
     const today = new Date().toISOString().slice(0, 10);
     setCookie(COOKIE_KEY, today, { expires: new Date(new Date().setHours(23, 59, 59, 999)) });
-    setVisible(false);
+    hideNotice();
   };
 
-  const handleClose = () => setVisible(false);
+  const handleClose = () => hideNotice();
 
   const handleImageClick = () => {
     if (current.moveUri) window.location.href = current.moveUri;

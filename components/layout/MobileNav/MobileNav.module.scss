@@ -13,9 +13,6 @@
   display: flex;
   align-items: stretch;
 
-  // 데스크톱에서는 숨김
-  @include desktop { display: none; }
-
   // 아이폰 Safe Area
   padding-bottom: env(safe-area-inset-bottom);
 }

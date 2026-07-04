@@ -10,6 +10,9 @@ interface WebCommonState {
   modalType: { type: ModalType; active: boolean };
   openModal: (type: ModalType, index?: number) => void;
   closeModal: (type: ModalType) => void;
+  noticeVisible: boolean;
+  showNotice: () => void;
+  hideNotice: () => void;
 }
 
 interface WebCommonApiState {
@@ -20,6 +23,9 @@ interface WebCommonApiState {
 const initialStateCreator: StateCreator<WebCommonState & WebCommonApiState, any> = (set, get, api) => {
   return {
     modalType: { type: 'OPEN_WEB_MODAL', active: false },
+    noticeVisible: false,
+    showNotice: () => set({ noticeVisible: true }),
+    hideNotice: () => set({ noticeVisible: false }),
     openModal: (type, index) => {
       set((state) => ({
         modalType: {
