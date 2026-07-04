@@ -271,6 +271,29 @@ export default function ComuChat({ orderId, orderNo, socialAccountId, paymentSta
     if (ok) deleteMutation.mutate(comuDetId);
   };
 
+  useEffect(() => {
+    if (step !== 'chat' || isCancelled) return;
+    const handlePaste = (e: ClipboardEvent) => {
+      const items = e.clipboardData?.items;
+      if (!items) return;
+      const imgs: File[] = [];
+      for (const item of Array.from(items)) {
+        if (item.type.startsWith('image/')) {
+          const blob = item.getAsFile();
+          if (blob) imgs.push(new File([blob], `clipboard_${Date.now()}.png`, { type: 'image/png' }));
+        }
+      }
+      if (imgs.length === 0) return;
+      const remaining = MAX_IMAGES - imageFiles.length;
+      if (remaining <= 0) return;
+      const accepted = imgs.slice(0, remaining);
+      setImageFiles((prev) => [...prev, ...accepted]);
+      setPreviewUrls((prev) => [...prev, ...accepted.map((f) => URL.createObjectURL(f))]);
+    };
+    window.addEventListener('paste', handlePaste);
+    return () => window.removeEventListener('paste', handlePaste);
+  }, [step, isCancelled, imageFiles.length]);
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
     const remaining = MAX_IMAGES - imageFiles.length;

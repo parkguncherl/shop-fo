@@ -107,6 +107,31 @@ export default function ReviewForm({ socialAccountId, orderItemId, productId, pr
     e.target.value = '';
   };
 
+  const addImageFiles = (incoming: File[]) => {
+    const remaining = MAX_IMAGES - (existingImages.length + imageFiles.length);
+    if (remaining <= 0) return;
+    const accepted = incoming.slice(0, remaining);
+    setImageFiles((prev) => [...prev, ...accepted]);
+    setPreviewUrls((prev) => [...prev, ...accepted.map((f) => URL.createObjectURL(f))]);
+  };
+
+  useEffect(() => {
+    const handlePaste = (e: ClipboardEvent) => {
+      const items = e.clipboardData?.items;
+      if (!items) return;
+      const imgs: File[] = [];
+      for (const item of Array.from(items)) {
+        if (item.type.startsWith('image/')) {
+          const blob = item.getAsFile();
+          if (blob) imgs.push(new File([blob], `clipboard_${Date.now()}.png`, { type: 'image/png' }));
+        }
+      }
+      if (imgs.length > 0) addImageFiles(imgs);
+    };
+    window.addEventListener('paste', handlePaste);
+    return () => window.removeEventListener('paste', handlePaste);
+  }, [existingImages.length, imageFiles.length]);
+
   const removeImage = (index: number) => {
     URL.revokeObjectURL(previewUrls[index]);
     setImageFiles((prev) => prev.filter((_, i) => i !== index));

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { getCookie, setCookie } from 'cookies-next';
 import { publicApi } from '@/libs/api';
 import { useWebCommonStore } from '@/stores/useWebCommonStore';
@@ -23,6 +23,8 @@ const NoticePopup = () => {
   const hideNotice = useWebCommonStore((s) => s.hideNotice);
   const [notices, setNotices] = useState<(PopupNotice & { imgUrl?: string })[]>([]);
   const [index, setIndex] = useState(0);
+  const autoPlayDone = useRef(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     publicApi.get('/frontWeb/notice/popupList').then(async ({ data }) => {
@@ -42,6 +44,33 @@ const NoticePopup = () => {
       }
     }).catch(() => {});
   }, []);
+
+  useEffect(() => {
+    if (!noticeVisible) {
+      autoPlayDone.current = false;
+      setIndex(0);
+    }
+  }, [noticeVisible]);
+
+  useEffect(() => {
+    if (!noticeVisible || notices.length <= 1 || autoPlayDone.current) return;
+
+    timerRef.current = setTimeout(function tick() {
+      setIndex((prev) => {
+        const next = prev + 1;
+        if (next >= notices.length) {
+          autoPlayDone.current = true;
+          return 0;
+        }
+        timerRef.current = setTimeout(tick, 2500);
+        return next;
+      });
+    }, 2500);
+
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, [noticeVisible, notices.length]);
 
   if (!noticeVisible || notices.length === 0) return null;
 

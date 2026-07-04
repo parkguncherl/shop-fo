@@ -34,7 +34,7 @@ export default function Header() {
         <div className={styles.inner}>
           {/* 로고 */}
           <Link href="/" className={styles.logo}>
-            GGUANGGU
+            GGUANGGU<span className={styles.logoDomain}>.COM</span>
           </Link>
 
           {/* 우측 액션 */}
