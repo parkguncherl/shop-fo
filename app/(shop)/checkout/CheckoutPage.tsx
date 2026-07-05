@@ -200,7 +200,7 @@ export default function CheckoutPage() {
 
     const orderNo = makeOrderNo();
     const paymentId = makePaymentId();
-    const orderName = items.length > 1 ? `${items[0].productName} 외 ${items.length - 1}건` : items[0]?.productName ?? 'GGUANGGU 주문';
+    const orderName = items.length > 1 ? `${items[0].productName} 외 ${items.length - 1}건` : items[0]?.productName ?? '맵시꾼 주문';
 
     try {
       // 리다이렉트 방식 결제 대비 주문 데이터 sessionStorage에 미리 저장

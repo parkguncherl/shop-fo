@@ -7,7 +7,7 @@ const GUIDE_ITEMS = [
     slug: 'brand-story',
     no: 1,
     title: '브랜드 소개',
-    summary: '나이가 들어도 이쁘게, 자연스럽고 편하게. 꾸안꾸가 추구하는 스타일 이야기.',
+    summary: '나이가 들어도 이쁘게, 자연스럽고 편하게. 맵시꾼가 추구하는 스타일 이야기.',
     tag: '브랜드',
     readingTime: '2분',
   },

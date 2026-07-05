@@ -1,7 +1,7 @@
 import styles from './page.module.scss';
 
 const BUSINESS_INFO = {
-  companyName: 'GGUANGGU',
+  companyName: '맵시꾼',
   representative: '박근철',
   businessNumber: '204-19-967-02',
   phone: '010-2746-6297',
@@ -46,11 +46,11 @@ export default function PrivacyPage() {
   return (
     <main className={styles.page}>
       <header className={styles.header}>
-        <p className={styles.eyebrow}>GGUANGGU</p>
+        <p className={styles.eyebrow}>맵시꾼</p>
         <h1>개인정보처리방침</h1>
         <p>
-          GGUANGGU는 1인 사업자가 운영하는 온라인 쇼핑몰로서, 서비스 제공에 필요한 최소한의 개인정보만 처리합니다.
-          처리하는 개인정보는 주문, 배송, 결제, 고객 응대 목적을 위해 사용되며 목적 외로 이용하지 않습니다.
+          맵시꾼은 1인 사업자가 운영하는 온라인 쇼핑몰로서, 서비스 제공에 필요한 최소한의 개인정보만 처리합니다. 처리하는 개인정보는 주문, 배송, 결제, 고객 응대
+          목적을 위해 사용되며 목적 외로 이용하지 않습니다.
         </p>
         <span>시행일: {BUSINESS_INFO.effectiveDate}</span>
       </header>
@@ -84,8 +84,8 @@ export default function PrivacyPage() {
       <section className={styles.panel}>
         <h2>2. 개인정보의 처리 목적 및 수집 항목</h2>
         <p>
-          GGUANGGU는 아래 목적을 위해 필요한 개인정보를 수집·이용합니다. 이용자는 개인정보 제공을 거부할 수 있으나,
-          필수 정보 제공을 거부하는 경우 회원 로그인, 주문, 배송, 결제 등 일부 서비스 이용이 제한될 수 있습니다.
+          맵시꾼은 아래 목적을 위해 필요한 개인정보를 수집·이용합니다. 이용자는 개인정보 제공을 거부할 수 있으나, 필수 정보 제공을 거부하는 경우 회원 로그인,
+          주문, 배송, 결제 등 일부 서비스 이용이 제한될 수 있습니다.
         </p>
         <div className={styles.tableWrap}>
           <table>
@@ -112,8 +112,7 @@ export default function PrivacyPage() {
       <section className={styles.panel}>
         <h2>3. 개인정보의 보유 및 파기</h2>
         <p>
-          개인정보는 수집·이용 목적이 달성되면 지체 없이 파기합니다. 다만, 관련 법령에 따라 보관해야 하는 정보는
-          해당 기간 동안 분리하여 보관한 뒤 파기합니다.
+          개인정보는 수집·이용 목적이 달성되면 지체 없이 파기합니다. 다만, 관련 법령에 따라 보관해야 하는 정보는 해당 기간 동안 분리하여 보관한 뒤 파기합니다.
         </p>
         <ul className={styles.list}>
           <li>전자적 파일: 복구할 수 없는 방법으로 삭제</li>
@@ -142,17 +141,16 @@ export default function PrivacyPage() {
       <section className={styles.panel}>
         <h2>4. 개인정보의 제3자 제공</h2>
         <p>
-          GGUANGGU는 이용자의 개인정보를 원칙적으로 외부에 제공하지 않습니다. 다만, 주문 상품 배송을 위해 택배사에
-          수령인 이름, 연락처, 주소, 배송 요청사항 등 배송에 필요한 최소한의 정보를 제공할 수 있으며, 법령에 따른
-          요청이 있는 경우 관계 법령에서 정한 범위 내에서 제공될 수 있습니다.
+          맵시꾼은 이용자의 개인정보를 원칙적으로 외부에 제공하지 않습니다. 다만, 주문 상품 배송을 위해 택배사에 수령인 이름, 연락처, 주소, 배송 요청사항 등
+          배송에 필요한 최소한의 정보를 제공할 수 있으며, 법령에 따른 요청이 있는 경우 관계 법령에서 정한 범위 내에서 제공될 수 있습니다.
         </p>
       </section>
 
       <section className={styles.panel}>
         <h2>5. 개인정보 처리 위탁</h2>
         <p>
-          원활한 서비스 제공을 위해 아래 업무의 일부를 외부 서비스에 위탁할 수 있습니다. 위탁 시 개인정보가 안전하게
-          처리되도록 필요한 사항을 확인하고 관리합니다.
+          원활한 서비스 제공을 위해 아래 업무의 일부를 외부 서비스에 위탁할 수 있습니다. 위탁 시 개인정보가 안전하게 처리되도록 필요한 사항을 확인하고
+          관리합니다.
         </p>
         <ul className={styles.list}>
           <li>카카오: 소셜 로그인 및 계정 인증</li>
@@ -165,8 +163,8 @@ export default function PrivacyPage() {
       <section className={styles.panel}>
         <h2>6. 이용자의 권리와 행사 방법</h2>
         <p>
-          이용자는 언제든지 본인의 개인정보에 대해 열람, 정정, 삭제, 처리정지를 요청할 수 있습니다. 요청은 개인정보
-          보호책임자에게 연락하여 행사할 수 있으며, GGUANGGU는 본인 확인 후 지체 없이 처리합니다.
+          이용자는 언제든지 본인의 개인정보에 대해 열람, 정정, 삭제, 처리정지를 요청할 수 있습니다. 요청은 개인정보 보호책임자에게 연락하여 행사할 수 있으며,
+          맵시꾼은 본인 확인 후 지체 없이 처리합니다.
         </p>
       </section>
 
@@ -183,16 +181,16 @@ export default function PrivacyPage() {
       <section className={styles.panel}>
         <h2>8. 쿠키의 사용</h2>
         <p>
-          GGUANGGU는 로그인 상태 유지, 장바구니 이용, 서비스 개선을 위해 쿠키를 사용할 수 있습니다. 이용자는
-          브라우저 설정을 통해 쿠키 저장을 거부하거나 삭제할 수 있으나, 이 경우 일부 서비스 이용이 제한될 수 있습니다.
+          맵시꾼은 로그인 상태 유지, 장바구니 이용, 서비스 개선을 위해 쿠키를 사용할 수 있습니다. 이용자는 브라우저 설정을 통해 쿠키 저장을 거부하거나 삭제할 수
+          있으나, 이 경우 일부 서비스 이용이 제한될 수 있습니다.
         </p>
       </section>
 
       <section className={styles.panel}>
         <h2>9. 개인정보 보호책임자</h2>
         <p>
-          GGUANGGU는 1인 사업자로 운영되며, 대표자가 개인정보 보호책임자를 겸합니다. 개인정보와 관련한 문의,
-          불만처리, 피해구제 요청은 아래 연락처로 문의해 주세요.
+          맵시꾼은 1인 사업자로 운영되며, 대표자가 개인정보 보호책임자를 겸합니다. 개인정보와 관련한 문의, 불만처리, 피해구제 요청은 아래 연락처로 문의해
+          주세요.
         </p>
         <dl className={styles.infoGrid}>
           <div>
@@ -208,10 +206,7 @@ export default function PrivacyPage() {
 
       <section className={styles.panel}>
         <h2>10. 개인정보처리방침의 변경</h2>
-        <p>
-          본 개인정보처리방침은 시행일로부터 적용됩니다. 내용의 추가, 삭제 또는 수정이 있는 경우 쇼핑몰 공지 또는
-          본 페이지를 통해 안내합니다.
-        </p>
+        <p>본 개인정보처리방침은 시행일로부터 적용됩니다. 내용의 추가, 삭제 또는 수정이 있는 경우 쇼핑몰 공지 또는 본 페이지를 통해 안내합니다.</p>
       </section>
     </main>
   );

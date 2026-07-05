@@ -4,24 +4,24 @@ export default function TermsPage() {
   return (
     <main className={styles.page}>
       <header className={styles.header}>
-        <p className={styles.eyebrow}>GGUANGGU</p>
+        <p className={styles.eyebrow}>맵시꾼</p>
         <h1>이용약관</h1>
-        <p>GGUANGGU 온라인 쇼핑몰 이용에 관한 약관입니다.</p>
+        <p>맵시꾼 온라인 쇼핑몰 이용에 관한 약관입니다.</p>
         <span>시행일: 2026년 6월 15일</span>
       </header>
 
       <section className={styles.panel}>
         <h2>제1조 (목적)</h2>
         <p>
-          이 약관은 GGUANGGU(이하 "회사")가 운영하는 온라인 쇼핑몰에서 제공하는 서비스의 이용 조건 및
-          절차, 회사와 이용자의 권리·의무 및 책임사항을 규정함을 목적으로 합니다.
+          이 약관은 맵시꾼(이하 "회사")가 운영하는 온라인 쇼핑몰에서 제공하는 서비스의 이용 조건 및 절차, 회사와 이용자의 권리·의무 및 책임사항을 규정함을
+          목적으로 합니다.
         </p>
       </section>
 
       <section className={styles.panel}>
         <h2>제2조 (정의)</h2>
         <ul className={styles.list}>
-          <li>"쇼핑몰"이란 회사가 운영하는 온라인 쇼핑몰 GGUANGGU(gguanggu.com)를 말합니다.</li>
+          <li>"쇼핑몰"이란 회사가 운영하는 온라인 쇼핑몰 맵시꾼(gguanggu.com)를 말합니다.</li>
           <li>"이용자"란 쇼핑몰에 접속하여 서비스를 이용하는 회원 및 비회원을 말합니다.</li>
           <li>"회원"이란 쇼핑몰에 개인정보를 제공하고 소셜 로그인으로 가입한 자를 말합니다.</li>
         </ul>
@@ -66,17 +66,14 @@ export default function TermsPage() {
       <section className={styles.panel}>
         <h2>제7조 (책임의 한계)</h2>
         <p>
-          회사는 천재지변, 불가항력적 사유, 이용자 귀책 사유로 인한 서비스 장애에 대해 책임을 지지 않습니다.
-          회사는 이용자 간 또는 이용자와 제3자 간에 발생한 분쟁에 개입하지 않습니다.
+          회사는 천재지변, 불가항력적 사유, 이용자 귀책 사유로 인한 서비스 장애에 대해 책임을 지지 않습니다. 회사는 이용자 간 또는 이용자와 제3자 간에 발생한
+          분쟁에 개입하지 않습니다.
         </p>
       </section>
 
       <section className={styles.panel}>
         <h2>제8조 (준거법 및 관할)</h2>
-        <p>
-          이 약관은 대한민국 법령에 따라 해석되며, 서비스 이용으로 인한 분쟁은 민사소송법상의 관할 법원에서
-          해결합니다.
-        </p>
+        <p>이 약관은 대한민국 법령에 따라 해석되며, 서비스 이용으로 인한 분쟁은 민사소송법상의 관할 법원에서 해결합니다.</p>
       </section>
     </main>
   );

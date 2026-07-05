@@ -15,7 +15,7 @@ export default function BrandStrip() {
   return (
     <Link href="/guide/brand-story" className={styles.strip}>
       <div className={styles.inner}>
-        <span className={styles.brandName}>꾸안꾸</span>
+        <span className={styles.brandName}>맵시꾼</span>
         <span className={styles.divider} />
         <div className={styles.conceptRow}>
           {CONCEPTS.map((c, i) => (

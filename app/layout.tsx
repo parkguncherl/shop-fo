@@ -7,11 +7,11 @@ import { ConfirmProvider } from '@/components/common/ConfirmModal/ConfirmProvide
 import './globals.scss';
 
 export const metadata: Metadata = {
-  title: { default: 'GGUANGGU', template: '%s | GGUANGGU' },
-  description: '꾸안꾸 온라인 쇼핑몰',
+  title: { default: '맵시꾼', template: '%s | 맵시꾼' },
+  description: '맵시꾼 온라인 쇼핑몰',
   icons: { icon: '/images/ggu_favicon.svg' },
   openGraph: {
-    siteName: 'GGUANGGU',
+    siteName: '맵시꾼',
     type: 'website',
   },
 };

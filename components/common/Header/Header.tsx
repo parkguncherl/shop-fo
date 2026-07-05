@@ -34,7 +34,8 @@ export default function Header() {
         <div className={styles.inner}>
           {/* 로고 */}
           <Link href="/" className={styles.logo}>
-            GGUANGGU<span className={styles.logoDomain}>.COM</span>
+            <span className={styles.logoMain}>맵시꾼</span>
+            <span className={styles.logoSub}>편안한 중장년층 여성의류</span>
           </Link>
 
           {/* 우측 액션 */}

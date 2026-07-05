@@ -4,9 +4,9 @@ export default function ShippingPage() {
   return (
     <main className={styles.page}>
       <header className={styles.header}>
-        <p className={styles.eyebrow}>GGUANGGU</p>
+        <p className={styles.eyebrow}>맵시꾼</p>
         <h1>배송 / 반품 안내</h1>
-        <p>GGUANGGU의 배송 및 반품·교환 정책을 안내합니다.</p>
+        <p>맵시꾼의 배송 및 반품·교환 정책을 안내합니다.</p>
       </header>
 
       <section className={styles.panel}>
@@ -51,7 +51,8 @@ export default function ShippingPage() {
       <section className={styles.panel}>
         <h2>고객센터</h2>
         <p>
-          교환·반품 문의: <strong>ilovegguanggu@gmail.com</strong><br />
+          교환·반품 문의: <strong>ilovegguanggu@gmail.com</strong>
+          <br />
           운영 시간: 평일 10:00 ~ 17:00 (주말·공휴일 제외)
         </p>
       </section>

@@ -3,7 +3,7 @@ import ProductDet from '@/app/(shop)/products/[category]/[productId]/ProductDet'
 
 const API = process.env.NEXT_PUBLIC_SHOP_API_ENDPOINT;
 const SITE_URL = process.env.NEXT_BASE_URL ?? 'https://gguanggu.com';
-const SITE_NAME = '꾸안꾸';
+const SITE_NAME = '맵시꾼';
 
 async function fetchProduct(productId: string) {
   try {
@@ -17,21 +17,13 @@ async function fetchProduct(productId: string) {
   }
 }
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ category: string; productId: string }>;
-}): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ category: string; productId: string }> }): Promise<Metadata> {
   const { category, productId } = await params;
   const product = await fetchProduct(productId);
 
   const title = product?.prodNm ? `${product.prodNm} | ${SITE_NAME}` : SITE_NAME;
-  const description = product?.prodNm
-    ? `${product.prodNm} - 꾸안꾸 온라인 쇼핑몰에서 만나보세요.`
-    : '꾸안꾸 온라인 쇼핑몰';
-  const imageUrl = product?.repSysFileNm
-    ? `${API}/common/file/view?sysFileNm=${product.repSysFileNm}`
-    : `${SITE_URL}/og-default.jpg`;
+  const description = product?.prodNm ? `${product.prodNm} - 맵시꾼 온라인 쇼핑몰에서 만나보세요.` : '맵시꾼 온라인 쇼핑몰';
+  const imageUrl = product?.repSysFileNm ? `${API}/common/file/view?sysFileNm=${product.repSysFileNm}` : `${SITE_URL}/og-default.jpg`;
   const pageUrl = `${SITE_URL}/products/${category}/${productId}`;
 
   return {
@@ -61,9 +53,7 @@ const page = async ({ params }: { params: Promise<{ category: string; productId:
   const product = await fetchProduct(productId);
 
   const pageUrl = `${SITE_URL}/products/${category}/${productId}`;
-  const imageUrl = product?.repSysFileNm
-    ? `${API}/common/file/view?sysFileNm=${product.repSysFileNm}`
-    : null;
+  const imageUrl = product?.repSysFileNm ? `${API}/common/file/view?sysFileNm=${product.repSysFileNm}` : null;
 
   const jsonLd = product
     ? {
@@ -84,12 +74,7 @@ const page = async ({ params }: { params: Promise<{ category: string; productId:
 
   return (
     <>
-      {jsonLd && (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
-      )}
+      {jsonLd && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />}
       <ProductDet productId={Number(productId)} />
     </>
   );

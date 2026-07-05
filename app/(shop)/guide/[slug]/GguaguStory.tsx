@@ -1,7 +1,6 @@
 import React from 'react';
 import styles from './GguaguStory.module.scss';
 
-
 const FEATURES = [
   {
     title: '진짜 편한 옷',
@@ -22,7 +21,9 @@ export default function GguaguStory() {
     <article className={styles.article}>
       <section className={styles.section}>
         <p className={styles.eyebrow}>ABOUT US</p>
-        <h2 className={styles.sectionTitle}>Welcome to <em>꾸안꾸</em> ✨</h2>
+        <h2 className={styles.sectionTitle}>
+          Welcome to <em>맵시꾼</em> ✨
+        </h2>
         <ul className={styles.featureList}>
           {FEATURES.map((f) => (
             <li key={f.title} className={styles.featureItem}>
@@ -35,7 +36,6 @@ export default function GguaguStory() {
           ))}
         </ul>
       </section>
-
     </article>
   );
 }

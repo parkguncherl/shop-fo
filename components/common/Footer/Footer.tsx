@@ -4,7 +4,7 @@ import Link from 'next/link';
 import styles from './Footer.module.scss';
 
 const BUSINESS_INFO = {
-  brand: 'GGUANGGU',
+  brand: '맵시꾼',
   companyName: '지성네트웍 태양광발전소',
   representative: '박근철',
   businessNumber: '204-19-967-02',
@@ -21,14 +21,7 @@ export default function Footer() {
       <div className={styles.inner}>
         <div className={styles.top}>
           <div className={styles.brandWrap}>
-            <Image
-              src="/images/logo_100x100.png"
-              alt="GGUANGGU 로고"
-              width={52}
-              height={52}
-              className={styles.logoImg}
-            />
-            <span className={styles.brand}>{BUSINESS_INFO.brand}</span>
+            <Image src="/images/fo-logo.webp" alt="맵시꾼 로고" width={104} height={104} className={styles.logoImg} />
           </div>
           <nav className={styles.links} aria-label="푸터 메뉴">
             <Link href="/info/privacy">개인정보처리방침</Link>
@@ -72,8 +65,8 @@ export default function Footer() {
           </div>
         </dl>
 
-        <p className={styles.notice}>GGUANGGU는 의류와 악세사리를 판매하는 온라인 쇼핑몰입니다.</p>
-        <p className={styles.copy}>© 2025 GGUANGGU. All rights reserved.</p>
+        <p className={styles.notice}>맵시꾼은 의류와 악세사리를 판매하는 온라인 쇼핑몰입니다.</p>
+        <p className={styles.copy}>© 2025 맵시꾼. All rights reserved.</p>
       </div>
     </footer>
   );
