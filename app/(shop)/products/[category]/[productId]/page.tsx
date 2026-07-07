@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import ProductDet from '@/app/(shop)/products/[category]/[productId]/ProductDet';
 
 const API = process.env.NEXT_PUBLIC_SHOP_API_ENDPOINT;
-const SITE_URL = process.env.NEXT_BASE_URL ?? 'https://gguanggu.com';
+const SITE_URL = process.env.NEXT_BASE_URL ?? 'https://mapsiggun.com';
 const SITE_NAME = '맵시꾼';
 
 async function fetchProduct(productId: string) {

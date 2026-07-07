@@ -21,7 +21,7 @@ export default function TermsPage() {
       <section className={styles.panel}>
         <h2>제2조 (정의)</h2>
         <ul className={styles.list}>
-          <li>"쇼핑몰"이란 회사가 운영하는 온라인 쇼핑몰 맵시꾼(gguanggu.com)를 말합니다.</li>
+          <li>"쇼핑몰"이란 회사가 운영하는 온라인 쇼핑몰 맵시꾼(mapsiggun.com)를 말합니다.</li>
           <li>"이용자"란 쇼핑몰에 접속하여 서비스를 이용하는 회원 및 비회원을 말합니다.</li>
           <li>"회원"이란 쇼핑몰에 개인정보를 제공하고 소셜 로그인으로 가입한 자를 말합니다.</li>
         </ul>
