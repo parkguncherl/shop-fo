@@ -77,6 +77,9 @@
   align-items: center;
   height: 48px;
   gap: 8px;
+  border: 1.5px dashed $color-gray-400;
+  border-radius: $border-radius-md;
+  padding: 0 12px;
 }
 
 .searchInput {
