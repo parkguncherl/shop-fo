@@ -88,7 +88,7 @@ export const redirectRules: RedirectRule[] = [
 ];
 
 /** 기본 리다이렉트 경로 */
-export const DEFAULT_REDIRECT = '/products/all';
+export const DEFAULT_REDIRECT = '/products/10000';
 
 /**
  * searchParams 기반으로 매칭되는 규칙의 목적지를 반환

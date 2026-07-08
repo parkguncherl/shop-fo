@@ -1,6 +1,7 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import NoticeButton from './NoticeButton';
 import styles from './Footer.module.scss';
 
 const BUSINESS_INFO = {
@@ -27,6 +28,7 @@ export default function Footer() {
             <Link href="/info/privacy">개인정보처리방침</Link>
             <Link href="/info/terms">이용약관</Link>
             <Link href="/info/shipping">배송/반품 안내</Link>
+            <NoticeButton />
           </nav>
         </div>
 

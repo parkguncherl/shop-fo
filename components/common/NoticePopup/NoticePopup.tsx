@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { getCookie, setCookie } from 'cookies-next';
+import { usePathname } from 'next/navigation';
 import { publicApi } from '@/libs/api';
 import { useWebCommonStore } from '@/stores/useWebCommonStore';
 import styles from './NoticePopup.module.scss';
@@ -14,9 +14,11 @@ interface PopupNotice {
   moveUri?: string;
 }
 
-const COOKIE_KEY = 'popup_notice_hidden';
+const SESSION_KEY = 'popup_notice_closed';
+const TRIGGER_PATH = '/products/10000';
 
 const NoticePopup = () => {
+  const pathname = usePathname();
   const getFileUrl = useWebCommonStore((s) => s.getFileUrl);
   const noticeVisible = useWebCommonStore((s) => s.noticeVisible);
   const showNotice = useWebCommonStore((s) => s.showNotice);
@@ -25,8 +27,13 @@ const NoticePopup = () => {
   const [index, setIndex] = useState(0);
   const autoPlayDone = useRef(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const loadedRef = useRef(false);
 
+  // 공지 목록 최초 1회 로드
   useEffect(() => {
+    if (loadedRef.current) return;
+    loadedRef.current = true;
+
     publicApi.get('/frontWeb/notice/popupList').then(async ({ data }) => {
       if (data?.resultCode !== 200 || !data.body?.length) return;
       const items: PopupNotice[] = data.body;
@@ -37,13 +44,16 @@ const NoticePopup = () => {
         }))
       );
       setNotices(withUrls);
-
-      const hidden = getCookie(COOKIE_KEY);
-      if (hidden !== new Date().toISOString().slice(0, 10)) {
-        showNotice();
-      }
     }).catch(() => {});
   }, []);
+
+  // /products/10000 진입 시 세션 최초 1회 자동 오픈
+  useEffect(() => {
+    if (pathname !== TRIGGER_PATH) return;
+    if (notices.length === 0) return;
+    if (sessionStorage.getItem(SESSION_KEY)) return;
+    showNotice();
+  }, [pathname, notices]);
 
   useEffect(() => {
     if (!noticeVisible) {
@@ -76,13 +86,10 @@ const NoticePopup = () => {
 
   const current = notices[index];
 
-  const handleHideToday = () => {
-    const today = new Date().toISOString().slice(0, 10);
-    setCookie(COOKIE_KEY, today, { expires: new Date(new Date().setHours(23, 59, 59, 999)) });
+  const handleClose = () => {
+    sessionStorage.setItem(SESSION_KEY, '1');
     hideNotice();
   };
-
-  const handleClose = () => hideNotice();
 
   const handleImageClick = () => {
     if (current.moveUri) window.location.href = current.moveUri;
@@ -118,7 +125,6 @@ const NoticePopup = () => {
         )}
 
         <div className={styles.footer}>
-          <button className={styles.btnHide} onClick={handleHideToday}>오늘 하루 보지 않기</button>
           <button className={styles.btnClose} onClick={handleClose}>닫기</button>
         </div>
       </div>

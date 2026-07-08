@@ -52,6 +52,7 @@
   display: flex;
   gap: 20px;
   flex-wrap: wrap;
+  align-items: center;
 
   a {
     font-size: $font-size-sm;
@@ -61,6 +62,18 @@
 
     &:hover { color: $color-black; }
   }
+}
+
+.noticeBtn {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: $font-size-sm;
+  color: $color-gray-500;
+  cursor: pointer;
+  transition: color $transition-fast;
+
+  &:hover { color: $color-black; }
 }
 
 .businessInfo {
