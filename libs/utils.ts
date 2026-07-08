@@ -1,5 +1,3 @@
-import 'dayjs/locale/ko';
-
 const currency = new Intl.NumberFormat('ko-KR');
 
 export const Utils = {
