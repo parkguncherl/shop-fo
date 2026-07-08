@@ -12,9 +12,6 @@
     "open:prod": "openapi-generator-cli generate --reserved-words-mappings delete=delete -g typescript-axios -i http://172.26.5.177:8080/shop-ap/v3/api-docs/frontWeb -o ./generated -c ./openapi.json --skip-validate-spec"
   },
   "dependencies": {
-    "@ant-design/cssinjs": "^2.1.2",
-    "@ant-design/icons": "^6.3.2",
-    "@ant-design/nextjs-registry": "^1.3.0",
     "@aws-sdk/client-s3": "^3.1081.0",
     "@aws-sdk/s3-request-presigner": "^3.1081.0",
     "@next/bundle-analyzer": "^16.2.10",
@@ -25,7 +22,6 @@
     "@types/node": "26.1.1",
     "@types/react": "19.2.17",
     "@types/react-dom": "19.2.3",
-    "antd": "^6.5.0",
     "axios": "1.18.1",
     "clsx": "^2.1.1",
     "cookies-next": "^6.1.1",
@@ -59,8 +55,6 @@
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.1.1",
     "globals": "^17.7.0",
-    "next-plugin-antd-less": "^1.8.0",
-    "next-with-less": "^3.0.1",
     "prettier": "^3.9.4",
     "sass": "^1.101.0",
     "sass-loader": "^17.0.0",

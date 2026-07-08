@@ -91,10 +91,11 @@ const numberStyle: React.CSSProperties = {
 /** 상품 - 카테고리 (조건부) 페이지 */
 const Contents = () => {
   /** 홈페이지 전역 스토어 - State */
-  const [pagingOnContents] = useContentsStore((s) => [s.paging]);
-  const [getFileUrl] = useWebCommonStore((s) => [s.getFileUrl]);
-  const [isBlocked, timeLeft] = useBlockStore((s) => [s.isBlocked, s.timeLeft]);
-  const [startBlock] = useBlockStore((s) => [s.startBlock]);
+  const pagingOnContents = useContentsStore((s) => s.paging);
+  const getFileUrl = useWebCommonStore((s) => s.getFileUrl);
+  const isBlocked = useBlockStore((s) => s.isBlocked);
+  const timeLeft = useBlockStore((s) => s.timeLeft);
+  const startBlock = useBlockStore((s) => s.startBlock);
 
   /** filters, lastInfo's filters*/
   const [lastInfoFilters, onChangeLastInfoFilters, onLastInfoFiltersReset] = useFilters<ContentsRequestContentsInfoListFilter>({

@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { AntdRegistry } from '@ant-design/nextjs-registry';
 import QueryProvider from '@/provider/QueryProvider';
 import AuthProvider from '@/provider/AuthProvider';
 import ToastProvider from '@/provider/ToastProvider';
@@ -30,12 +29,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <AuthProvider>
           <QueryProvider>
-            <AntdRegistry>
-              <ConfirmProvider>
-                {children}
-                <ToastProvider />
-              </ConfirmProvider>
-            </AntdRegistry>
+            <ConfirmProvider>
+              {children}
+              <ToastProvider />
+            </ConfirmProvider>
           </QueryProvider>
         </AuthProvider>
       </body>

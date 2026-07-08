@@ -24,7 +24,7 @@ export default function QueryProvider({ children }: { children: React.ReactNode 
   // );
 
   // blocking 에 필요한 전역 State 동기화
-  const [startBlock] = useBlockStore((s) => [s.startBlock]);
+  const startBlock = useBlockStore((s) => s.startBlock);
 
   // 내부 상수
   const delaySeconds = 5; // 백앤드는 minuteKey, 즉 분 단위로 한도를 검증하므로 60초(1분)의 throttling 을 거치는 것이 적절
