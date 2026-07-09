@@ -17,13 +17,13 @@ interface RequestPortOnePaymentParams {
 
 const getPortOneConfig = () => {
   const storeId = process.env.NEXT_PUBLIC_PORTONE_STORE_ID?.trim();
-  const channelKey = process.env.NEXT_PUBLIC_PORTONE_INICIS_CHANNEL_KEY?.trim();
+  const channelKey = process.env.NEXT_PUBLIC_PORTONE_CHANNEL_KEY?.trim();
 
   if (!storeId) {
     throw new Error('포트원 Store ID가 설정되지 않았습니다. NEXT_PUBLIC_PORTONE_STORE_ID를 확인해주세요.');
   }
   if (!channelKey) {
-    throw new Error('포트원 이니시스 채널 키가 설정되지 않았습니다. NEXT_PUBLIC_PORTONE_INICIS_CHANNEL_KEY를 확인해주세요.');
+    throw new Error('포트원 이니시스 채널 키가 설정되지 않았습니다. NEXT_PUBLIC_PORTONE_CHANNEL_KEY를 확인해주세요.');
   }
 
   return { storeId, channelKey };
