@@ -37,8 +37,14 @@ const getPortOneMethodPayload = (method: PaymentMethod) => {
       return { payMethod: 'VIRTUAL_ACCOUNT', virtualAccount: {} } as const;
     case 'BANK_TRANSFER':
       return { payMethod: 'TRANSFER', transfer: {} } as const;
+    case 'KAKAO_PAY':
+      return { payMethod: 'EASY_PAY', easyPay: { easyPayProvider: 'KAKAOPAY' } } as const;
+    case 'NAVER_PAY':
+      return { payMethod: 'EASY_PAY', easyPay: { easyPayProvider: 'NAVERPAY' } } as const;
+    case 'TOSS_PAY':
+      return { payMethod: 'EASY_PAY', easyPay: { easyPayProvider: 'TOSSPAY' } } as const;
     default:
-      throw new Error('현재 이니시스 테스트 채널은 카드, 가상계좌, 계좌이체 결제만 연결되어 있습니다.');
+      throw new Error('지원하지 않는 결제 수단입니다.');
   }
 };
 
