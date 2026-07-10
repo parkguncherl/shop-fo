@@ -243,6 +243,22 @@ const Product = (Props: { categoryId: string }) => {
                   <span className={styles.originalPrice}>{product.sellAmt.toLocaleString()}원</span>
                 )}
               </div>
+              {(() => {
+                const colorsStr = (product as any).stndrColors as string | undefined;
+                const hexes = colorsStr ? colorsStr.split(',').filter(Boolean) : [];
+                if (hexes.length === 0) return null;
+                return (
+                  <div style={{ display: 'flex', gap: 4, marginTop: 6 }}>
+                    {hexes.slice(0, 6).map((h, i) => (
+                      <span
+                        key={i}
+                        title={`#${h}`}
+                        style={{ width: 14, height: 14, borderRadius: '50%', border: '1px solid rgba(0,0,0,0.15)', background: `#${h}`, display: 'inline-block' }}
+                      />
+                    ))}
+                  </div>
+                );
+              })()}
             </Link>
           </div>
         ))}

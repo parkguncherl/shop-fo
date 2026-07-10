@@ -53,6 +53,16 @@ const ProductDet = ({ productId }: { productId: number }) => {
     return [...new Set((product.detList ?? []).map((d) => d.productDetColor).filter(Boolean))] as string[];
   }, [product]);
 
+  /* 색상명 → 표준색상(stndrColor) hex 매핑 (색상 스와치 렌더용) */
+  const colorHexMap = useMemo(() => {
+    const map: Record<string, string> = {};
+    (product?.detList ?? []).forEach((d) => {
+      const hex = (d as any).stndrColor as string | undefined;
+      if (d.productDetColor && hex) map[d.productDetColor] = hex;
+    });
+    return map;
+  }, [product]);
+
   const sizes = useMemo(() => {
     if (!product) return [];
     // 색상 선택 후 → 해당 색상에서 가능한 사이즈만
@@ -234,14 +244,31 @@ const ProductDet = ({ productId }: { productId: number }) => {
                     .filter((d) => d.productDetColor === color)
                     .reduce((sum, d) => sum + (d.id != null ? stockMap[d.id] ?? 0 : 0), 0);
                   const soldOut = colorStock <= 0;
+                  const hex = colorHexMap[color];
                   return (
                     <button
                       key={color}
                       className={`${styles.skuChip} ${selectedColor === color ? styles.skuChipSelected : ''} ${soldOut ? styles.skuChipSoldOut : ''}`}
                       onClick={() => !soldOut && handleColorSelect(color)}
                       disabled={soldOut}
+                      title={color}
+                      aria-label={color}
                     >
-                      {color}
+                      {hex ? (
+                        <span
+                          style={{
+                            display: 'inline-block',
+                            width: 22,
+                            height: 22,
+                            borderRadius: '50%',
+                            border: '1px solid rgba(0,0,0,0.15)',
+                            background: `#${hex}`,
+                            verticalAlign: 'middle',
+                          }}
+                        />
+                      ) : (
+                        color
+                      )}
                       {soldOut && <span className={styles.soldOutBadge}> 품절</span>}
                     </button>
                   );
