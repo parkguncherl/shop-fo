@@ -8,26 +8,68 @@
   height: 100dvh;
   overflow: hidden;
   background: $color-gray-100;
+}
+
+// ─── 히어로 모자이크 (큰 이미지 + 우측 2장) ────────────
+.heroMosaic {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 10px;
+  width: 100%;
+  height: 100%;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+.heroMosaicMain {
+  position: relative;
+  grid-row: 1 / 3;
+  border-radius: 20px;
+  overflow: hidden;
   cursor: pointer;
 }
 
-.heroTrack {
-  display: flex;
-  height: 100%;
-  transition: transform 0.4s ease;
-  will-change: transform;
+.heroMosaicSide {
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
 }
 
-.heroSlide {
-  flex: 0 0 100%;
+.heroImgWrap {
   width: 100%;
   height: 100%;
-  position: relative;
 
   img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    display: block;
+  }
+}
+
+.heroMosaicMain img,
+.heroMosaicSide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+// 이미지 없을 때 임시 플레이스홀더
+.heroPlaceholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, $color-gray-100 0%, $color-gray-200 100%);
+
+  span {
+    font-size: $font-size-md;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: rgba(0, 0, 0, 0.28);
   }
 }
 

@@ -22,81 +22,58 @@ const calcFinalPrice = (sellAmt?: number | null, discountRate?: number | null) =
   return sellAmt - Math.floor(sellAmt * ((discountRate || 0) / 100));
 };
 
-// ─── 히어로 슬라이더 ──────────────────────────────────────
-const HeroSlider = ({ product }: { product: ProductWithSrc }) => {
+// ─── 히어로 이미지 셀 (이미지 없으면 임시 플레이스홀더) ─────────
+const HeroCell = ({ src, alt, className }: { src?: string; alt: string; className: string }) => (
+  <div className={className}>
+    {src ? (
+      <img src={src} alt={alt} draggable={false} />
+    ) : (
+      <div className={styles.heroPlaceholder}>
+        <span>MAPSIGGUN</span>
+      </div>
+    )}
+  </div>
+);
+
+// ─── 히어로 모자이크 (대표상품 이미지 3장: 큰 이미지 + 우측 2장) ──
+const HeroMosaic = ({ product }: { product: ProductWithSrc }) => {
   const router = useRouter();
-  const [idx, setIdx] = useState(0);
-  const images = product.heroImages ?? (product.src ? [product.src] : []);
-  const startX = useRef(0);
-  const dragging = useRef(false);
-
-  const goTo = (i: number) => setIdx((i + images.length) % images.length);
-
-  const handlePointerDown = (e: React.PointerEvent) => {
-    startX.current = e.clientX;
-    dragging.current = false;
-  };
-  const handlePointerMove = (e: React.PointerEvent) => {
-    if (Math.abs(e.clientX - startX.current) > 8) dragging.current = true;
-  };
-  const handlePointerUp = (e: React.PointerEvent) => {
-    const dx = e.clientX - startX.current;
-    if (Math.abs(dx) > 40) {
-      goTo(dx < 0 ? idx + 1 : idx - 1);
-    } else if (!dragging.current) {
-      router.push(`/products/all/${product.id}`);
-    }
-  };
-
-  if (images.length === 0) return null;
+  // 대표상품 이미지 3장 확보 (부족하면 undefined 로 채워 임시 이미지 노출)
+  const base = product.heroImages ?? (product.src ? [product.src] : []);
+  const imgs: (string | undefined)[] = [base[0], base[1], base[2]];
 
   return (
-    <div
-      className={styles.hero}
-      onPointerDown={handlePointerDown}
-      onPointerMove={handlePointerMove}
-      onPointerUp={handlePointerUp}
-    >
-      <div
-        className={styles.heroTrack}
-        style={{ transform: `translateX(-${idx * 100}%)` }}
-      >
-        {images.map((src, i) => (
-          <div key={i} className={styles.heroSlide}>
-            <img src={src} alt={product.prodNm ?? ''} draggable={false} />
+    <div className={styles.hero}>
+      <div className={styles.heroMosaic}>
+        <div
+          className={styles.heroMosaicMain}
+          onClick={() => router.push(`/products/all/${product.id}`)}
+          role="button"
+        >
+          <HeroCell src={imgs[0]} alt={product.prodNm ?? ''} className={styles.heroImgWrap} />
+
+          {/* 가격/이름 오버레이 (큰 이미지 위) */}
+          <div className={styles.heroInfo}>
+            <p className={styles.heroName}>{product.prodNm}</p>
+            <div className={styles.heroPriceRow}>
+              {(product.discountRate ?? 0) > 0 && (
+                <span className={styles.heroDiscount}>{Math.round(product.discountRate ?? 0)}%</span>
+              )}
+              <span className={styles.heroPrice}>
+                {calcFinalPrice(product.sellAmt as unknown as number, product.discountRate as unknown as number).toLocaleString()}원
+              </span>
+              {(product.discountRate ?? 0) > 0 && (
+                <span className={styles.heroOriginalPrice}>
+                  {(product.sellAmt as unknown as number)?.toLocaleString()}원
+                </span>
+              )}
+            </div>
           </div>
-        ))}
-      </div>
-
-      {/* 가격/이름 오버레이 */}
-      <div className={styles.heroInfo}>
-        <p className={styles.heroName}>{product.prodNm}</p>
-        <div className={styles.heroPriceRow}>
-          {(product.discountRate ?? 0) > 0 && (
-            <span className={styles.heroDiscount}>{Math.round(product.discountRate ?? 0)}%</span>
-          )}
-          <span className={styles.heroPrice}>
-            {calcFinalPrice(product.sellAmt as unknown as number, product.discountRate as unknown as number).toLocaleString()}원
-          </span>
-          {(product.discountRate ?? 0) > 0 && (
-            <span className={styles.heroOriginalPrice}>
-              {(product.sellAmt as unknown as number)?.toLocaleString()}원
-            </span>
-          )}
         </div>
-      </div>
 
-      {/* 인디케이터 */}
-      {images.length > 1 && (
-        <div className={styles.heroDots}>
-          {images.map((_, i) => (
-            <span
-              key={i}
-              className={`${styles.heroDot}${i === idx ? ` ${styles.active}` : ''}`}
-            />
-          ))}
-        </div>
-      )}
+        <HeroCell src={imgs[1]} alt={product.prodNm ?? ''} className={styles.heroMosaicSide} />
+        <HeroCell src={imgs[2]} alt={product.prodNm ?? ''} className={styles.heroMosaicSide} />
+      </div>
     </div>
   );
 };
@@ -150,6 +127,7 @@ const ProductCard = ({ product }: { product: ProductWithSrc }) => {
 };
 
 // ─── 메인 페이지 ──────────────────────────────────────────
+// (히어로: 카테고리 10000 첫 상품 3분할 · 하단: 나머지 그리드)
 const MainPage = () => {
   usePageViewLog({ pageType: 'Main', categoryCd: 'all' });
   const getFileUrl = useWebCommonStore((s) => s.getFileUrl);
@@ -157,12 +135,14 @@ const MainPage = () => {
   const categoryReady = usePartnerCodeStore((s) => s.categoryReady);
 
   const [products, setProducts] = useState<ProductWithSrc[]>([]);
+  const [hero, setHero] = useState<ProductWithSrc | undefined>(undefined);
 
+  // 카테고리 10000 상품 목록 (히어로 + 하단 그리드 공용, 한 번만 조회 · 카테고리 필수 엔드포인트)
   const { data, isSuccess } = useQuery({
-    queryKey: ['/frontWeb/product/productInfoListPaging', 'main'],
+    queryKey: ['/frontWeb/product/productInfoListByCategory', 'main'],
     queryFn: () =>
-      publicApi.get('/frontWeb/product/productInfoListPaging', {
-        params: { pageRowCount: 40, categoryId: 'all' },
+      publicApi.get('/frontWeb/product/productInfoListByCategory', {
+        params: { pageRowCount: 40, categoryId: '10000' },
       }),
     enabled: categoryReady,
   });
@@ -182,31 +162,35 @@ const MainPage = () => {
         })
       );
 
-      // 첫 번째 상품은 repFileId로 다중 이미지 가져오기
-      if (withSrc.length > 0 && withSrc[0].repFileId) {
-        const fileDets: FileDet[] = await selectFileList(withSrc[0].repFileId as unknown as number);
-        const heroImages = await Promise.all(
-          fileDets.map((f) => (f.sysFileNm ? getFileUrl(f.sysFileNm) : Promise.resolve('')))
-        );
-        withSrc[0] = { ...withSrc[0], heroImages: heroImages.filter(Boolean) };
+      // 가장 처음 상품 → 히어로(3분할), 이미지 3장은 repFileId 로 로드
+      const [first, ...restRows] = withSrc;
+      if (first) {
+        let heroImages: string[] = [];
+        if (first.repFileId) {
+          const fileDets: FileDet[] = await selectFileList(first.repFileId as unknown as number);
+          heroImages = (
+            await Promise.all(fileDets.map((f) => (f.sysFileNm ? getFileUrl(f.sysFileNm) : Promise.resolve(''))))
+          ).filter(Boolean);
+        }
+        setHero({ ...first, heroImages });
+      } else {
+        setHero(undefined);
       }
 
-      setProducts(withSrc);
+      // 그 다음 상품들 → 하단 그리드
+      setProducts(restRows);
     })();
   }, [isSuccess, data]);
 
-  const hero = products[0];
-  const rest = products.slice(1);
-
   return (
     <>
-      {hero && <HeroSlider product={hero} />}
+      {hero && <HeroMosaic product={hero} />}
 
-      {rest.length > 0 && (
+      {products.length > 0 && (
         <section className={styles.section}>
           <p className={styles.sectionTitle}>NEW ARRIVALS</p>
           <div className={styles.grid}>
-            {rest.map((p) => (
+            {products.map((p) => (
               <ProductCard key={p.id} product={p} />
             ))}
           </div>
