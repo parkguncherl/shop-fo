@@ -107,10 +107,12 @@ const AutoMarquee = ({ children }: { children: React.ReactNode }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const rafRef = useRef<number | null>(null);
   const pausedUntil = useRef(0); // 이 시각까지 자동 이동 정지
-  const dragging = useRef(false);
+  const pointerDown = useRef(false); // 포인터가 눌린 상태
+  const dragging = useRef(false); // 임계값을 넘어 실제 드래그 중
   const dragStartX = useRef(0);
   const dragStartScroll = useRef(0);
   const moved = useRef(false);
+  const DRAG_THRESHOLD = 6;
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -120,7 +122,8 @@ const AutoMarquee = ({ children }: { children: React.ReactNode }) => {
     const step = () => {
       const half = el.scrollWidth / 2;
       if (half > 0) {
-        if (!dragging.current && Date.now() >= pausedUntil.current) {
+        // 포인터가 눌린 동안(클릭/드래그)엔 이동 정지 → 클릭 시 대상이 움직이지 않아 정상 이동
+        if (!pointerDown.current && Date.now() >= pausedUntil.current) {
           el.scrollLeft += SPEED;
         }
         if (el.scrollLeft >= half) el.scrollLeft -= half;
@@ -136,28 +139,41 @@ const AutoMarquee = ({ children }: { children: React.ReactNode }) => {
 
   const onPointerDown = (e: React.PointerEvent) => {
     const el = scrollRef.current;
-    if (!el) return;
-    dragging.current = true;
+    if (!el || e.button !== 0) return;
+    pointerDown.current = true;
+    dragging.current = false; // 아직 드래그 아님(임계값 전)
     moved.current = false;
     dragStartX.current = e.clientX;
     dragStartScroll.current = el.scrollLeft;
-    el.setPointerCapture(e.pointerId);
+    // 여기서는 캡처하지 않음 → 단순 클릭은 <Link> 로 그대로 전달되어 상세 이동
   };
   const onPointerMove = (e: React.PointerEvent) => {
-    if (!dragging.current || !scrollRef.current) return;
+    const el = scrollRef.current;
+    if (!pointerDown.current || !el) return;
     const dx = e.clientX - dragStartX.current;
-    if (Math.abs(dx) > 5) moved.current = true;
-    scrollRef.current.scrollLeft = dragStartScroll.current - dx;
+    if (!dragging.current) {
+      if (Math.abs(dx) <= DRAG_THRESHOLD) return; // 임계값 전에는 클릭 후보로 남겨둠
+      // 임계값 초과 → 드래그로 확정, 이 시점에만 포인터 캡처
+      dragging.current = true;
+      moved.current = true;
+      try {
+        el.setPointerCapture(e.pointerId);
+      } catch {}
+    }
+    el.scrollLeft = dragStartScroll.current - dx;
   };
   const endDrag = (e: React.PointerEvent) => {
-    if (!dragging.current) return;
-    dragging.current = false;
-    pausedUntil.current = Date.now() + 5000; // 5초 후 자동 재개
-    try {
-      scrollRef.current?.releasePointerCapture(e.pointerId);
-    } catch {}
+    if (!pointerDown.current) return;
+    pointerDown.current = false;
+    if (dragging.current) {
+      dragging.current = false;
+      pausedUntil.current = Date.now() + 5000; // 드래그였을 때만 5초 정지 후 자동 재개
+      try {
+        scrollRef.current?.releasePointerCapture(e.pointerId);
+      } catch {}
+    }
   };
-  // 드래그였다면 카드 클릭(이동) 억제
+  // 드래그였다면 카드 클릭(상세 이동) 억제, 단순 클릭은 통과
   const onClickCapture = (e: React.MouseEvent) => {
     if (moved.current) {
       e.preventDefault();
