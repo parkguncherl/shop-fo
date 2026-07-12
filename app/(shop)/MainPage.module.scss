@@ -115,31 +115,6 @@
   text-decoration: line-through;
 }
 
-// ─── 히어로 인디케이터 ────────────────────────────────
-.heroDots {
-  position: absolute;
-  bottom: 80px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 6px;
-  pointer-events: none;
-}
-
-.heroDot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.45);
-  transition: background $transition-fast, width $transition-fast;
-
-  &.active {
-    background: $color-white;
-    width: 18px;
-    border-radius: 3px;
-  }
-}
-
 // ─── 상품 그리드 ──────────────────────────────────────
 .section {
   @include container;
@@ -156,20 +131,32 @@
 }
 
 .grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 24px 12px;
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 4px;
+
+  // 스크롤바 숨김
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
 
   @include desktop {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 28px 16px;
+    gap: 16px;
   }
 }
 
 .card {
+  flex: 0 0 44%;
+  scroll-snap-align: start;
   display: flex;
   flex-direction: column;
   gap: 10px;
+
+  @include desktop {
+    flex-basis: 220px;
+  }
 
   &:hover .cardImage {
     transform: scale(1.03);
@@ -182,6 +169,20 @@
   border-radius: $border-radius-md;
   overflow: hidden;
   background: $color-gray-100;
+}
+
+// 색상 표시 막대 (이미지와 타이틀 사이, 우측 정렬)
+.colorBars {
+  display: flex;
+  justify-content: flex-end;
+  gap: 5px;
+  margin: -7px 2px -7px 0; // 카드 gap(10px) 상쇄해 상하 간격 축소
+}
+
+.colorBar {
+  width: 26px;
+  height: 5px;
+  border-radius: 3px;
 }
 
 .cardImage {
@@ -239,19 +240,4 @@
   font-size: $font-size-sm;
   color: $color-gray-400;
   text-decoration: line-through;
-}
-
-.paging {
-  @include flex-center;
-  padding: 20px 0 0;
-}
-
-.pagingBtn {
-  @include reset-button;
-  width: 200px;
-  height: 30px;
-  background-color: $color-gray-100;
-  border-radius: 10px;
-  font-size: $font-size-sm;
-  color: $color-gray-600;
 }

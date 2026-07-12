@@ -124,6 +124,20 @@
   }
 }
 
+// ─── 색상 표시 막대 (이미지와 타이틀 사이, 우측 정렬) ─────────────
+.colorBars {
+  display: flex;
+  justify-content: flex-end;
+  gap: 5px;
+  margin: -7px 2px -7px 0; // 카드 gap(10px) 상쇄해 상하 간격 축소
+}
+
+.colorBar {
+  width: 26px;
+  height: 5px;
+  border-radius: 3px;
+}
+
 .badge {
   position: absolute;
   top: 8px;

@@ -17,15 +17,15 @@
   padding-bottom: 28px;
 }
 
-.top {
-  @include flex-between;
+// 로고(왼쪽) + 사업자정보(오른쪽) 행
+.main {
+  display: flex;
+  align-items: center;
+  gap: 32px;
   margin-bottom: 18px;
-  flex-wrap: wrap;
-  gap: 12px;
 
   @include mobile {
-    flex-direction: column;
-    align-items: flex-start;
+    gap: 20px;
   }
 }
 
@@ -33,19 +33,19 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  flex-shrink: 0;
 }
 
 .logoImg {
   border-radius: 50%;
   object-fit: cover;
   flex-shrink: 0;
-}
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
 
-.brand {
-  font-size: $font-size-base;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  color: $color-black;
+  @include mobile {
+    width: 84px;
+    height: 84px;
+  }
 }
 
 .links {
@@ -53,6 +53,9 @@
   gap: 20px;
   flex-wrap: wrap;
   align-items: center;
+  margin-bottom: 18px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid $color-gray-200;
 
   a {
     font-size: $font-size-sm;
@@ -77,35 +80,41 @@
 }
 
 .businessInfo {
+  flex: 1;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px 18px;
-  margin: 0 0 12px;
-  padding: 0;
+  gap: 7px 24px;
+  margin: 0;
+  padding: 0 0 0 32px;
+  border-left: 1px solid $color-gray-200;
   color: $color-gray-500;
   font-size: $font-size-sm;
-  line-height: 1.65;
+  line-height: 1.6;
 
   div {
     display: flex;
     min-width: 0;
-    gap: 6px;
+    gap: 10px;
   }
 
   dt {
-    flex: 0 0 auto;
-    color: $color-gray-600;
-    font-weight: 600;
+    flex: 0 0 84px;
+    color: $color-gray-400;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
   }
 
   dd {
     min-width: 0;
     margin: 0;
+    color: $color-gray-700;
     overflow-wrap: anywhere;
   }
 
   @include mobile {
     grid-template-columns: 1fr;
+    padding-left: 20px;
   }
 }
 
