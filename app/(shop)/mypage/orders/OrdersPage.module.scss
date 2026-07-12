@@ -462,22 +462,3 @@
     color: $color-gray-700;
   }
 }
-.withdrawWrap {
-  display: flex;
-  justify-content: center;
-  padding: $spacing-2xl 0 $spacing-lg;
-}
-
-.withdrawBtn {
-  background: none;
-  border: none;
-  padding: 0;
-  color: $color-gray-400;
-  font-size: $font-size-sm;
-  cursor: pointer;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-
-  &:hover { color: $color-gray-600; }
-  &:disabled { opacity: 0.5; cursor: not-allowed; }
-}

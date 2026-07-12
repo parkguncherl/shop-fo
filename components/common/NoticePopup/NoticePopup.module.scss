@@ -68,7 +68,6 @@
   border-top: 1px solid #eee;
 }
 
-.btnHide,
 .btnClose {
   flex: 1;
   padding: 12px 0;
@@ -82,14 +81,7 @@
   &:hover {
     background: #f8f8f8;
   }
-}
 
-.btnHide {
-  border-right: 1px solid #eee;
-  color: #999;
-}
-
-.btnClose {
   font-weight: 600;
   color: #222;
 }

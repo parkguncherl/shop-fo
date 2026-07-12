@@ -90,24 +90,21 @@
   margin: 0;
 }
 
-// ─── 자동 흐름(마퀴) ─────────────────────────────────────
+// ─── 자동 흐름 + 드래그 캐러셀 ───────────────────────────
 .marquee {
-  overflow: hidden;
+  overflow-x: hidden;
+  cursor: grab;
+  touch-action: pan-y; // 세로 페이지 스크롤은 유지, 가로는 직접 드래그 처리
+  user-select: none;
+
+  &:active {
+    cursor: grabbing;
+  }
 }
 
 .marqueeTrack {
   display: flex;
   width: max-content;
-  animation: marqueeScroll 30s linear infinite;
-
-  &:hover {
-    animation-play-state: paused;
-  }
-}
-
-@keyframes marqueeScroll {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-50%); }
 }
 
 .card {

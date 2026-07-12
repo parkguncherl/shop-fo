@@ -101,6 +101,87 @@ const ProductCard = ({ product }: { product: ProductWithSrc }) => {
 };
 
 // ─── 메인 페이지 ──────────────────────────────────────────
+// ─── 자동 흐름 + 드래그 캐러셀 ────────────────────────────
+// 자동으로 흐르다가 드래그로 수동 조작, 드래그 멈춘 뒤 5초 후 자동 재개
+const AutoMarquee = ({ children }: { children: React.ReactNode }) => {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const rafRef = useRef<number | null>(null);
+  const pausedUntil = useRef(0); // 이 시각까지 자동 이동 정지
+  const dragging = useRef(false);
+  const dragStartX = useRef(0);
+  const dragStartScroll = useRef(0);
+  const moved = useRef(false);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const SPEED = 0.5; // 프레임당 px
+
+    const step = () => {
+      const half = el.scrollWidth / 2;
+      if (half > 0) {
+        if (!dragging.current && Date.now() >= pausedUntil.current) {
+          el.scrollLeft += SPEED;
+        }
+        if (el.scrollLeft >= half) el.scrollLeft -= half;
+        else if (el.scrollLeft < 0) el.scrollLeft += half;
+      }
+      rafRef.current = requestAnimationFrame(step);
+    };
+    rafRef.current = requestAnimationFrame(step);
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, []);
+
+  const onPointerDown = (e: React.PointerEvent) => {
+    const el = scrollRef.current;
+    if (!el) return;
+    dragging.current = true;
+    moved.current = false;
+    dragStartX.current = e.clientX;
+    dragStartScroll.current = el.scrollLeft;
+    el.setPointerCapture(e.pointerId);
+  };
+  const onPointerMove = (e: React.PointerEvent) => {
+    if (!dragging.current || !scrollRef.current) return;
+    const dx = e.clientX - dragStartX.current;
+    if (Math.abs(dx) > 5) moved.current = true;
+    scrollRef.current.scrollLeft = dragStartScroll.current - dx;
+  };
+  const endDrag = (e: React.PointerEvent) => {
+    if (!dragging.current) return;
+    dragging.current = false;
+    pausedUntil.current = Date.now() + 5000; // 5초 후 자동 재개
+    try {
+      scrollRef.current?.releasePointerCapture(e.pointerId);
+    } catch {}
+  };
+  // 드래그였다면 카드 클릭(이동) 억제
+  const onClickCapture = (e: React.MouseEvent) => {
+    if (moved.current) {
+      e.preventDefault();
+      e.stopPropagation();
+      moved.current = false;
+    }
+  };
+
+  return (
+    <div
+      ref={scrollRef}
+      className={styles.marquee}
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={endDrag}
+      onPointerCancel={endDrag}
+      onClickCapture={onClickCapture}
+      onDragStart={(e) => e.preventDefault()}
+    >
+      <div className={styles.marqueeTrack}>{children}</div>
+    </div>
+  );
+};
+
 // (히어로: 카테고리 10000 첫 상품 3분할 · 하단: 나머지 그리드)
 const MainPage = () => {
   usePageViewLog({ pageType: 'Main', categoryCd: 'all' });
@@ -163,14 +244,12 @@ const MainPage = () => {
       {products.length > 0 && (
         <section className={styles.section}>
           <p className={styles.sectionTitle}>NEW ARRIVALS</p>
-          <div className={styles.marquee}>
+          <AutoMarquee>
             {/* 이음새 없는 자동 흐름을 위해 목록을 2번 반복 */}
-            <div className={styles.marqueeTrack}>
-              {[...products, ...products].map((p, i) => (
-                <ProductCard key={`${p.id}-${i}`} product={p} />
-              ))}
-            </div>
-          </div>
+            {[...products, ...products].map((p, i) => (
+              <ProductCard key={`${p.id}-${i}`} product={p} />
+            ))}
+          </AutoMarquee>
         </section>
       )}
     </>

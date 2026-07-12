@@ -215,18 +215,6 @@
   cursor: default;
 }
 
-.existingBadge {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: rgba(0, 0, 0, 0.55);
-  color: $color-white;
-  font-size: 10px;
-  text-align: center;
-  padding: 3px 0;
-}
-
 .removeBtn {
   @include reset-button;
   position: absolute;

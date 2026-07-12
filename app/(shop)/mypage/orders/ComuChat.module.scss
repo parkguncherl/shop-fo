@@ -274,21 +274,6 @@
   background: $color-gray-50;
 }
 
-.chatGuide {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: $spacing-sm;
-  padding: $spacing-lg 0;
-  text-align: center;
-
-  p {
-    margin: 0;
-    font-size: $font-size-sm;
-    color: $color-gray-500;
-  }
-}
-
 .skeleton {
   height: 200px;
   border-radius: $border-radius-sm;
