@@ -51,24 +51,6 @@ const HeroMosaic = ({ product }: { product: ProductWithSrc }) => {
           role="button"
         >
           <HeroCell src={imgs[0]} alt={product.prodNm ?? ''} className={styles.heroImgWrap} />
-
-          {/* 가격/이름 오버레이 (큰 이미지 위) */}
-          <div className={styles.heroInfo}>
-            <p className={styles.heroName}>{product.prodNm}</p>
-            <div className={styles.heroPriceRow}>
-              {(product.discountRate ?? 0) > 0 && (
-                <span className={styles.heroDiscount}>{Math.round(product.discountRate ?? 0)}%</span>
-              )}
-              <span className={styles.heroPrice}>
-                {calcFinalPrice(product.sellAmt as unknown as number, product.discountRate as unknown as number).toLocaleString()}원
-              </span>
-              {(product.discountRate ?? 0) > 0 && (
-                <span className={styles.heroOriginalPrice}>
-                  {(product.sellAmt as unknown as number)?.toLocaleString()}원
-                </span>
-              )}
-            </div>
-          </div>
         </div>
 
         <HeroCell src={imgs[1]} alt={product.prodNm ?? ''} className={styles.heroMosaicSide} />
@@ -181,10 +163,13 @@ const MainPage = () => {
       {products.length > 0 && (
         <section className={styles.section}>
           <p className={styles.sectionTitle}>NEW ARRIVALS</p>
-          <div className={styles.grid}>
-            {products.map((p) => (
-              <ProductCard key={p.id} product={p} />
-            ))}
+          <div className={styles.marquee}>
+            {/* 이음새 없는 자동 흐름을 위해 목록을 2번 반복 */}
+            <div className={styles.marqueeTrack}>
+              {[...products, ...products].map((p, i) => (
+                <ProductCard key={`${p.id}-${i}`} product={p} />
+              ))}
+            </div>
           </div>
         </section>
       )}
