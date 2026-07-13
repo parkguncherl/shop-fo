@@ -101,6 +101,23 @@
   // sectionTitle 재사용
 }
 
+.sectionTitleLink {
+  text-decoration: none;
+  color: inherit;
+  display: inline-flex;
+  align-items: center;
+
+  &:hover .sectionTitle {
+    color: $color-black;
+  }
+}
+
+.sectionTitleArrow {
+  font-size: $font-size-lg;
+  margin-left: 4px;
+  opacity: 0.5;
+}
+
 .categoryGrid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);

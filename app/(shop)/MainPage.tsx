@@ -199,9 +199,11 @@ const CardCarousel = ({ children }: { children: React.ReactNode }) => {
 };
 
 // ─── 카테고리별 상품 섹션 (최대 4개) ────────────────────────
-const CategorySection = ({ categoryNm, items }: { categoryNm: string; items: ProductWithSrc[] }) => (
+const CategorySection = ({ categoryNm, categoryId, items }: { categoryNm: string; categoryId: string; items: ProductWithSrc[] }) => (
   <section className={styles.categorySection}>
-    <p className={styles.sectionTitle}>{categoryNm}</p>
+    <Link href={`/products/${categoryId}`} className={styles.sectionTitleLink}>
+      <p className={styles.sectionTitle}>{categoryNm} <span className={styles.sectionTitleArrow}>›</span></p>
+    </Link>
     <div className={styles.categoryGrid}>
       {items.slice(0, 4).map((p) => (
         <ProductCard key={p.id} product={p} />
@@ -218,7 +220,7 @@ const MainPage = () => {
 
   const [products, setProducts] = useState<ProductWithSrc[]>([]);
   const [heroes, setHeroes] = useState<ProductWithSrc[]>([]);
-  const [categoryGroups, setCategoryGroups] = useState<{ categoryNm: string; items: ProductWithSrc[] }[]>([]);
+  const [categoryGroups, setCategoryGroups] = useState<{ categoryNm: string; categoryId: string; items: ProductWithSrc[] }[]>([]);
 
   // 카테고리 10000 상품 목록 (히어로 + 캐러셀)
   const { data, isSuccess } = useQuery({
@@ -274,14 +276,14 @@ const MainPage = () => {
       );
 
       // categoryNm 기준으로 그룹핑 (쿼리 ORDER BY 순서 유지)
-      const groupMap = new Map<string, ProductWithSrc[]>();
+      const groupMap = new Map<string, { categoryId: string; items: ProductWithSrc[] }>();
       withSrc.forEach((p) => {
         const key = (p as any).categoryNm ?? '기타';
-        if (!groupMap.has(key)) groupMap.set(key, []);
-        groupMap.get(key)!.push(p);
+        if (!groupMap.has(key)) groupMap.set(key, { categoryId: String((p as any).categoryId ?? ''), items: [] });
+        groupMap.get(key)!.items.push(p);
       });
 
-      setCategoryGroups(Array.from(groupMap.entries()).map(([categoryNm, items]) => ({ categoryNm, items })));
+      setCategoryGroups(Array.from(groupMap.entries()).map(([categoryNm, { categoryId, items }]) => ({ categoryNm, categoryId, items })));
     })();
   }, [mainListSuccess, mainListData]);
 
@@ -303,7 +305,7 @@ const MainPage = () => {
       {categoryGroups.length > 0 && (
         <div className={styles.categorySections}>
           {categoryGroups.map((g) => (
-            <CategorySection key={g.categoryNm} categoryNm={g.categoryNm} items={g.items} />
+            <CategorySection key={g.categoryNm} categoryNm={g.categoryNm} categoryId={g.categoryId} items={g.items} />
           ))}
         </div>
       )}
