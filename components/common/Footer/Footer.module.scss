@@ -17,16 +17,24 @@
   padding-bottom: 28px;
 }
 
-// 로고(왼쪽) + 사업자정보(오른쪽) 행
+// 로고(왼쪽) + [링크+사업자정보](오른쪽) 행
 .main {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 32px;
   margin-bottom: 18px;
 
   @include mobile {
     gap: 20px;
   }
+}
+
+// 링크 + 사업자정보를 세로로 쌓는 우측 컬럼
+.mainRight {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
 }
 
 .brandWrap {
@@ -53,8 +61,7 @@
   gap: 20px;
   flex-wrap: wrap;
   align-items: center;
-  margin-top: 14px;
-  margin-bottom: 14px;
+  margin-bottom: 10px;
 
   a {
     font-size: $font-size-sm;
@@ -79,13 +86,11 @@
 }
 
 .businessInfo {
-  flex: 1;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 7px 24px;
   margin: 0;
-  padding: 0 0 0 32px;
-  border-left: 1px solid $color-gray-200;
+  padding: 0;
   color: $color-gray-500;
   font-size: $font-size-sm;
   line-height: 1.6;
@@ -113,7 +118,6 @@
 
   @include mobile {
     grid-template-columns: 1fr;
-    padding-left: 20px;
   }
 }
 

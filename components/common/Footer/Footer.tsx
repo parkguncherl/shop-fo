@@ -20,55 +20,57 @@ export default function Footer() {
   return (
     <footer className={styles.footer}>
       <div className={styles.inner}>
-        {/* 1. 로고(왼쪽) + 사업자 정보(오른쪽) */}
+        {/* 로고(왼쪽) + [링크 + 사업자정보](오른쪽) */}
         <div className={styles.main}>
           <div className={styles.brandWrap}>
             <Image src="/images/fo-logo.webp" alt="맵시꾼 로고" width={104} height={104} className={styles.logoImg} />
           </div>
 
-          <dl className={styles.businessInfo} aria-label="사업자 정보">
-            <div>
-              <dt>상호</dt>
-              <dd>{BUSINESS_INFO.companyName}</dd>
-            </div>
-            <div>
-              <dt>대표자</dt>
-              <dd>{BUSINESS_INFO.representative}</dd>
-            </div>
-            <div>
-              <dt>사업자등록번호</dt>
-              <dd>{BUSINESS_INFO.businessNumber}</dd>
-            </div>
-            <div>
-              <dt>유선번호</dt>
-              <dd>{BUSINESS_INFO.phone}</dd>
-            </div>
-            <div className={styles.fullLine}>
-              <dt>주소</dt>
-              <dd>{BUSINESS_INFO.address}</dd>
-            </div>
-            <div>
-              <dt>업종</dt>
-              <dd>{BUSINESS_INFO.businessType}</dd>
-            </div>
-            <div>
-              <dt>판매품목</dt>
-              <dd>{BUSINESS_INFO.items}</dd>
-            </div>
-            <div>
-              <dt>이메일</dt>
-              <dd>{BUSINESS_INFO.email}</dd>
-            </div>
-          </dl>
-        </div>
+          <div className={styles.mainRight}>
+            {/* 링크 라인 — 상호 바로 위 */}
+            <nav className={styles.links} aria-label="푸터 메뉴">
+              <Link href="/info/privacy">개인정보처리방침</Link>
+              <Link href="/info/terms">이용약관</Link>
+              <Link href="/info/shipping">배송/반품 안내</Link>
+              <NoticeButton />
+            </nav>
 
-        {/* 2. 링크 라인 */}
-        <nav className={styles.links} aria-label="푸터 메뉴">
-          <Link href="/info/privacy">개인정보처리방침</Link>
-          <Link href="/info/terms">이용약관</Link>
-          <Link href="/info/shipping">배송/반품 안내</Link>
-          <NoticeButton />
-        </nav>
+            <dl className={styles.businessInfo} aria-label="사업자 정보">
+              <div>
+                <dt>상호</dt>
+                <dd>{BUSINESS_INFO.companyName}</dd>
+              </div>
+              <div>
+                <dt>대표자</dt>
+                <dd>{BUSINESS_INFO.representative}</dd>
+              </div>
+              <div>
+                <dt>사업자등록번호</dt>
+                <dd>{BUSINESS_INFO.businessNumber}</dd>
+              </div>
+              <div>
+                <dt>유선번호</dt>
+                <dd>{BUSINESS_INFO.phone}</dd>
+              </div>
+              <div className={styles.fullLine}>
+                <dt>주소</dt>
+                <dd>{BUSINESS_INFO.address}</dd>
+              </div>
+              <div>
+                <dt>업종</dt>
+                <dd>{BUSINESS_INFO.businessType}</dd>
+              </div>
+              <div>
+                <dt>판매품목</dt>
+                <dd>{BUSINESS_INFO.items}</dd>
+              </div>
+              <div>
+                <dt>이메일</dt>
+                <dd>{BUSINESS_INFO.email}</dd>
+              </div>
+            </dl>
+          </div>
+        </div>
 
         <p className={styles.notice}>맵시꾼은 의류와 악세사리를 판매하는 온라인 쇼핑몰입니다.</p>
         <p className={styles.copy}>© 2025 맵시꾼. All rights reserved.</p>
