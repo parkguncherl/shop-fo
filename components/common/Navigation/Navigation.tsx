@@ -14,6 +14,12 @@ function NavigationInner() {
   const { data: categories, isLoading } = usePartnerCode('P0001');
   const skeletons = Array.from({ length: SKELETON_COUNT }, (_, i) => <span key={i} className={styles.skeleton} />);
 
+  useEffect(() => {
+    const el = scrollRef.current?.querySelector(`.${styles.active}`) as HTMLElement | null;
+    if (!el) return;
+    el.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
+  }, [pathname, categories]);
+
   return (
     <nav className={styles.nav}>
       <div className={styles.scrollArea} ref={scrollRef}>

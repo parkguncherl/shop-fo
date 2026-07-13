@@ -15,7 +15,7 @@ interface PopupNotice {
 }
 
 const SESSION_KEY = 'popup_notice_closed';
-const TRIGGER_PATH = '/products/10000';
+const TRIGGER_PATHS = ['/', '/products/10000'];
 
 const NoticePopup = () => {
   const pathname = usePathname();
@@ -47,9 +47,9 @@ const NoticePopup = () => {
     }).catch(() => {});
   }, []);
 
-  // /products/10000 진입 시 세션 최초 1회 자동 오픈
+  // 지정 경로 진입 시 세션 최초 1회 자동 오픈
   useEffect(() => {
-    if (pathname !== TRIGGER_PATH) return;
+    if (!TRIGGER_PATHS.includes(pathname)) return;
     if (notices.length === 0) return;
     if (sessionStorage.getItem(SESSION_KEY)) return;
     showNotice();
