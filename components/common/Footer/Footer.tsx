@@ -72,7 +72,6 @@ export default function Footer() {
           </div>
         </div>
 
-        <p className={styles.notice}>맵시꾼은 의류와 악세사리를 판매하는 온라인 쇼핑몰입니다.</p>
         <p className={styles.copy}>© 2025 맵시꾼. All rights reserved.</p>
       </div>
     </footer>
