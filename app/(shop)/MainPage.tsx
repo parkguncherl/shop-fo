@@ -4,12 +4,10 @@ import styles from './MainPage.module.scss';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import publicApi from '@/libs/publicApi';
 import { useWebCommonStore } from '@/stores/useWebCommonStore';
 import { usePartnerCodeStore } from '@/stores/usePartnerCodeStore';
 import { ProductResponseProductInfo } from '@/generated';
-import { FileDet } from '@/generated';
 import { usePageViewLog } from '@/hooks/usePageViewLog';
 
 interface ProductWithSrc extends ProductResponseProductInfo {
@@ -35,26 +33,23 @@ const HeroCell = ({ src, alt, className }: { src?: string; alt: string; classNam
   </div>
 );
 
-// ─── 히어로 모자이크 (대표상품 이미지 3장: 큰 이미지 + 우측 2장) ──
-const HeroMosaic = ({ product }: { product: ProductWithSrc }) => {
-  const router = useRouter();
-  // 대표상품 이미지 3장 확보 (부족하면 undefined 로 채워 임시 이미지 노출)
-  const base = product.heroImages ?? (product.src ? [product.src] : []);
-  const imgs: (string | undefined)[] = [base[0], base[1], base[2]];
+// ─── 히어로 모자이크 (상품 3개: 큰 이미지 + 우측 2장, 각각 상세 이동) ──
+const HeroMosaic = ({ heroes }: { heroes: ProductWithSrc[] }) => {
+  const [main, side1, side2] = heroes;
 
   return (
     <div className={styles.hero}>
       <div className={styles.heroMosaic}>
-        <div
-          className={styles.heroMosaicMain}
-          onClick={() => router.push(`/products/all/${product.id}`)}
-          role="button"
-        >
-          <HeroCell src={imgs[0]} alt={product.prodNm ?? ''} className={styles.heroImgWrap} />
-        </div>
+        <Link href={`/products/all/${main?.id}`} className={styles.heroMosaicMain}>
+          <HeroCell src={main?.src} alt={main?.prodNm ?? ''} className={styles.heroImgWrap} />
+        </Link>
 
-        <HeroCell src={imgs[1]} alt={product.prodNm ?? ''} className={styles.heroMosaicSide} />
-        <HeroCell src={imgs[2]} alt={product.prodNm ?? ''} className={styles.heroMosaicSide} />
+        <Link href={`/products/all/${side1?.id}`} className={styles.heroMosaicSide}>
+          <HeroCell src={side1?.src} alt={side1?.prodNm ?? ''} className={styles.heroImgWrap} />
+        </Link>
+        <Link href={`/products/all/${side2?.id}`} className={styles.heroMosaicSide}>
+          <HeroCell src={side2?.src} alt={side2?.prodNm ?? ''} className={styles.heroImgWrap} />
+        </Link>
       </div>
     </div>
   );
@@ -207,11 +202,10 @@ const CardCarousel = ({ children }: { children: React.ReactNode }) => {
 const MainPage = () => {
   usePageViewLog({ pageType: 'Main', categoryCd: 'all' });
   const getFileUrl = useWebCommonStore((s) => s.getFileUrl);
-  const selectFileList = useWebCommonStore((s) => s.selectFileList);
   const categoryReady = usePartnerCodeStore((s) => s.categoryReady);
 
   const [products, setProducts] = useState<ProductWithSrc[]>([]);
-  const [hero, setHero] = useState<ProductWithSrc | undefined>(undefined);
+  const [heroes, setHeroes] = useState<ProductWithSrc[]>([]);
 
   // 카테고리 10000 상품 목록 (히어로 + 하단 그리드 공용, 한 번만 조회 · 카테고리 필수 엔드포인트)
   const { data, isSuccess } = useQuery({
@@ -238,29 +232,16 @@ const MainPage = () => {
         })
       );
 
-      // 가장 처음 상품 → 히어로(3분할), 이미지 3장은 repFileId 로 로드
-      const [first, ...restRows] = withSrc;
-      if (first) {
-        let heroImages: string[] = [];
-        if (first.repFileId) {
-          const fileDets: FileDet[] = await selectFileList(first.repFileId as unknown as number);
-          heroImages = (
-            await Promise.all(fileDets.map((f) => (f.sysFileNm ? getFileUrl(f.sysFileNm) : Promise.resolve(''))))
-          ).filter(Boolean);
-        }
-        setHero({ ...first, heroImages });
-      } else {
-        setHero(undefined);
-      }
-
-      // 그 다음 상품들 → 하단 그리드
-      setProducts(restRows);
+      // Fisher-Yates 셔플 후 앞 3개 → 히어로, 나머지 → 캐러셀
+      const shuffled = [...withSrc].sort(() => Math.random() - 0.5);
+      setHeroes(shuffled.slice(0, 3));
+      setProducts(shuffled.slice(3));
     })();
   }, [isSuccess, data]);
 
   return (
     <>
-      {hero && <HeroMosaic product={hero} />}
+      {heroes.length > 0 && <HeroMosaic heroes={heroes} />}
 
       {products.length > 0 && (
         <section className={styles.section}>

@@ -20,15 +20,7 @@ export default function Footer() {
   return (
     <footer className={styles.footer}>
       <div className={styles.inner}>
-        {/* 1. 링크 라인 (상단) */}
-        <nav className={styles.links} aria-label="푸터 메뉴">
-          <Link href="/info/privacy">개인정보처리방침</Link>
-          <Link href="/info/terms">이용약관</Link>
-          <Link href="/info/shipping">배송/반품 안내</Link>
-          <NoticeButton />
-        </nav>
-
-        {/* 2. 로고(왼쪽) + 사업자 정보(오른쪽) */}
+        {/* 1. 로고(왼쪽) + 사업자 정보(오른쪽) */}
         <div className={styles.main}>
           <div className={styles.brandWrap}>
             <Image src="/images/fo-logo.webp" alt="맵시꾼 로고" width={104} height={104} className={styles.logoImg} />
@@ -69,6 +61,14 @@ export default function Footer() {
             </div>
           </dl>
         </div>
+
+        {/* 2. 링크 라인 */}
+        <nav className={styles.links} aria-label="푸터 메뉴">
+          <Link href="/info/privacy">개인정보처리방침</Link>
+          <Link href="/info/terms">이용약관</Link>
+          <Link href="/info/shipping">배송/반품 안내</Link>
+          <NoticeButton />
+        </nav>
 
         <p className={styles.notice}>맵시꾼은 의류와 악세사리를 판매하는 온라인 쇼핑몰입니다.</p>
         <p className={styles.copy}>© 2025 맵시꾼. All rights reserved.</p>
