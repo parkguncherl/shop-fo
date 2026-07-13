@@ -198,6 +198,18 @@ const CardCarousel = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
+// ─── 카테고리별 상품 섹션 (최대 4개) ────────────────────────
+const CategorySection = ({ categoryNm, items }: { categoryNm: string; items: ProductWithSrc[] }) => (
+  <section className={styles.categorySection}>
+    <p className={styles.sectionTitle}>{categoryNm}</p>
+    <div className={styles.categoryGrid}>
+      {items.slice(0, 4).map((p) => (
+        <ProductCard key={p.id} product={p} />
+      ))}
+    </div>
+  </section>
+);
+
 // (히어로: 카테고리 10000 첫 상품 3분할 · 하단: 나머지 그리드)
 const MainPage = () => {
   usePageViewLog({ pageType: 'Main', categoryCd: 'all' });
@@ -206,14 +218,22 @@ const MainPage = () => {
 
   const [products, setProducts] = useState<ProductWithSrc[]>([]);
   const [heroes, setHeroes] = useState<ProductWithSrc[]>([]);
+  const [categoryGroups, setCategoryGroups] = useState<{ categoryNm: string; items: ProductWithSrc[] }[]>([]);
 
-  // 카테고리 10000 상품 목록 (히어로 + 하단 그리드 공용, 한 번만 조회 · 카테고리 필수 엔드포인트)
+  // 카테고리 10000 상품 목록 (히어로 + 캐러셀)
   const { data, isSuccess } = useQuery({
     queryKey: ['/frontWeb/product/productInfoListByCategory', 'main'],
     queryFn: () =>
       publicApi.get('/frontWeb/product/productInfoListByCategory', {
         params: { pageRowCount: 40, categoryId: '10000' },
       }),
+    enabled: categoryReady,
+  });
+
+  // 메인 하단 카테고리별 상품 목록
+  const { data: mainListData, isSuccess: mainListSuccess } = useQuery({
+    queryKey: ['/frontWeb/product/selectProductListForMain'],
+    queryFn: () => publicApi.get('/frontWeb/product/selectProductListForMain'),
     enabled: categoryReady,
   });
 
@@ -232,12 +252,38 @@ const MainPage = () => {
         })
       );
 
-      // Fisher-Yates 셔플 후 앞 3개 → 히어로, 나머지 → 캐러셀
       const shuffled = [...withSrc].sort(() => Math.random() - 0.5);
       setHeroes(shuffled.slice(0, 3));
       setProducts(shuffled.slice(3));
     })();
   }, [isSuccess, data]);
+
+  useEffect(() => {
+    if (!mainListSuccess) return;
+    const { resultCode, body } = mainListData.data;
+    if (resultCode !== 200) return;
+
+    const rows: ProductResponseProductInfo[] = body ?? [];
+
+    (async () => {
+      const withSrc: ProductWithSrc[] = await Promise.all(
+        rows.map(async (p) => {
+          const src = p.sysFileNm ? await getFileUrl(p.sysFileNm as string) : undefined;
+          return { ...p, src };
+        })
+      );
+
+      // categoryNm 기준으로 그룹핑 (쿼리 ORDER BY 순서 유지)
+      const groupMap = new Map<string, ProductWithSrc[]>();
+      withSrc.forEach((p) => {
+        const key = (p as any).categoryNm ?? '기타';
+        if (!groupMap.has(key)) groupMap.set(key, []);
+        groupMap.get(key)!.push(p);
+      });
+
+      setCategoryGroups(Array.from(groupMap.entries()).map(([categoryNm, items]) => ({ categoryNm, items })));
+    })();
+  }, [mainListSuccess, mainListData]);
 
   return (
     <>
@@ -247,12 +293,19 @@ const MainPage = () => {
         <section className={styles.section}>
           <p className={styles.sectionTitle}>NEW ARRIVALS</p>
           <CardCarousel>
-            {/* 무한 루프를 위해 목록 2번 반복 */}
             {[...products, ...products].map((p, i) => (
               <ProductCard key={`${p.id}-${i}`} product={p} />
             ))}
           </CardCarousel>
         </section>
+      )}
+
+      {categoryGroups.length > 0 && (
+        <div className={styles.categorySections}>
+          {categoryGroups.map((g) => (
+            <CategorySection key={g.categoryNm} categoryNm={g.categoryNm} items={g.items} />
+          ))}
+        </div>
       )}
     </>
   );

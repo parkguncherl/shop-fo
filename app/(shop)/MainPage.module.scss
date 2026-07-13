@@ -88,6 +88,30 @@
   margin: 0;
 }
 
+// ─── 카테고리별 섹션 묶음 ─────────────────────────────────
+.categorySections {
+  @include container;
+  padding-bottom: 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+}
+
+.categorySection {
+  // sectionTitle 재사용
+}
+
+.categoryGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+
+  @include mobile {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+}
+
 // ─── 자동 흐름 + 드래그 캐러셀 ───────────────────────────
 .marquee {
   overflow-x: scroll;   // scrollTo() 동작에 scroll 필요
