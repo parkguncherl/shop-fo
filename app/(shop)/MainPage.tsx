@@ -80,15 +80,9 @@ const ProductCard = ({ product }: { product: ProductWithSrc }) => {
       <div className={styles.cardInfo}>
         <p className={styles.cardName}>{product.prodNm}</p>
         <div className={styles.cardPriceRow}>
-          {(product.discountRate ?? 0) > 0 && (
-            <span className={styles.cardDiscount}>{Math.round(product.discountRate ?? 0)}%</span>
-          )}
+          {(product.discountRate ?? 0) > 0 && <span className={styles.cardDiscount}>{Math.round(product.discountRate ?? 0)}%</span>}
           <span className={styles.cardPrice}>{finalPrice.toLocaleString()}원</span>
-          {(product.discountRate ?? 0) > 0 && (
-            <span className={styles.cardOriginalPrice}>
-              {(product.sellAmt as unknown as number)?.toLocaleString()}원
-            </span>
-          )}
+          {(product.discountRate ?? 0) > 0 && <span className={styles.cardOriginalPrice}>{(product.sellAmt as unknown as number)?.toLocaleString()}원</span>}
         </div>
       </div>
     </Link>
@@ -137,7 +131,9 @@ const CardCarousel = ({ children }: { children: React.ReactNode }) => {
       if (Date.now() < pausedUntil.current || pointerDown.current) return;
       advance();
     }, 3000);
-    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
   }, []);
 
   const onPointerDown = (e: React.PointerEvent) => {
@@ -155,7 +151,9 @@ const CardCarousel = ({ children }: { children: React.ReactNode }) => {
     if (!moved.current) {
       if (Math.abs(dx) <= DRAG_THRESHOLD) return;
       moved.current = true;
-      try { el.setPointerCapture(e.pointerId); } catch {}
+      try {
+        el.setPointerCapture(e.pointerId);
+      } catch {}
     }
     el.scrollLeft = dragStartScroll.current - dx;
   };
@@ -170,7 +168,9 @@ const CardCarousel = ({ children }: { children: React.ReactNode }) => {
       el.scrollTo({ left: Math.round(el.scrollLeft / step) * step, behavior: 'smooth' });
       setTimeout(loopCheck, 450);
       pausedUntil.current = Date.now() + 5000;
-      try { el.releasePointerCapture(e.pointerId); } catch {}
+      try {
+        el.releasePointerCapture(e.pointerId);
+      } catch {}
     }
   };
 
@@ -202,7 +202,9 @@ const CardCarousel = ({ children }: { children: React.ReactNode }) => {
 const CategorySection = ({ categoryNm, categoryId, items }: { categoryNm: string; categoryId: string; items: ProductWithSrc[] }) => (
   <section className={styles.categorySection}>
     <Link href={`/products/${categoryId}`} className={styles.sectionTitleLink}>
-      <p className={styles.sectionTitle}>{categoryNm} <span className={styles.sectionTitleArrow}>›</span></p>
+      <p className={styles.sectionTitle}>
+        {categoryNm} <span className={styles.sectionTitleArrow}>›</span>
+      </p>
     </Link>
     <div className={styles.categoryGrid}>
       {items.slice(0, 4).map((p) => (
@@ -251,7 +253,7 @@ const MainPage = () => {
         rows.map(async (p) => {
           const src = p.sysFileNm ? await getFileUrl(p.sysFileNm as string) : undefined;
           return { ...p, src };
-        })
+        }),
       );
 
       const shuffled = [...withSrc].sort(() => Math.random() - 0.5);
@@ -272,7 +274,7 @@ const MainPage = () => {
         rows.map(async (p) => {
           const src = p.sysFileNm ? await getFileUrl(p.sysFileNm as string) : undefined;
           return { ...p, src };
-        })
+        }),
       );
 
       // categoryNm 기준으로 그룹핑 (쿼리 ORDER BY 순서 유지)
