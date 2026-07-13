@@ -318,7 +318,7 @@ const ProductDet = ({ productId }: { productId: number }) => {
       {/* ── 배송 안내 ── */}
       <section className={styles.deliveryInfo}>
         <p className={styles.deliveryTitle}>배송 안내</p>
-        <p className={styles.deliveryDesc}>배송완료까지 7~9일 소요됩니다.</p>
+        <p className={styles.deliveryDesc}>배송완료까지 7일 이내 소요됩니다.</p>
       </section>
 
       {/* ── 연관 상품 ── */}
