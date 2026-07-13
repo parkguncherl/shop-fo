@@ -100,80 +100,85 @@ const ProductCard = ({ product }: { product: ProductWithSrc }) => {
   );
 };
 
-// ─── 메인 페이지 ──────────────────────────────────────────
-// ─── 자동 흐름 + 드래그 캐러셀 ────────────────────────────
-// 자동으로 흐르다가 드래그로 수동 조작, 드래그 멈춘 뒤 5초 후 자동 재개
-const AutoMarquee = ({ children }: { children: React.ReactNode }) => {
+// ─── 3초마다 2장씩 스냅 · 드래그 가능 캐러셀 ────────────────
+const CardCarousel = ({ children }: { children: React.ReactNode }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const rafRef = useRef<number | null>(null);
-  const pausedUntil = useRef(0); // 이 시각까지 자동 이동 정지
-  const pointerDown = useRef(false); // 포인터가 눌린 상태
-  const dragging = useRef(false); // 임계값을 넘어 실제 드래그 중
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const pausedUntil = useRef(0);
+  const pointerDown = useRef(false);
+  const moved = useRef(false);
   const dragStartX = useRef(0);
   const dragStartScroll = useRef(0);
-  const moved = useRef(false);
   const DRAG_THRESHOLD = 6;
 
-  useEffect(() => {
+  // 카드 2장 너비(카드 width + margin-right) * 2
+  const getStepWidth = () => {
+    const el = scrollRef.current;
+    if (!el) return 344;
+    const card = el.querySelector('a') as HTMLElement | null;
+    if (!card) return 344;
+    const mr = parseFloat(getComputedStyle(card).marginRight || '12');
+    return (card.offsetWidth + mr) * 2;
+  };
+
+  // 무한 루프: scrollLeft 가 절반 이상이면 첫 복사본으로 순간이동
+  const loopCheck = () => {
     const el = scrollRef.current;
     if (!el) return;
-    const SPEED = 0.5; // 프레임당 px
+    const half = el.scrollWidth / 2;
+    if (el.scrollLeft >= half) el.scrollLeft -= half;
+    else if (el.scrollLeft < 0) el.scrollLeft += half;
+  };
 
-    const step = () => {
-      const half = el.scrollWidth / 2;
-      if (half > 0) {
-        // 포인터가 눌린 동안(클릭/드래그)엔 이동 정지 → 클릭 시 대상이 움직이지 않아 정상 이동
-        if (!pointerDown.current && Date.now() >= pausedUntil.current) {
-          el.scrollLeft += SPEED;
-        }
-        if (el.scrollLeft >= half) el.scrollLeft -= half;
-        else if (el.scrollLeft < 0) el.scrollLeft += half;
-      }
-      rafRef.current = requestAnimationFrame(step);
-    };
-    rafRef.current = requestAnimationFrame(step);
-    return () => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    };
+  const advance = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+    el.scrollTo({ left: el.scrollLeft + getStepWidth(), behavior: 'smooth' });
+    setTimeout(loopCheck, 450);
+  };
+
+  useEffect(() => {
+    timerRef.current = setInterval(() => {
+      if (Date.now() < pausedUntil.current || pointerDown.current) return;
+      advance();
+    }, 3000);
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
   }, []);
 
   const onPointerDown = (e: React.PointerEvent) => {
-    const el = scrollRef.current;
-    if (!el || e.button !== 0) return;
+    if (e.button !== 0) return;
     pointerDown.current = true;
-    dragging.current = false; // 아직 드래그 아님(임계값 전)
     moved.current = false;
     dragStartX.current = e.clientX;
-    dragStartScroll.current = el.scrollLeft;
-    // 여기서는 캡처하지 않음 → 단순 클릭은 <Link> 로 그대로 전달되어 상세 이동
+    dragStartScroll.current = scrollRef.current?.scrollLeft ?? 0;
   };
+
   const onPointerMove = (e: React.PointerEvent) => {
     const el = scrollRef.current;
     if (!pointerDown.current || !el) return;
     const dx = e.clientX - dragStartX.current;
-    if (!dragging.current) {
-      if (Math.abs(dx) <= DRAG_THRESHOLD) return; // 임계값 전에는 클릭 후보로 남겨둠
-      // 임계값 초과 → 드래그로 확정, 이 시점에만 포인터 캡처
-      dragging.current = true;
+    if (!moved.current) {
+      if (Math.abs(dx) <= DRAG_THRESHOLD) return;
       moved.current = true;
-      try {
-        el.setPointerCapture(e.pointerId);
-      } catch {}
+      try { el.setPointerCapture(e.pointerId); } catch {}
     }
     el.scrollLeft = dragStartScroll.current - dx;
   };
+
   const endDrag = (e: React.PointerEvent) => {
     if (!pointerDown.current) return;
     pointerDown.current = false;
-    if (dragging.current) {
-      dragging.current = false;
-      pausedUntil.current = Date.now() + 5000; // 드래그였을 때만 5초 정지 후 자동 재개
-      try {
-        scrollRef.current?.releasePointerCapture(e.pointerId);
-      } catch {}
+    const el = scrollRef.current;
+    if (moved.current && el) {
+      // 가장 가까운 2장 경계로 스냅
+      const step = getStepWidth();
+      el.scrollTo({ left: Math.round(el.scrollLeft / step) * step, behavior: 'smooth' });
+      setTimeout(loopCheck, 450);
+      pausedUntil.current = Date.now() + 5000;
+      try { el.releasePointerCapture(e.pointerId); } catch {}
     }
   };
-  // 드래그였다면 카드 클릭(상세 이동) 억제, 단순 클릭은 통과
+
   const onClickCapture = (e: React.MouseEvent) => {
     if (moved.current) {
       e.preventDefault();
@@ -260,12 +265,12 @@ const MainPage = () => {
       {products.length > 0 && (
         <section className={styles.section}>
           <p className={styles.sectionTitle}>NEW ARRIVALS</p>
-          <AutoMarquee>
-            {/* 이음새 없는 자동 흐름을 위해 목록을 2번 반복 */}
+          <CardCarousel>
+            {/* 무한 루프를 위해 목록 2번 반복 */}
             {[...products, ...products].map((p, i) => (
               <ProductCard key={`${p.id}-${i}`} product={p} />
             ))}
-          </AutoMarquee>
+          </CardCarousel>
         </section>
       )}
     </>
