@@ -63,7 +63,6 @@ export const requestPortOnePayment = async ({ paymentId, orderName, totalAmount,
     customer: {
       fullName: customer.name,
       phoneNumber: customer.phoneNumber.replace(/\D/g, ''),
-      email: customer.email,
     },
     redirectUrl: typeof window === 'undefined' ? undefined : `${window.location.origin}/checkout`,
     ...paymentMethodOptions,
