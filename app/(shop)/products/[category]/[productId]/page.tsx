@@ -4,6 +4,8 @@ import ProductDet from '@/app/(shop)/products/[category]/[productId]/ProductDet'
 const API = process.env.NEXT_PUBLIC_SHOP_API_ENDPOINT;
 const SITE_URL = process.env.NEXT_BASE_URL ?? 'https://mapsiggun.com';
 const SITE_NAME = '맵시꾼';
+const SITE_DESCRIPTION = '맵시꾼은 중년 여성을 위한 편안한 의류를 소개하는 온라인 쇼핑몰입니다.';
+const SEO_KEYWORDS = ['맵시꾼', '중년 여성 의류', '중년 여성 편안한 의류', '여성 편안한 옷', '여성 의류 쇼핑몰'];
 
 async function fetchProduct(productId: string) {
   try {
@@ -22,13 +24,14 @@ export async function generateMetadata({ params }: { params: Promise<{ category:
   const product = await fetchProduct(productId);
 
   const title = product?.prodNm ? `${product.prodNm} | ${SITE_NAME}` : SITE_NAME;
-  const description = product?.prodNm ? `${product.prodNm} - 맵시꾼 온라인 쇼핑몰에서 만나보세요.` : '맵시꾼 온라인 쇼핑몰';
+  const description = product?.prodNm ? `${product.prodNm} - 중년 여성을 위한 편안한 의류, 맵시꾼 온라인 쇼핑몰에서 만나보세요.` : SITE_DESCRIPTION;
   const imageUrl = product?.repSysFileNm ? `${API}/common/file/view?sysFileNm=${product.repSysFileNm}` : `${SITE_URL}/og-default.jpg`;
   const pageUrl = `${SITE_URL}/products/${category}/${productId}`;
 
   return {
     title,
     description,
+    keywords: SEO_KEYWORDS,
     openGraph: {
       title,
       description,
