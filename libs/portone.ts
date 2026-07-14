@@ -60,6 +60,13 @@ export const requestPortOnePayment = async ({ paymentId, orderName, totalAmount,
     totalAmount,
     currency: 'KRW',
     payMethod,
+    customer: {
+      fullName: customer.name,
+      phoneNumber: customer.phoneNumber.replace(/\D/g, ''),
+      email: customer.email,
+    },
+    customData,
+    redirectUrl: typeof window === 'undefined' ? undefined : `${window.location.origin}/checkout`,
     ...paymentMethodOptions,
   } as Parameters<typeof PortOne.requestPayment>[0]);
 
