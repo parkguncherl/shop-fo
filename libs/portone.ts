@@ -60,10 +60,6 @@ export const requestPortOnePayment = async ({ paymentId, orderName, totalAmount,
     totalAmount,
     currency: 'KRW',
     payMethod,
-    customer: {
-      fullName: customer.name,
-      phoneNumber: customer.phoneNumber.replace(/\D/g, ''),
-    },
     ...paymentMethodOptions,
   } as Parameters<typeof PortOne.requestPayment>[0]);
 
