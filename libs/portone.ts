@@ -32,7 +32,7 @@ const getPortOneConfig = () => {
 const getPortOneMethodPayload = (method: PaymentMethod) => {
   switch (method) {
     case 'CARD':
-      return { payMethod: 'CARD', card: {} } as const;
+      return { payMethod: 'CARD' } as const;
     case 'VIRTUAL_ACCOUNT':
       return { payMethod: 'VIRTUAL_ACCOUNT', virtualAccount: {} } as const;
     case 'BANK_TRANSFER':
@@ -65,7 +65,6 @@ export const requestPortOnePayment = async ({ paymentId, orderName, totalAmount,
       phoneNumber: customer.phoneNumber.replace(/\D/g, ''),
       email: customer.email,
     },
-    customData,
     redirectUrl: typeof window === 'undefined' ? undefined : `${window.location.origin}/checkout`,
     ...paymentMethodOptions,
   } as Parameters<typeof PortOne.requestPayment>[0]);
