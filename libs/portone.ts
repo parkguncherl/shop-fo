@@ -63,7 +63,7 @@ export const requestPortOnePayment = async ({ paymentId, orderName, totalAmount,
     customer: {
       customerId: customer.id,
       fullName: customer.name,
-      phoneNumber: customer.phoneNumber,
+      phoneNumber: customer.phoneNumber.replace(/\D/g, ''),
       email: customer.email,
     },
     customData,
