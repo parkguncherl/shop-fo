@@ -3,7 +3,7 @@ import styles from './page.module.scss';
 const BUSINESS_INFO = {
   companyName: '맵시꾼',
   representative: '박근철',
-  businessNumber: '204-19-967-02',
+  businessNumber: '204-19-96702',
   phone: '010-2746-6297',
   address: '경기도 이천시 신둔면 원적로 155번길 86-21',
   privacyEmail: '',

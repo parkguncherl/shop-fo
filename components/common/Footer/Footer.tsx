@@ -8,7 +8,7 @@ const BUSINESS_INFO = {
   brand: '맵시꾼',
   companyName: '지성네트웍 태양광발전소',
   representative: '박근철',
-  businessNumber: '204-19-967-02',
+  businessNumber: '204-19-96702',
   phone: '010-2746-6297',
   address: '경기도 이천시 신둔면 원적로 155번길 86-21',
   businessType: '의류 및 패션잡화 소매업',
