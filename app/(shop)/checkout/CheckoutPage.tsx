@@ -184,8 +184,24 @@ export default function CheckoutPage() {
       router.push('/cart');
       return false;
     }
-    if (!receiverName || !receiverPhone || !buyerEmail || !zipCode || !address || !addressDetail) {
-      toastError('배송지 정보를 모두 입력해주세요.');
+    if (!receiverName.trim()) {
+      toastError('받는 분 이름을 입력해주세요.');
+      return false;
+    }
+    if (!receiverPhone.trim()) {
+      toastError('연락처를 입력해주세요.');
+      return false;
+    }
+    if (!buyerEmail.trim()) {
+      toastError('이메일을 입력해주세요.');
+      return false;
+    }
+    if (!zipCode || !address) {
+      toastError('주소 검색으로 배송지 주소를 입력해주세요.');
+      return false;
+    }
+    if (!addressDetail.trim()) {
+      toastError('상세 주소를 입력해주세요.');
       return false;
     }
     if (saveAddressChecked && !addressAlias.trim()) {
