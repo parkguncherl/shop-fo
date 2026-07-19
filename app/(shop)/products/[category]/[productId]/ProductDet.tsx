@@ -33,7 +33,7 @@ const ProductDet = ({ productId }: { productId: number }) => {
   const { data: cartData } = useCartQuery();
   const swipeRef = useRef<HTMLDivElement>(null);
 
-  const [images, setImages] = useState<{ rep?: string; detail?: string; size?: string; etc?: string }>({});
+  const [images, setImages] = useState<{ rep?: string; detail: string[]; size: string[]; etc?: string }>({ detail: [], size: [] });
   const [relatedWithSrc, setRelatedWithSrc] = useState<RelatedProductWithSrc[]>([]);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
@@ -117,15 +117,26 @@ const ProductDet = ({ productId }: { productId: number }) => {
   };
 
   /* ── 이미지 URL 변환 ──────────────────────────────────── */
+  const selectFileList = useWebCommonStore((s) => s.selectFileList);
+
   useEffect(() => {
     if (!product) return;
     (async () => {
-      const [rep, detail, size, etc] = await Promise.all([
+      // 대표·기타: 단일 파일
+      const [rep, etc] = await Promise.all([
         product.repSysFileNm ? getFileUrl(product.repSysFileNm) : undefined,
-        product.detailSysFileNm ? getFileUrl(product.detailSysFileNm) : undefined,
-        product.sizeSysFileNm ? getFileUrl(product.sizeSysFileNm) : undefined,
         product.etcSysFileNm ? getFileUrl(product.etcSysFileNm) : undefined,
       ]);
+
+      // 상세·사이즈: fileId로 목록 조회 → 여러 장 지원
+      const [detailFiles, sizeFiles] = await Promise.all([
+        product.detailFileId ? selectFileList(product.detailFileId) : [],
+        product.sizeFileId ? selectFileList(product.sizeFileId) : [],
+      ]);
+
+      const detail = (await Promise.all(detailFiles.map((f) => (f.sysFileNm ? getFileUrl(f.sysFileNm) : '')))).filter(Boolean);
+      const size = (await Promise.all(sizeFiles.map((f) => (f.sysFileNm ? getFileUrl(f.sysFileNm) : '')))).filter(Boolean);
+
       setImages({ rep, detail, size, etc });
 
       const related: RelatedProductWithSrc[] = await Promise.all(
@@ -210,10 +221,16 @@ const ProductDet = ({ productId }: { productId: number }) => {
       {/* ── 상품 이미지 ── */}
       <section className={styles.imageSection}>
         <ProductImage src={images.rep} alt={product.prodNm ?? ''} />
-        <ProductImage src={images.detail} alt={`${product.prodNm} 상세`} />
-        <ProductImage src={images.size} alt={`${product.prodNm} 사이즈`} />
+        {images.detail.map((src, i) => (
+          <ProductImage key={`detail-${i}`} src={src} alt={`${product.prodNm} 상세`} />
+        ))}
+        {images.size.map((src, i) => (
+          <ProductImage key={`size-${i}`} src={src} alt={`${product.prodNm} 사이즈`} />
+        ))}
         <ProductImage src={images.etc} alt={`${product.prodNm} 기타`} />
-        {!images.rep && !images.detail && !images.size && !images.etc && <div className={`${styles.productImg} ${styles.imgPlaceholder}`} />}
+        {!images.rep && images.detail.length === 0 && images.size.length === 0 && !images.etc && (
+          <div className={`${styles.productImg} ${styles.imgPlaceholder}`} />
+        )}
       </section>
 
       {/* ── 상품 기본 정보 ── */}
@@ -249,7 +266,7 @@ const ProductDet = ({ productId }: { productId: number }) => {
                     <button
                       key={color}
                       className={`${styles.skuChip} ${selectedColor === color ? styles.skuChipSelected : ''} ${soldOut ? styles.skuChipSoldOut : ''}`}
-                      onClick={() => soldOut ? toastError(`[${color}] 품절입니다.`) : handleColorSelect(color)}
+                      onClick={() => (soldOut ? toastError(`[${color}] 품절입니다.`) : handleColorSelect(color))}
                       disabled={false}
                       title={color}
                       aria-label={color}
