@@ -122,29 +122,35 @@ const ProductDet = ({ productId }: { productId: number }) => {
   useEffect(() => {
     if (!product) return;
     (async () => {
-      // 대표·기타: 단일 파일
-      const [rep, etc] = await Promise.all([
-        product.repSysFileNm ? getFileUrl(product.repSysFileNm) : undefined,
-        product.etcSysFileNm ? getFileUrl(product.etcSysFileNm) : undefined,
-      ]);
+      // 429 방지: 순차 처리
+      const rep = product.repSysFileNm ? await getFileUrl(product.repSysFileNm) : undefined;
+      const etc = product.etcSysFileNm ? await getFileUrl(product.etcSysFileNm) : undefined;
 
-      // 상세·사이즈: fileId로 목록 조회 → 여러 장 지원
-      const [detailFiles, sizeFiles] = await Promise.all([
-        product.detailFileId ? selectFileList(product.detailFileId) : [],
-        product.sizeFileId ? selectFileList(product.sizeFileId) : [],
-      ]);
+      const detailFiles = product.detailFileId ? await selectFileList(product.detailFileId) : [];
+      const sizeFiles = product.sizeFileId ? await selectFileList(product.sizeFileId) : [];
 
-      const detail = (await Promise.all(detailFiles.map((f) => (f.sysFileNm ? getFileUrl(f.sysFileNm) : '')))).filter(Boolean);
-      const size = (await Promise.all(sizeFiles.map((f) => (f.sysFileNm ? getFileUrl(f.sysFileNm) : '')))).filter(Boolean);
+      const detail: string[] = [];
+      for (const f of detailFiles) {
+        if (f.sysFileNm) {
+          const u = await getFileUrl(f.sysFileNm);
+          if (u) detail.push(u);
+        }
+      }
+      const size: string[] = [];
+      for (const f of sizeFiles) {
+        if (f.sysFileNm) {
+          const u = await getFileUrl(f.sysFileNm);
+          if (u) size.push(u);
+        }
+      }
 
       setImages({ rep, detail, size, etc });
 
-      const related: RelatedProductWithSrc[] = await Promise.all(
-        (product.relatedList ?? []).map(async (r) => ({
-          ...r,
-          src: r.sysFileNm ? await getFileUrl(r.sysFileNm) : undefined,
-        })),
-      );
+      const related: RelatedProductWithSrc[] = [];
+      for (const r of product.relatedList ?? []) {
+        const src = r.sysFileNm ? await getFileUrl(r.sysFileNm) : undefined;
+        related.push({ ...r, src });
+      }
       setRelatedWithSrc(related);
     })();
   }, [product?.id]);
