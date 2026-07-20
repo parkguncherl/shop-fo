@@ -1,14 +1,38 @@
 'use client';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { signIn, signOut, useSession } from 'next-auth/react';
 import { useMutation } from '@tanstack/react-query';
 import { authApi } from '@/libs/api';
+import publicApi from '@/libs/publicApi';
 import { toastError } from '@/components/common/Others/ToastMessage';
 import { useConfirm } from '@/components/common/ConfirmModal/ConfirmProvider';
+import { useWebCommonStore } from '@/stores/useWebCommonStore';
 import CartIcon from '@/components/shop/CartIcon/CartIcon';
 import styles from './HamburgerDrawer.module.scss';
+
+interface RecentProduct {
+  id: number;
+  prodNm: string;
+  sysFileNm?: string;
+  lastViewTm?: string;
+}
+
+function formatViewDate(dateStr?: string): string {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const yesterday = new Date(today.getTime() - 86400000);
+  const target = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  if (target.getTime() === today.getTime()) return '오늘';
+  if (target.getTime() === yesterday.getTime()) return '어제';
+  const yy = String(d.getFullYear()).slice(2);
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${yy}/${mm}/${dd}`;
+}
 
 interface Props {
   isOpen: boolean;
@@ -34,6 +58,20 @@ const CS_GROUP_TITLE = '고객센터';
 export default function HamburgerDrawer({ isOpen, onClose }: Props) {
   const { data: session } = useSession();
   const router = useRouter();
+  const getFileUrl = useWebCommonStore((s) => s.getFileUrl);
+  const [recentProducts, setRecentProducts] = useState<(RecentProduct & { imgUrl?: string })[]>([]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    publicApi.get('/frontWeb/pageViewHistory/recentProducts').then(async ({ data }) => {
+      if (data?.resultCode !== 200 || !data.body?.length) { setRecentProducts([]); return; }
+      const items: RecentProduct[] = data.body;
+      const withImg = await Promise.all(
+        items.map(async (p) => ({ ...p, imgUrl: p.sysFileNm ? await getFileUrl(p.sysFileNm) : undefined }))
+      );
+      setRecentProducts(withImg);
+    }).catch(() => setRecentProducts([]));
+  }, [isOpen]);
   // 드로어 열릴 때 배경 스크롤 잠금
   useEffect(() => {
     document.body.style.overflow = isOpen ? 'hidden' : '';
@@ -153,6 +191,28 @@ export default function HamburgerDrawer({ isOpen, onClose }: Props) {
             );
           })}
         </nav>
+
+        {/* 최근 본 상품 */}
+        {recentProducts.length > 0 && (
+          <div className={styles.recentSection}>
+            <p className={styles.recentTitle}>최근 본 상품</p>
+            <div className={styles.recentList}>
+              {recentProducts.map((p) => (
+                <Link key={p.id} href={`/products/all/${p.id}`} className={styles.recentItem} onClick={onClose}>
+                  <div className={styles.recentImgWrap}>
+                    {p.imgUrl
+                      ? <img src={p.imgUrl} alt={p.prodNm} className={styles.recentImg} />
+                      : <div className={styles.recentImgPlaceholder} />}
+                  </div>
+                  <div className={styles.recentInfo}>
+                    <p className={styles.recentNm}>{p.prodNm}</p>
+                    <span className={styles.recentDate}>{formatViewDate(p.lastViewTm)}</span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
       </aside>
     </>
   );

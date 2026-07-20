@@ -177,3 +177,82 @@
   &:hover { color: $color-gray-500; background: $color-gray-50; }
   &:disabled { opacity: 0.5; cursor: not-allowed; }
 }
+
+// ── 최근 본 상품 ────────────────────────────────────────────────
+.recentSection {
+  border-top: 1px solid $color-gray-200;
+  padding: $spacing-md 0 $spacing-xl;
+}
+
+.recentTitle {
+  padding: $spacing-xs $spacing-md;
+  font-size: $font-size-xs;
+  font-weight: 700;
+  color: $color-gray-500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin: 0 0 $spacing-sm;
+}
+
+.recentList {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.recentItem {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: 8px $spacing-md;
+  text-decoration: none;
+  color: $color-black;
+  transition: background $transition-fast;
+
+  &:hover { background: $color-gray-100; }
+}
+
+.recentImgWrap {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: $border-radius-sm;
+  overflow: hidden;
+  background: $color-gray-100;
+}
+
+.recentImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.recentImgPlaceholder {
+  width: 100%;
+  height: 100%;
+  background: $color-gray-200;
+}
+
+.recentInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.recentNm {
+  font-size: $font-size-sm;
+  color: $color-black;
+  line-height: 1.4;
+  margin: 0;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.recentDate {
+  font-size: $font-size-xs;
+  color: $color-gray-400;
+}
