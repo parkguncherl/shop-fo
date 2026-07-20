@@ -22,8 +22,10 @@ export default function ShippingPage() {
       <section className={styles.panel}>
         <h2>배송비</h2>
         <ul className={styles.list}>
-          <li>기본 배송비가 적용됩니다. (결제 화면에서 확인 가능)</li>
-          <li>일정 금액 이상 구매 시 무료 배송이 적용될 수 있습니다.</li>
+          <li>기본 배송비는 <strong>3,000원</strong>입니다.</li>
+          <li>아래 조건 중 하나라도 충족하면 <strong>무료배송</strong>이 적용됩니다.</li>
+          <li>주문 금액 <strong>5만원 이상</strong></li>
+          <li>주문 상품 <strong>2건 이상</strong></li>
         </ul>
       </section>
 

@@ -115,7 +115,8 @@ export default function CartPage() {
   const checkedItems = items.filter((i) => checkedIds.has(i.cartId));
   const checkedTotal = checkedItems.reduce((s, i) => s + i.unitPrice * i.quantity, 0);
   const checkedCount = checkedItems.reduce((s, i) => s + i.quantity, 0);
-  const deliveryFee = checkedTotal > 0 && checkedTotal < 50000 ? 3000 : 0;
+  const isFreeShipping = checkedTotal >= 50000 || checkedItems.length >= 2;
+  const deliveryFee = checkedTotal > 0 && !isFreeShipping ? 3000 : 0;
   const finalTotal = checkedTotal + deliveryFee;
 
   const handleOrder = () => {
@@ -267,9 +268,9 @@ export default function CartPage() {
             </button>
 
             <p className={styles.freeShipping}>
-              {checkedTotal > 0 && checkedTotal < 50000
-                ? `${(50000 - checkedTotal).toLocaleString()}원 더 담으면 무료배송!`
-                : checkedTotal >= 50000
+              {checkedTotal > 0 && !isFreeShipping
+                ? `${(50000 - checkedTotal).toLocaleString()}원 더 담거나 1개 더 추가하면 무료배송!`
+                : isFreeShipping && checkedTotal > 0
                 ? '✓ 무료배송 적용'
                 : ''}
             </p>
