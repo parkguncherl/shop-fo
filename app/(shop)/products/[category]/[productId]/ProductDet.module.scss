@@ -104,6 +104,40 @@
   margin-top: $spacing-xs;
 }
 
+.detailInfo {
+  font-size: $font-size-sm;
+  color: $color-gray-700;
+  line-height: 1.8;
+  margin-top: $spacing-sm;
+  white-space: pre-line;
+}
+
+.attrList {
+  list-style: none;
+  margin: $spacing-sm 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    font-size: $font-size-sm;
+  }
+}
+
+.attrLabel {
+  min-width: 40px;
+  color: $color-gray-500;
+  flex-shrink: 0;
+}
+
+.attrVal {
+  color: $color-black;
+}
+
 // ── SKU 섹션 ───────────────────────────────────────────
 .skuSection {
   padding: $spacing-md;

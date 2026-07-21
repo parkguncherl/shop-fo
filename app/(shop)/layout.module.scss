@@ -12,5 +12,10 @@
 
   @media (min-width: $bp-desktop) {
     padding-bottom: 0;
+    max-width: $max-width;
+    width: 100%;
+    margin: 0 auto;
+    padding-left: $spacing-xl;
+    padding-right: $spacing-xl;
   }
 }

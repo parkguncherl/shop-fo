@@ -247,7 +247,18 @@ const ProductDet = ({ productId }: { productId: number }) => {
           <span className={styles.price}>{discountedPrice.toLocaleString()}원</span>
           {(product.discountRate ?? 0) > 0 && product.orgAmt && <span className={styles.orgPrice}>{product.orgAmt.toLocaleString()}원</span>}
         </div>
-        {product.composition && <p className={styles.composition}>소재 · {product.composition}</p>}
+        {(product as any).detInfo && (
+          <p className={styles.detInfo}>{(product as any).detInfo}</p>
+        )}
+        {((product as any).thickTpNm || (product as any).spanTpNm || (product as any).showTpNm || (product as any).laundryTpNm || (product as any).cleaningTpNm) && (
+          <ul className={styles.attrList}>
+            {(product as any).thickTpNm   && <li><span className={styles.attrLabel}>두께</span><span className={styles.attrVal}>{(product as any).thickTpNm}</span></li>}
+            {(product as any).spanTpNm    && <li><span className={styles.attrLabel}>신축성</span><span className={styles.attrVal}>{(product as any).spanTpNm}</span></li>}
+            {(product as any).showTpNm    && <li><span className={styles.attrLabel}>비침</span><span className={styles.attrVal}>{(product as any).showTpNm}</span></li>}
+            {(product as any).laundryTpNm && <li><span className={styles.attrLabel}>세탁</span><span className={styles.attrVal}>{(product as any).laundryTpNm}</span></li>}
+            {(product as any).transTpNm    && <li><span className={styles.attrLabel}>안감</span><span className={styles.attrVal}>{(product as any).transTpNm}</span></li>}
+          </ul>
+        )}
       </section>
 
       {/* ── 옵션 선택 (색상 → 사이즈 2단계) ── */}
