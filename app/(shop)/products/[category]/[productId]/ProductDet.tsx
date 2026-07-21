@@ -32,9 +32,6 @@ const NOTICES = [
   '명시된 세탁 방법 외의 세탁으로 인한 변형, 손상에는 보상 책임을 지지 않습니다.',
 ];
 
-/* ── 이미지 헬퍼 ──────────────────────────────────────── */
-const ProductImage = ({ src, alt }: { src?: string; alt: string }) => (src ? <img src={src} alt={alt} className={styles.productImg} /> : null);
-
 /* ── 컴포넌트 ─────────────────────────────────────────── */
 const ProductDet = ({ productId }: { productId: number }) => {
   usePageViewLog({ pageType: 'ProductDet', productId: productId });
@@ -45,9 +42,15 @@ const ProductDet = ({ productId }: { productId: number }) => {
   const { data: cartData } = useCartQuery();
   const swipeRef = useRef<HTMLDivElement>(null);
 
-  const [images, setImages] = useState<{ rep?: string; detail: string[]; size: string[]; etc?: string }>({ detail: [], size: [] });
+  const [images, setImages] = useState<{ rep: string[]; detail: string[]; size: string[]; etc: string[] }>({ rep: [], detail: [], size: [], etc: [] });
   const [relatedWithSrc, setRelatedWithSrc] = useState<RelatedProductWithSrc[]>([]);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
+
+  /* ── 캐러셀 상태 ──────────────────────────────────────── */
+  const [slideIdx, setSlideIdx] = useState(0);
+  const [noTransition, setNoTransition] = useState(false);
+  const touchStartX = useRef<number | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
 
   /* ── API 호출 ─────────────────────────────────────────── */
@@ -123,28 +126,34 @@ const ProductDet = ({ productId }: { productId: number }) => {
   useEffect(() => {
     if (!product) return;
     (async () => {
-      const rep = product.repSysFileNm ? await getFileUrl(product.repSysFileNm) : undefined;
-      const etc = product.etcSysFileNm ? await getFileUrl(product.etcSysFileNm) : undefined;
+      const repFileId = (product as any).repFileId as number | undefined;
+      const etcFileId = (product as any).etcFileId as number | undefined;
 
-      const detailFiles = product.detailFileId ? await selectFileList(product.detailFileId) : [];
-      const sizeFiles = product.sizeFileId ? await selectFileList(product.sizeFileId) : [];
+      const [repFiles, detailFiles, sizeFiles, etcFiles] = await Promise.all([
+        repFileId ? selectFileList(repFileId) : [],
+        product.detailFileId ? selectFileList(product.detailFileId) : [],
+        product.sizeFileId ? selectFileList(product.sizeFileId) : [],
+        etcFileId ? selectFileList(etcFileId) : [],
+      ]);
 
-      const detail: string[] = [];
-      for (const f of detailFiles) {
-        if (f.sysFileNm) {
-          const u = await getFileUrl(f.sysFileNm);
-          if (u) detail.push(u);
+      const toUrls = async (files: typeof repFiles) => {
+        const urls: string[] = [];
+        for (const f of files) {
+          if (f.sysFileNm) {
+            const u = await getFileUrl(f.sysFileNm);
+            if (u) urls.push(u);
+          }
         }
-      }
-      const size: string[] = [];
-      for (const f of sizeFiles) {
-        if (f.sysFileNm) {
-          const u = await getFileUrl(f.sysFileNm);
-          if (u) size.push(u);
-        }
-      }
+        return urls;
+      };
 
-      setImages({ rep, detail, size, etc });
+      // repFileId 없으면 repSysFileNm 단일 파일 fallback
+      const repUrls =
+        repFiles.length > 0 ? await toUrls(repFiles) : product.repSysFileNm ? ([await getFileUrl(product.repSysFileNm)].filter(Boolean) as string[]) : [];
+
+      const [detail, size, etc] = await Promise.all([toUrls(detailFiles), toUrls(sizeFiles), toUrls(etcFiles)]);
+
+      setImages({ rep: repUrls, detail, size, etc });
 
       const related: RelatedProductWithSrc[] = [];
       for (const r of product.relatedList ?? []) {
@@ -154,6 +163,66 @@ const ProductDet = ({ productId }: { productId: number }) => {
       setRelatedWithSrc(related);
     })();
   }, [product?.id]);
+
+  /* ── 이미지 배열 통합 ────────────────────────────────────── */
+  const allImages = useMemo(() => {
+    return [...images.rep, ...images.detail, ...images.size, ...images.etc];
+  }, [images]);
+
+  /* ── 캐러셀 자동재생 (전체 1회 순환 후 정지) ────────────── */
+  useEffect(() => {
+    if (allImages.length <= 1) return;
+
+    setSlideIdx(0);
+
+    let current = 0;
+    const timer = setInterval(() => {
+      current++;
+      if (current >= allImages.length) {
+        clearInterval(timer);
+        // 애니메이션 없이 첫 슬라이드로 복귀
+        setNoTransition(true);
+        setSlideIdx(0);
+        requestAnimationFrame(() => requestAnimationFrame(() => setNoTransition(false)));
+      } else {
+        setSlideIdx(current);
+      }
+    }, 2500);
+    intervalRef.current = timer;
+
+    return () => clearInterval(timer);
+  }, [allImages.length, product?.id]);
+
+  /* ── 캐러셀 수동 이동 ─────────────────────────────────── */
+  const stopAutoPlay = () => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+  };
+
+  const goTo = (idx: number) => {
+    stopAutoPlay();
+    setSlideIdx(Math.max(0, Math.min(idx, allImages.length - 1)));
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    const delta = touchStartX.current - e.changedTouches[0].clientX;
+    if (Math.abs(delta) > 50) {
+      stopAutoPlay();
+      if (delta > 0) {
+        setSlideIdx((prev) => Math.min(prev + 1, allImages.length - 1));
+      } else {
+        setSlideIdx((prev) => Math.max(prev - 1, 0));
+      }
+    }
+    touchStartX.current = null;
+  };
 
   /* ── 장바구니 담기 ─────────────────────────────────────── */
   const handleAddToCart = async () => {
@@ -224,25 +293,63 @@ const ProductDet = ({ productId }: { productId: number }) => {
     <div className={styles.wrap}>
       {/* ── PC: 좌우 2열 / 모바일: 단일 열 ── */}
       <div className={styles.pcGrid}>
-
-        {/* ── 좌측(PC) / 상단(모바일): 이미지 ── */}
-        <section className={styles.imageSection}>
-          <ProductImage src={images.rep} alt={product.prodNm ?? ''} />
-          {images.detail.map((src, i) => (
-            <ProductImage key={`detail-${i}`} src={src} alt={`${product.prodNm} 상세`} />
-          ))}
-          {images.size.map((src, i) => (
-            <ProductImage key={`size-${i}`} src={src} alt={`${product.prodNm} 사이즈`} />
-          ))}
-          <ProductImage src={images.etc} alt={`${product.prodNm} 기타`} />
-          {!images.rep && images.detail.length === 0 && images.size.length === 0 && !images.etc && (
-            <div className={`${styles.productImg} ${styles.imgPlaceholder}`} />
+        {/* ── 좌측(PC) / 상단(모바일): 이미지 캐러셀 ── */}
+        <section className={styles.imageSection} onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
+          {allImages.length === 0 ? (
+            <div className={`${styles.carouselImg} ${styles.imgPlaceholder}`} style={{ aspectRatio: '3/4' }} />
+          ) : (
+            <>
+              <div className={styles.carouselViewport}>
+                <div
+                  className={styles.carouselTrack}
+                  style={{
+                    transform: `translateX(-${slideIdx * 100}%)`,
+                    transition: noTransition ? 'none' : 'transform 0.4s ease',
+                  }}
+                >
+                  {allImages.map((src, i) => (
+                    <img key={i} src={src} alt={`${product.prodNm} ${i + 1}`} className={styles.carouselImg} />
+                  ))}
+                </div>
+              </div>
+              {allImages.length > 1 && (
+                <div className={styles.carouselDots}>
+                  {allImages.map((_, i) => (
+                    <button
+                      key={i}
+                      className={`${styles.dot} ${i === slideIdx ? styles.dotActive : ''}`}
+                      onClick={() => goTo(i)}
+                      aria-label={`${i + 1}번 이미지`}
+                    />
+                  ))}
+                </div>
+              )}
+              {allImages.length > 1 && (
+                <>
+                  <button
+                    className={`${styles.carouselArrow} ${styles.arrowLeft}`}
+                    onClick={() => goTo(slideIdx - 1)}
+                    disabled={slideIdx === 0}
+                    aria-label="이전 이미지"
+                  >
+                    ‹
+                  </button>
+                  <button
+                    className={`${styles.carouselArrow} ${styles.arrowRight}`}
+                    onClick={() => goTo(slideIdx + 1)}
+                    disabled={slideIdx === allImages.length - 1}
+                    aria-label="다음 이미지"
+                  >
+                    ›
+                  </button>
+                </>
+              )}
+            </>
           )}
         </section>
 
         {/* ── 우측(PC) / 하단(모바일): 상품 정보 ── */}
         <div className={styles.rightCol}>
-
           {/* 기본 정보 */}
           <section className={styles.infoSection}>
             <h1 className={styles.prodNm}>{product.prodNm}</h1>
@@ -251,13 +358,42 @@ const ProductDet = ({ productId }: { productId: number }) => {
               <span className={styles.price}>{discountedPrice.toLocaleString()}원</span>
               {(product.discountRate ?? 0) > 0 && product.orgAmt && <span className={styles.orgPrice}>{product.orgAmt.toLocaleString()}원</span>}
             </div>
-            {((product as any).thickTpNm || (product as any).spanTpNm || (product as any).showTpNm || (product as any).laundryTpNm || (product as any).cleaningTpNm) && (
+            {((product as any).thickTpNm ||
+              (product as any).spanTpNm ||
+              (product as any).showTpNm ||
+              (product as any).laundryTpNm ||
+              (product as any).cleaningTpNm) && (
               <ul className={styles.attrList}>
-                {(product as any).thickTpNm   && <li><span className={styles.attrLabel}>두께</span><span className={styles.attrVal}>{(product as any).thickTpNm}</span></li>}
-                {(product as any).spanTpNm    && <li><span className={styles.attrLabel}>신축성</span><span className={styles.attrVal}>{(product as any).spanTpNm}</span></li>}
-                {(product as any).showTpNm    && <li><span className={styles.attrLabel}>비침</span><span className={styles.attrVal}>{(product as any).showTpNm}</span></li>}
-                {(product as any).laundryTpNm && <li><span className={styles.attrLabel}>세탁</span><span className={styles.attrVal}>{(product as any).laundryTpNm}</span></li>}
-                {(product as any).transTpNm   && <li><span className={styles.attrLabel}>안감</span><span className={styles.attrVal}>{(product as any).transTpNm}</span></li>}
+                {(product as any).thickTpNm && (
+                  <li>
+                    <span className={styles.attrLabel}>두께</span>
+                    <span className={styles.attrVal}>{(product as any).thickTpNm}</span>
+                  </li>
+                )}
+                {(product as any).spanTpNm && (
+                  <li>
+                    <span className={styles.attrLabel}>신축성</span>
+                    <span className={styles.attrVal}>{(product as any).spanTpNm}</span>
+                  </li>
+                )}
+                {(product as any).showTpNm && (
+                  <li>
+                    <span className={styles.attrLabel}>비침</span>
+                    <span className={styles.attrVal}>{(product as any).showTpNm}</span>
+                  </li>
+                )}
+                {(product as any).laundryTpNm && (
+                  <li>
+                    <span className={styles.attrLabel}>세탁</span>
+                    <span className={styles.attrVal}>{(product as any).laundryTpNm}</span>
+                  </li>
+                )}
+                {(product as any).transTpNm && (
+                  <li>
+                    <span className={styles.attrLabel}>안감</span>
+                    <span className={styles.attrVal}>{(product as any).transTpNm}</span>
+                  </li>
+                )}
               </ul>
             )}
           </section>
@@ -392,7 +528,6 @@ const ProductDet = ({ productId }: { productId: number }) => {
               ))}
             </ul>
           </div>
-
         </div>
       </div>
 

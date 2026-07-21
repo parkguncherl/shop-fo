@@ -72,14 +72,23 @@
   }
 }
 
-// ── 이미지 섹션 ────────────────────────────────────────
+// ── 이미지 섹션 (캐러셀) ──────────────────────────────
 .imageSection {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
+  position: relative;
 }
 
-.productImg {
+.carouselViewport {
+  overflow: hidden;
+  width: 100%;
+}
+
+.carouselTrack {
+  display: flex;
+  will-change: transform;
+}
+
+.carouselImg {
+  flex: 0 0 100%;
   width: 100%;
   aspect-ratio: 3 / 4;
   object-fit: cover;
@@ -87,7 +96,84 @@
 }
 
 .imgPlaceholder {
+  width: 100%;
+  aspect-ratio: 3 / 4;
   background: $color-gray-100;
+}
+
+// 도트 인디케이터
+.carouselDots {
+  position: absolute;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 6px;
+  z-index: 2;
+}
+
+.dot {
+  @include reset-button;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  transition: background 0.2s, transform 0.2s;
+
+  &:hover { background: rgba(255, 255, 255, 0.8); }
+}
+
+.dotActive {
+  background: $color-white;
+  transform: scale(1.25);
+}
+
+// 좌우 화살표 (데스크톱 hover 시 표시)
+.carouselArrow {
+  @include reset-button;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+  font-size: 22px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+
+  &:disabled {
+    opacity: 0 !important;
+    cursor: default;
+  }
+
+  @include desktop {
+    .imageSection:hover & {
+      opacity: 1;
+    }
+  }
+
+  // 모바일에서는 숨김 (터치 스와이프 사용)
+  @media (max-width: 1024px) {
+    display: none;
+  }
+}
+
+.arrowLeft  { left:  12px; }
+.arrowRight { right: 12px; }
+
+// 구버전 productImg 호환
+.productImg {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  display: block;
 }
 
 // ── 기본 정보 ──────────────────────────────────────────
