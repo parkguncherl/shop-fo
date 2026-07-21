@@ -35,7 +35,7 @@ export default function Header() {
           {/* 로고 */}
           <Link href="/" className={styles.logo}>
             <span className={styles.logoMain}>MAPSIGGUN</span>
-            <span className={styles.logoSub}>편안한 중장년층 여성의류</span>
+            <span className={styles.logoSub}>옷태가 살아나는 즐거움</span>
           </Link>
 
           {/* 우측 액션 */}

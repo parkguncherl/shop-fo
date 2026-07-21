@@ -31,17 +31,48 @@
 .wrap {
   display: flex;
   flex-direction: column;
-  // 모바일: 버튼바(52+16px) + MobileNav(60px) 여백
   padding-bottom: calc(80px + #{$mobile-nav-height} + env(safe-area-inset-bottom));
   background: $color-white;
 
-  // 데스크톱: 버튼바가 인라인이므로 여백 불필요
   @include desktop {
     padding-bottom: 0;
   }
 }
 
-// ── 상품 이미지 섹션 ────────────────────────────────────
+// ── PC 2열 그리드 ──────────────────────────────────────
+.pcGrid {
+  display: flex;
+  flex-direction: column;
+
+  @include desktop {
+    display: grid;
+    grid-template-columns: 70fr 30fr;
+    align-items: start;
+    max-width: $max-width;
+    margin: 0 auto;
+    width: 100%;
+  }
+}
+
+// ── 우측 컬럼 (PC) ─────────────────────────────────────
+.rightCol {
+  display: flex;
+  flex-direction: column;
+
+  @include desktop {
+    position: sticky;
+    top: 0;
+    max-height: 100vh;
+    overflow-y: auto;
+    border-left: 1px solid $color-gray-100;
+
+    // 스크롤바 숨김
+    scrollbar-width: none;
+    &::-webkit-scrollbar { display: none; }
+  }
+}
+
+// ── 이미지 섹션 ────────────────────────────────────────
 .imageSection {
   display: flex;
   flex-direction: column;
@@ -59,7 +90,7 @@
   background: $color-gray-100;
 }
 
-// ── 상품 기본 정보 ──────────────────────────────────────
+// ── 기본 정보 ──────────────────────────────────────────
 .infoSection {
   padding: $spacing-lg $spacing-md $spacing-md;
   border-bottom: 1px solid $color-gray-200;
@@ -96,20 +127,6 @@
   font-size: $font-size-sm;
   color: $color-gray-400;
   text-decoration: line-through;
-}
-
-.composition {
-  font-size: $font-size-sm;
-  color: $color-gray-500;
-  margin-top: $spacing-xs;
-}
-
-.detailInfo {
-  font-size: $font-size-sm;
-  color: $color-gray-700;
-  line-height: 1.8;
-  margin-top: $spacing-sm;
-  white-space: pre-line;
 }
 
 .attrList {
@@ -175,7 +192,6 @@
   }
 }
 
-// 선택된 옵션 칩
 .skuChipSelected {
   border-color: $color-black;
   background: $color-black;
@@ -184,21 +200,170 @@
   &:hover { background: $color-gray-800; }
 }
 
-// 사이즈 선택 래퍼 (색상 아래 간격)
 .skuSizeWrap {
   margin-top: $spacing-md;
 }
 
-// 선택된 값 표시 (색상 · 파랑)
 .skuSelected {
   font-weight: 400;
   color: $color-gray-600;
+}
+
+.skuChipSoldOut {
+  cursor: not-allowed !important;
+  position: relative;
+
+  span[style] {
+    filter: grayscale(1);
+    opacity: 0.5;
+  }
+}
+
+.soldOutBadge {
+  display: inline-block;
+  font-size: 10px;
+  color: #fff;
+  background: #f56c6c;
+  border-radius: 2px;
+  padding: 1px 4px;
+  margin-left: 4px;
+  vertical-align: middle;
+  line-height: 1.4;
+  pointer-events: none;
+}
+
+.stockInfo {
+  font-size: $font-size-xs;
+  color: $color-gray-500;
+  margin: 4px 0 0;
+}
+
+// ── 배송 안내 ──────────────────────────────────────────
+.deliveryInfo {
+  padding: 16px $spacing-md;
+  border-top: 1px solid $color-gray-200;
+  border-bottom: 1px solid $color-gray-200;
+}
+
+.deliveryTitle {
+  font-size: $font-size-sm;
+  font-weight: 600;
+  color: $color-black;
+  margin-bottom: 6px;
+}
+
+.deliveryDesc {
+  font-size: $font-size-sm;
+  color: $color-gray-600;
+}
+
+// ── 장바구니 버튼 ──────────────────────────────────────
+.bottomBar {
+  // 모바일: 뷰포트 하단 고정
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: $z-header;
+  display: flex;
+  gap: $spacing-xs;
+  padding: $spacing-sm $spacing-md;
+  padding-bottom: calc(#{$mobile-nav-height} + env(safe-area-inset-bottom));
+  background: $color-white;
+  border-top: 1px solid $color-gray-200;
+
+  // 데스크톱: 인라인 배치 (rightCol 내부)
+  @include desktop {
+    position: static;
+    padding: $spacing-md;
+    border-top: none;
+    border-bottom: 1px solid $color-gray-200;
+  }
+}
+
+.cartBtn {
+  @include reset-button;
+  flex: 1;
+  height: 52px;
+  border: 1.5px solid $color-black;
+  border-radius: $border-radius-md;
+  font-size: $font-size-base;
+  font-weight: 600;
+  color: $color-black;
+  background: $color-white;
+  transition: background $transition-fast;
+
+  &:hover { background: $color-gray-100; }
+}
+
+// ── 상품정보 / 혼용율 공통 섹션 ───────────────────────
+.extraSection {
+  padding: $spacing-md;
+  border-bottom: 1px solid $color-gray-200;
+}
+
+.sectionTitle {
+  font-size: $font-size-sm;
+  font-weight: 700;
+  color: $color-black;
+  margin-bottom: $spacing-sm;
+}
+
+.detailInfo {
+  font-size: $font-size-sm;
+  color: $color-gray-700;
+  line-height: 1.8;
+  white-space: pre-line;
+}
+
+.composition {
+  font-size: $font-size-sm;
+  color: $color-gray-600;
+  line-height: 1.7;
+}
+
+// ── 유의사항 ───────────────────────────────────────────
+.noticeSection {
+  padding: $spacing-md;
+  border-bottom: 1px solid $color-gray-200;
+  background: $color-gray-50;
+}
+
+.noticeList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  li {
+    position: relative;
+    padding-left: 10px;
+    font-size: $font-size-xs;
+    color: $color-gray-600;
+    line-height: 1.6;
+
+    &::before {
+      content: '*';
+      position: absolute;
+      left: 0;
+      color: $color-gray-400;
+    }
+  }
 }
 
 // ── 연관 상품 섹션 ──────────────────────────────────────
 .relatedSection {
   padding: $spacing-md $spacing-md $spacing-lg;
   border-bottom: 1px solid $color-gray-200;
+
+  @include desktop {
+    max-width: $max-width;
+    margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
+  }
 }
 
 .relatedLabel {
@@ -208,13 +373,11 @@
   margin-bottom: $spacing-sm;
 }
 
-// 2열 고정, 3개 이상이면 가로 스크롤
 .relatedTrack {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: $spacing-sm;
 
-  // 카드가 3개 이상이면 스크롤 트랙으로 전환
   &:has(> :nth-child(3)) {
     display: flex;
     overflow-x: auto;
@@ -258,68 +421,6 @@
   font-size: $font-size-sm;
   font-weight: 600;
   color: $color-black;
-}
-
-// ── 하단 버튼 바 ───────────────────────────────────────
-.bottomBar {
-  // 모바일: 뷰포트 하단에 고정 (MobileNav 위)
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: $z-header;
-  display: flex;
-  gap: $spacing-xs;
-  padding: $spacing-sm $spacing-md;
-  padding-bottom: calc(#{$mobile-nav-height} + env(safe-area-inset-bottom));
-  background: $color-white;
-  border-top: 1px solid $color-gray-200;
-
-  // 데스크톱: fixed 해제 → 콘텐츠 흐름에 포함 (Footer 위에 자연스럽게)
-  @include desktop {
-    position: static;
-    padding: $spacing-md $spacing-xl;
-    border-top: 1px solid $color-gray-200;
-    border-bottom: 1px solid $color-gray-200;
-    max-width: $max-width;
-    margin: 0 auto;
-    width: 100%;
-    box-sizing: border-box;
-  }
-}
-
-.cartBtn {
-  @include reset-button;
-  flex: 1;
-  height: 52px;
-  border: 1.5px solid $color-black;
-  border-radius: $border-radius-md;
-  font-size: $font-size-base;
-  font-weight: 600;
-  color: $color-black;
-  background: $color-white;
-  transition: background $transition-fast;
-
-  &:hover { background: $color-gray-100; }
-}
-
-.deliveryInfo {
-  padding: 16px $spacing-md;
-  border-top: 1px solid $color-gray-200;
-  border-bottom: 1px solid $color-gray-200;
-  margin-bottom: $spacing-md;
-}
-
-.deliveryTitle {
-  font-size: $font-size-sm;
-  font-weight: 600;
-  color: $color-black;
-  margin-bottom: 6px;
-}
-
-.deliveryDesc {
-  font-size: $font-size-sm;
-  color: $color-gray-600;
 }
 
 // ── 상품 Q&A ───────────────────────────────────────────────
@@ -438,37 +539,4 @@
   font-size: $font-size-xs;
   color: $color-gray-400;
   margin: 0;
-}
-
-.skuChipSoldOut {
-  cursor: not-allowed !important;
-  position: relative;
-
-  span[style] {
-    filter: grayscale(1);
-    opacity: 0.5;
-  }
-
-  &::after {
-    content: '';
-  }
-}
-
-.soldOutBadge {
-  display: inline-block;
-  font-size: 10px;
-  color: #fff;
-  background: #f56c6c;
-  border-radius: 2px;
-  padding: 1px 4px;
-  margin-left: 4px;
-  vertical-align: middle;
-  line-height: 1.4;
-  pointer-events: none;
-}
-
-.stockInfo {
-  font-size: $font-size-xs;
-  color: $color-gray-500;
-  margin: 4px 0 0;
 }

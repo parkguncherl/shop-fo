@@ -20,6 +20,18 @@ interface RelatedProductWithSrc extends ProductResponseRelatedProductInfo {
   src?: string;
 }
 
+const NOTICES = [
+  '원단, 측정 방법 및 위치에 따라 오차가 있을 수 있습니다.',
+  '원단 특성에 따라 축률 등으로 인한 1-3cm 오차는 불량 범주에 해당되지 않습니다.',
+  '니트의 경우 5cm 내외로 차이가 큰 편이니, 참고 부탁드립니다.',
+  '상품 색상은 디테일 컷을 참고해 주세요.',
+  '택이나 라벨, 여유단추의 경우 소재 및 디자인에 따라 부착여부와 상태가 달라질 수 있습니다.',
+  '모든 의류의 첫 세탁은 드라이클리닝을 권장합니다.',
+  '어두운 색상은 이염 방지를 위해 밝은 색상과의 착용을 피해주세요.',
+  '건조기 사용은 수축, 변형, 변색 위험이 있을 수 있으니, 사용을 삼가해 주세요.',
+  '명시된 세탁 방법 외의 세탁으로 인한 변형, 손상에는 보상 책임을 지지 않습니다.',
+];
+
 /* ── 이미지 헬퍼 ──────────────────────────────────────── */
 const ProductImage = ({ src, alt }: { src?: string; alt: string }) => (src ? <img src={src} alt={alt} className={styles.productImg} /> : null);
 
@@ -53,7 +65,6 @@ const ProductDet = ({ productId }: { productId: number }) => {
     return [...new Set((product.detList ?? []).map((d) => d.productDetColor).filter(Boolean))] as string[];
   }, [product]);
 
-  /* 색상명 → 표준색상(stndrColor) hex 매핑 (색상 스와치 렌더용) */
   const colorHexMap = useMemo(() => {
     const map: Record<string, string> = {};
     (product?.detList ?? []).forEach((d) => {
@@ -65,12 +76,10 @@ const ProductDet = ({ productId }: { productId: number }) => {
 
   const sizes = useMemo(() => {
     if (!product) return [];
-    // 색상 선택 후 → 해당 색상에서 가능한 사이즈만
     const filtered = selectedColor ? (product.detList ?? []).filter((d) => d.productDetColor === selectedColor) : product.detList ?? [];
     return [...new Set(filtered.map((d) => d.productDetSize).filter(Boolean))] as string[];
   }, [product, selectedColor]);
 
-  /* ── 옵션별 재고 조회 ─────────────────────────────────── */
   const stockMap = useMemo(() => {
     const map: Record<number, number> = {};
     (product?.detList ?? []).forEach((d) => {
@@ -79,27 +88,21 @@ const ProductDet = ({ productId }: { productId: number }) => {
     return map;
   }, [product]);
 
-  // 색상+사이즈로 매칭되는 det 찾기 → productDetId
   const matchedDet: ProductResponseProductDetInfo | null = useMemo(() => {
     if (!product) return null;
-    // 옵션 없는 상품
     if ((product.detList ?? []).length === 0) return null;
-    // 색상만 있는 경우
     if (colors.length > 0 && sizes.length === 0 && selectedColor) {
       return product.detList?.find((d) => d.productDetColor === selectedColor) ?? null;
     }
-    // 사이즈만 있는 경우
     if (colors.length === 0 && sizes.length > 0 && selectedSize) {
       return product.detList?.find((d) => d.productDetSize === selectedSize) ?? null;
     }
-    // 색상 + 사이즈 모두 있는 경우
     if (selectedColor && selectedSize) {
       return product.detList?.find((d) => d.productDetColor === selectedColor && d.productDetSize === selectedSize) ?? null;
     }
     return null;
   }, [product, colors, sizes, selectedColor, selectedSize]);
 
-  /* ── 색상/사이즈 1개뿐이면 자동 선택 ───────────────── */
   useEffect(() => {
     if (!product) return;
     if (colors.length === 1) setSelectedColor(colors[0]);
@@ -110,19 +113,16 @@ const ProductDet = ({ productId }: { productId: number }) => {
     if (sizes.length === 1) setSelectedSize(sizes[0]);
   }, [product?.id, sizes.length, selectedColor]);
 
-  /* ── 색상 선택 시 사이즈 초기화 ─────────────────────── */
   const handleColorSelect = (color: string) => {
     setSelectedColor((prev) => (prev === color ? null : color));
     setSelectedSize(null);
   };
 
-  /* ── 이미지 URL 변환 ──────────────────────────────────── */
   const selectFileList = useWebCommonStore((s) => s.selectFileList);
 
   useEffect(() => {
     if (!product) return;
     (async () => {
-      // 429 방지: 순차 처리
       const rep = product.repSysFileNm ? await getFileUrl(product.repSysFileNm) : undefined;
       const etc = product.etcSysFileNm ? await getFileUrl(product.etcSysFileNm) : undefined;
 
@@ -161,7 +161,6 @@ const ProductDet = ({ productId }: { productId: number }) => {
 
     const hasDet = (product.detList ?? []).length > 0;
 
-    // 옵션 있는 상품 → 색상/사이즈 선택 확인
     if (hasDet) {
       if (colors.length > 0 && !selectedColor) {
         toastError('색상을 선택해주세요.');
@@ -181,10 +180,8 @@ const ProductDet = ({ productId }: { productId: number }) => {
       }
     }
 
-    // 옵션 없는 상품 → det 첫 번째 항목 사용 (없으면 productId 로 대체)
     const productDetId = matchedDet?.id ?? product.detList?.[0]?.id ?? product.id;
 
-    // 이미 담긴 옵션인지 확인
     const alreadyInCart = cartData?.items.some((i) => i.productDetId === productDetId);
     if (alreadyInCart) {
       toastError('이미 장바구니에 담긴 상품입니다.');
@@ -221,143 +218,185 @@ const ProductDet = ({ productId }: { productId: number }) => {
   const hasDet = (product.detList ?? []).length > 0;
   const hasColor = colors.length > 0;
   const hasSize = sizes.length > 0;
+  const noStock = matchedDet?.id != null && (stockMap[matchedDet.id] ?? 0) <= 0;
 
   return (
     <div className={styles.wrap}>
-      {/* ── 상품 이미지 ── */}
-      <section className={styles.imageSection}>
-        <ProductImage src={images.rep} alt={product.prodNm ?? ''} />
-        {images.detail.map((src, i) => (
-          <ProductImage key={`detail-${i}`} src={src} alt={`${product.prodNm} 상세`} />
-        ))}
-        {images.size.map((src, i) => (
-          <ProductImage key={`size-${i}`} src={src} alt={`${product.prodNm} 사이즈`} />
-        ))}
-        <ProductImage src={images.etc} alt={`${product.prodNm} 기타`} />
-        {!images.rep && images.detail.length === 0 && images.size.length === 0 && !images.etc && (
-          <div className={`${styles.productImg} ${styles.imgPlaceholder}`} />
-        )}
-      </section>
+      {/* ── PC: 좌우 2열 / 모바일: 단일 열 ── */}
+      <div className={styles.pcGrid}>
 
-      {/* ── 상품 기본 정보 ── */}
-      <section className={styles.infoSection}>
-        <h1 className={styles.prodNm}>{product.prodNm}</h1>
-        <div className={styles.priceRow}>
-          {(product.discountRate ?? 0) > 0 && <span className={styles.discount}>{product.discountRate}%</span>}
-          <span className={styles.price}>{discountedPrice.toLocaleString()}원</span>
-          {(product.discountRate ?? 0) > 0 && product.orgAmt && <span className={styles.orgPrice}>{product.orgAmt.toLocaleString()}원</span>}
-        </div>
-        {(product as any).detInfo && (
-          <p className={styles.detInfo}>{(product as any).detInfo}</p>
-        )}
-        {((product as any).thickTpNm || (product as any).spanTpNm || (product as any).showTpNm || (product as any).laundryTpNm || (product as any).cleaningTpNm) && (
-          <ul className={styles.attrList}>
-            {(product as any).thickTpNm   && <li><span className={styles.attrLabel}>두께</span><span className={styles.attrVal}>{(product as any).thickTpNm}</span></li>}
-            {(product as any).spanTpNm    && <li><span className={styles.attrLabel}>신축성</span><span className={styles.attrVal}>{(product as any).spanTpNm}</span></li>}
-            {(product as any).showTpNm    && <li><span className={styles.attrLabel}>비침</span><span className={styles.attrVal}>{(product as any).showTpNm}</span></li>}
-            {(product as any).laundryTpNm && <li><span className={styles.attrLabel}>세탁</span><span className={styles.attrVal}>{(product as any).laundryTpNm}</span></li>}
-            {(product as any).transTpNm    && <li><span className={styles.attrLabel}>안감</span><span className={styles.attrVal}>{(product as any).transTpNm}</span></li>}
-          </ul>
-        )}
-      </section>
-
-      {/* ── 옵션 선택 (색상 → 사이즈 2단계) ── */}
-      {hasDet && (
-        <section className={styles.skuSection}>
-          {/* 색상 선택 */}
-          {hasColor && (
-            <>
-              <p className={styles.skuLabel}>
-                색상
-                {selectedColor && <span className={styles.skuSelected}> · {selectedColor}</span>}
-              </p>
-              <div className={styles.skuList}>
-                {colors.map((color) => {
-                  // 해당 컬러의 모든 det 재고 합계
-                  const colorStock = (product?.detList ?? [])
-                    .filter((d) => d.productDetColor === color)
-                    .reduce((sum, d) => sum + (d.id != null ? stockMap[d.id] ?? 0 : 0), 0);
-                  const soldOut = colorStock <= 0;
-                  const hex = colorHexMap[color];
-                  return (
-                    <button
-                      key={color}
-                      className={`${styles.skuChip} ${selectedColor === color ? styles.skuChipSelected : ''} ${soldOut ? styles.skuChipSoldOut : ''}`}
-                      onClick={() => (soldOut ? toastError(`[${color}] 품절입니다.`) : handleColorSelect(color))}
-                      disabled={false}
-                      title={color}
-                      aria-label={color}
-                    >
-                      <span style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 3 }}>
-                        {hex ? (
-                          <span
-                            style={{
-                              display: 'inline-block',
-                              width: 22,
-                              height: 22,
-                              borderRadius: '50%',
-                              border: '1px solid rgba(0,0,0,0.2)',
-                              boxShadow: 'inset 0 0 0 1px rgba(0,0,0,0.12)',
-                              background: `#${hex}`,
-                            }}
-                          />
-                        ) : (
-                          color
-                        )}
-                        {soldOut && <span style={{ fontSize: 11, color: '#000', fontWeight: 600, lineHeight: 1 }}>품절</span>}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            </>
-          )}
-
-          {/* 사이즈 선택 — 색상 선택 후 표시 (색상 없으면 바로 표시) */}
-          {hasSize && (!hasColor || selectedColor) && (
-            <div className={styles.skuSizeWrap}>
-              <p className={styles.skuLabel}>
-                사이즈
-                {selectedSize && <span className={styles.skuSelected}> · {selectedSize}</span>}
-              </p>
-              <div className={styles.skuList}>
-                {sizes.map((size) => {
-                  const det =
-                    (product?.detList ?? []).find((d) => d.productDetColor === selectedColor && d.productDetSize === size) ??
-                    (product?.detList ?? []).find((d) => d.productDetSize === size);
-                  const sizeStock = det?.id != null ? stockMap[det.id] ?? 0 : 0;
-                  const soldOut = sizeStock <= 0;
-                  return (
-                    <button
-                      key={size}
-                      className={`${styles.skuChip} ${selectedSize === size ? styles.skuChipSelected : ''} ${soldOut ? styles.skuChipSoldOut : ''}`}
-                      onClick={() => !soldOut && setSelectedSize((prev) => (prev === size ? null : size))}
-                      disabled={soldOut}
-                    >
-                      {size}
-                      {soldOut && <span className={styles.soldOutBadge}> 품절</span>}
-                    </button>
-                  );
-                })}
-              </div>
-              {/* 선택된 옵션의 재고 표시 */}
-              {matchedDet?.id != null && (
-                <p className={styles.stockInfo}>
-                  재고: <strong>{Math.max(0, stockMap[matchedDet.id] ?? 0)}</strong>개
-                </p>
-              )}
-            </div>
+        {/* ── 좌측(PC) / 상단(모바일): 이미지 ── */}
+        <section className={styles.imageSection}>
+          <ProductImage src={images.rep} alt={product.prodNm ?? ''} />
+          {images.detail.map((src, i) => (
+            <ProductImage key={`detail-${i}`} src={src} alt={`${product.prodNm} 상세`} />
+          ))}
+          {images.size.map((src, i) => (
+            <ProductImage key={`size-${i}`} src={src} alt={`${product.prodNm} 사이즈`} />
+          ))}
+          <ProductImage src={images.etc} alt={`${product.prodNm} 기타`} />
+          {!images.rep && images.detail.length === 0 && images.size.length === 0 && !images.etc && (
+            <div className={`${styles.productImg} ${styles.imgPlaceholder}`} />
           )}
         </section>
-      )}
 
-      {/* ── 배송 안내 ── */}
-      <section className={styles.deliveryInfo}>
-        <p className={styles.deliveryTitle}>배송 안내</p>
-        <p className={styles.deliveryDesc}>배송완료까지 7일 이내 소요됩니다.</p>
-      </section>
+        {/* ── 우측(PC) / 하단(모바일): 상품 정보 ── */}
+        <div className={styles.rightCol}>
 
-      {/* ── 연관 상품 ── */}
+          {/* 기본 정보 */}
+          <section className={styles.infoSection}>
+            <h1 className={styles.prodNm}>{product.prodNm}</h1>
+            <div className={styles.priceRow}>
+              {(product.discountRate ?? 0) > 0 && <span className={styles.discount}>{product.discountRate}%</span>}
+              <span className={styles.price}>{discountedPrice.toLocaleString()}원</span>
+              {(product.discountRate ?? 0) > 0 && product.orgAmt && <span className={styles.orgPrice}>{product.orgAmt.toLocaleString()}원</span>}
+            </div>
+            {((product as any).thickTpNm || (product as any).spanTpNm || (product as any).showTpNm || (product as any).laundryTpNm || (product as any).cleaningTpNm) && (
+              <ul className={styles.attrList}>
+                {(product as any).thickTpNm   && <li><span className={styles.attrLabel}>두께</span><span className={styles.attrVal}>{(product as any).thickTpNm}</span></li>}
+                {(product as any).spanTpNm    && <li><span className={styles.attrLabel}>신축성</span><span className={styles.attrVal}>{(product as any).spanTpNm}</span></li>}
+                {(product as any).showTpNm    && <li><span className={styles.attrLabel}>비침</span><span className={styles.attrVal}>{(product as any).showTpNm}</span></li>}
+                {(product as any).laundryTpNm && <li><span className={styles.attrLabel}>세탁</span><span className={styles.attrVal}>{(product as any).laundryTpNm}</span></li>}
+                {(product as any).transTpNm   && <li><span className={styles.attrLabel}>안감</span><span className={styles.attrVal}>{(product as any).transTpNm}</span></li>}
+              </ul>
+            )}
+          </section>
+
+          {/* 옵션 선택 */}
+          {hasDet && (
+            <section className={styles.skuSection}>
+              {hasColor && (
+                <>
+                  <p className={styles.skuLabel}>
+                    색상
+                    {selectedColor && <span className={styles.skuSelected}> · {selectedColor}</span>}
+                  </p>
+                  <div className={styles.skuList}>
+                    {colors.map((color) => {
+                      const colorStock = (product?.detList ?? [])
+                        .filter((d) => d.productDetColor === color)
+                        .reduce((sum, d) => sum + (d.id != null ? stockMap[d.id] ?? 0 : 0), 0);
+                      const soldOut = colorStock <= 0;
+                      const hex = colorHexMap[color];
+                      return (
+                        <button
+                          key={color}
+                          className={`${styles.skuChip} ${selectedColor === color ? styles.skuChipSelected : ''} ${soldOut ? styles.skuChipSoldOut : ''}`}
+                          onClick={() => (soldOut ? toastError(`[${color}] 품절입니다.`) : handleColorSelect(color))}
+                          disabled={false}
+                          title={color}
+                          aria-label={color}
+                        >
+                          <span style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 3 }}>
+                            {hex ? (
+                              <span
+                                style={{
+                                  display: 'inline-block',
+                                  width: 22,
+                                  height: 22,
+                                  borderRadius: '50%',
+                                  border: '1px solid rgba(0,0,0,0.2)',
+                                  boxShadow: 'inset 0 0 0 1px rgba(0,0,0,0.12)',
+                                  background: `#${hex}`,
+                                }}
+                              />
+                            ) : (
+                              color
+                            )}
+                            {soldOut && <span style={{ fontSize: 11, color: '#000', fontWeight: 600, lineHeight: 1 }}>품절</span>}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
+
+              {hasSize && (!hasColor || selectedColor) && (
+                <div className={styles.skuSizeWrap}>
+                  <p className={styles.skuLabel}>
+                    사이즈
+                    {selectedSize && <span className={styles.skuSelected}> · {selectedSize}</span>}
+                  </p>
+                  <div className={styles.skuList}>
+                    {sizes.map((size) => {
+                      const det =
+                        (product?.detList ?? []).find((d) => d.productDetColor === selectedColor && d.productDetSize === size) ??
+                        (product?.detList ?? []).find((d) => d.productDetSize === size);
+                      const sizeStock = det?.id != null ? stockMap[det.id] ?? 0 : 0;
+                      const soldOut = sizeStock <= 0;
+                      return (
+                        <button
+                          key={size}
+                          className={`${styles.skuChip} ${selectedSize === size ? styles.skuChipSelected : ''} ${soldOut ? styles.skuChipSoldOut : ''}`}
+                          onClick={() => !soldOut && setSelectedSize((prev) => (prev === size ? null : size))}
+                          disabled={soldOut}
+                        >
+                          {size}
+                          {soldOut && <span className={styles.soldOutBadge}> 품절</span>}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {matchedDet?.id != null && (
+                    <p className={styles.stockInfo}>
+                      재고: <strong>{Math.max(0, stockMap[matchedDet.id] ?? 0)}</strong>개
+                    </p>
+                  )}
+                </div>
+              )}
+            </section>
+          )}
+
+          {/* 배송 안내 */}
+          <section className={styles.deliveryInfo}>
+            <p className={styles.deliveryTitle}>배송 안내</p>
+            <p className={styles.deliveryDesc}>배송완료까지 7일 이내 소요됩니다.</p>
+          </section>
+
+          {/* 장바구니 버튼 */}
+          <div className={styles.bottomBar}>
+            <button
+              className={styles.cartBtn}
+              onClick={handleAddToCart}
+              disabled={isAdding || noStock}
+              aria-label="장바구니 담기"
+              style={noStock ? { background: '#ccc', cursor: 'not-allowed' } : undefined}
+            >
+              {isAdding ? '담는 중...' : noStock ? '품절' : '장바구니에 담기'}
+            </button>
+          </div>
+
+          {/* 상품정보 */}
+          {(product as any).detInfo && (
+            <div className={styles.extraSection}>
+              <p className={styles.sectionTitle}>상품정보</p>
+              <p className={styles.detailInfo}>{(product as any).detInfo}</p>
+            </div>
+          )}
+
+          {/* 혼용율 */}
+          {(product as any).composition && (
+            <div className={styles.extraSection}>
+              <p className={styles.sectionTitle}>혼용율</p>
+              <p className={styles.composition}>{(product as any).composition}</p>
+            </div>
+          )}
+
+          {/* 유의사항 */}
+          <div className={styles.noticeSection}>
+            <p className={styles.sectionTitle}>유의사항</p>
+            <ul className={styles.noticeList}>
+              {NOTICES.map((notice, i) => (
+                <li key={i}>{notice}</li>
+              ))}
+            </ul>
+          </div>
+
+        </div>
+      </div>
+
+      {/* ── 연관 상품 (전체 너비) ── */}
       {relatedWithSrc.length > 0 && (
         <section className={styles.relatedSection}>
           <p className={styles.relatedLabel}>연관 상품</p>
@@ -383,29 +422,8 @@ const ProductDet = ({ productId }: { productId: number }) => {
         </section>
       )}
 
-      {/* ── 하단 버튼 ── */}
-      <div className={styles.bottomBar}>
-        {(() => {
-          const noStock = matchedDet?.id != null && (stockMap[matchedDet.id] ?? 0) <= 0;
-          return (
-            <button
-              className={styles.cartBtn}
-              onClick={handleAddToCart}
-              disabled={isAdding || noStock}
-              aria-label="장바구니 담기"
-              style={noStock ? { background: '#ccc', cursor: 'not-allowed' } : undefined}
-            >
-              {isAdding ? '담는 중...' : noStock ? '품절' : '장바구니에 담기'}
-            </button>
-          );
-        })()}
-      </div>
-
       {/* ── AI 상품 채팅 ── */}
       <ProductAiChat productId={product.id ?? 0} />
-
-      {/* ── 상품 Q&A ── */}
-      {/* <ProductQnaSection productId={product.id ?? 0} /> */}
 
       {/* ── 구매 후기 ── */}
       <ReviewSection productId={product.id ?? 0} />
@@ -463,7 +481,6 @@ function ProductQnaSection({ productId }: { productId: number }) {
     <section className={styles.qnaSection}>
       <p className={styles.qnaTitle}>상품 Q&amp;A</p>
 
-      {/* 질문 작성 */}
       {session ? (
         <div className={styles.qnaForm}>
           <textarea
@@ -483,7 +500,6 @@ function ProductQnaSection({ productId }: { productId: number }) {
         </p>
       )}
 
-      {/* Q&A 목록 */}
       {qnaList.length === 0 ? (
         <p className={styles.qnaEmpty}>등록된 문의가 없습니다.</p>
       ) : (
