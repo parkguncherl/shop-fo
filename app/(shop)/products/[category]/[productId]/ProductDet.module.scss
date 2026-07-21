@@ -388,11 +388,35 @@
   border-bottom: 1px solid $color-gray-200;
 }
 
+.accordionHeader {
+  @include reset-button;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0;
+  margin-bottom: 0;
+  cursor: pointer;
+}
+
 .sectionTitle {
   font-size: $font-size-sm;
   font-weight: 700;
   color: $color-black;
-  margin-bottom: $spacing-sm;
+  margin-bottom: 0;
+}
+
+.accordionIcon {
+  font-size: 20px;
+  color: $color-gray-400;
+  transform: rotate(90deg);
+  transition: transform 0.2s ease;
+  display: inline-block;
+  line-height: 1;
+}
+
+.accordionIconOpen {
+  transform: rotate(270deg);
 }
 
 .detailInfo {
@@ -400,12 +424,14 @@
   color: $color-gray-700;
   line-height: 1.8;
   white-space: pre-line;
+  margin-top: $spacing-sm;
 }
 
 .composition {
   font-size: $font-size-sm;
   color: $color-gray-600;
   line-height: 1.7;
+  margin-top: $spacing-sm;
 }
 
 // ── 유의사항 ───────────────────────────────────────────
@@ -417,7 +443,7 @@
 
 .noticeList {
   list-style: none;
-  margin: 0;
+  margin: $spacing-sm 0 0;
   padding: 0;
   display: flex;
   flex-direction: column;

@@ -52,6 +52,8 @@ const ProductDet = ({ productId }: { productId: number }) => {
   const touchStartX = useRef<number | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({ detInfo: true });
+  const toggleSection = (key: string) => setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
 
   /* ── API 호출 ─────────────────────────────────────────── */
   const { data, isSuccess, isLoading } = useQuery({
@@ -506,27 +508,38 @@ const ProductDet = ({ productId }: { productId: number }) => {
           {/* 상품정보 */}
           {(product as any).detInfo && (
             <div className={styles.extraSection}>
-              <p className={styles.sectionTitle}>상품정보</p>
-              <p className={styles.detailInfo}>{(product as any).detInfo}</p>
+              <button className={styles.accordionHeader} onClick={() => toggleSection('detInfo')}>
+                <span className={styles.sectionTitle}>상품정보</span>
+                <span className={`${styles.accordionIcon} ${openSections['detInfo'] ? styles.accordionIconOpen : ''}`}>›</span>
+              </button>
+              {openSections['detInfo'] && <p className={styles.detailInfo}>{(product as any).detInfo}</p>}
             </div>
           )}
 
           {/* 혼용율 */}
           {(product as any).composition && (
             <div className={styles.extraSection}>
-              <p className={styles.sectionTitle}>혼용율</p>
-              <p className={styles.composition}>{(product as any).composition}</p>
+              <button className={styles.accordionHeader} onClick={() => toggleSection('composition')}>
+                <span className={styles.sectionTitle}>혼용율</span>
+                <span className={`${styles.accordionIcon} ${openSections['composition'] ? styles.accordionIconOpen : ''}`}>›</span>
+              </button>
+              {openSections['composition'] && <p className={styles.composition}>{(product as any).composition}</p>}
             </div>
           )}
 
           {/* 유의사항 */}
           <div className={styles.noticeSection}>
-            <p className={styles.sectionTitle}>유의사항</p>
-            <ul className={styles.noticeList}>
-              {NOTICES.map((notice, i) => (
-                <li key={i}>{notice}</li>
-              ))}
-            </ul>
+            <button className={styles.accordionHeader} onClick={() => toggleSection('notice')}>
+              <span className={styles.sectionTitle}>유의사항</span>
+              <span className={`${styles.accordionIcon} ${openSections['notice'] ? styles.accordionIconOpen : ''}`}>›</span>
+            </button>
+            {openSections['notice'] && (
+              <ul className={styles.noticeList}>
+                {NOTICES.map((notice, i) => (
+                  <li key={i}>{notice}</li>
+                ))}
+              </ul>
+            )}
           </div>
         </div>
       </div>
