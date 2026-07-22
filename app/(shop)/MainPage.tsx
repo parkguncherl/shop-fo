@@ -70,13 +70,11 @@ const ProductCard = ({ product }: { product: ProductWithSrc }) => {
           <div className={`${styles.cardImage} ${styles.defaultImg}`} />
         )}
       </div>
-      {hexes.length > 0 && (
-        <div className={styles.colorBars}>
-          {hexes.slice(0, 6).map((h, i) => (
-            <span key={i} title={`#${h}`} className={styles.colorBar} style={{ background: `#${h}` }} />
-          ))}
-        </div>
-      )}
+      <div className={styles.colorBars}>
+        {hexes.slice(0, 6).map((h, i) => (
+          <span key={i} title={`#${h}`} className={styles.colorBar} style={{ background: `#${h}` }} />
+        ))}
+      </div>
       <div className={styles.cardInfo}>
         <p className={styles.cardName}>{product.prodNm}</p>
         <div className={styles.cardPriceRow}>
