@@ -98,30 +98,24 @@ const CardCarousel = ({ children }: { children: React.ReactNode }) => {
   const dragStartScroll = useRef(0);
   const DRAG_THRESHOLD = 6;
 
-  // 카드 2장 너비(카드 width + margin-right) * 2
-  const getStepWidth = () => {
+  const getCardWidth = () => {
     const el = scrollRef.current;
-    if (!el) return 344;
+    if (!el) return 320;
     const card = el.querySelector('a') as HTMLElement | null;
-    if (!card) return 344;
-    const mr = parseFloat(getComputedStyle(card).marginRight || '12');
-    return (card.offsetWidth + mr) * 2;
-  };
-
-  // 무한 루프: scrollLeft 가 절반 이상이면 첫 복사본으로 순간이동
-  const loopCheck = () => {
-    const el = scrollRef.current;
-    if (!el) return;
-    const half = el.scrollWidth / 2;
-    if (el.scrollLeft >= half) el.scrollLeft -= half;
-    else if (el.scrollLeft < 0) el.scrollLeft += half;
+    return card ? card.offsetWidth : 320;
   };
 
   const advance = () => {
     const el = scrollRef.current;
     if (!el) return;
-    el.scrollTo({ left: el.scrollLeft + getStepWidth(), behavior: 'smooth' });
-    setTimeout(loopCheck, 450);
+    const cardWidth = getCardWidth();
+    const maxScroll = el.scrollWidth - el.clientWidth;
+    if (el.scrollLeft >= maxScroll - cardWidth / 2) {
+      // 끝 도달 → 처음으로 부드럽게 복귀
+      el.scrollTo({ left: 0, behavior: 'smooth' });
+    } else {
+      el.scrollTo({ left: el.scrollLeft + cardWidth, behavior: 'smooth' });
+    }
   };
 
   useEffect(() => {
@@ -161,10 +155,8 @@ const CardCarousel = ({ children }: { children: React.ReactNode }) => {
     pointerDown.current = false;
     const el = scrollRef.current;
     if (moved.current && el) {
-      // 가장 가까운 2장 경계로 스냅
-      const step = getStepWidth();
+      const step = getCardWidth();
       el.scrollTo({ left: Math.round(el.scrollLeft / step) * step, behavior: 'smooth' });
-      setTimeout(loopCheck, 450);
       pausedUntil.current = Date.now() + 5000;
       try {
         el.releasePointerCapture(e.pointerId);
@@ -295,8 +287,8 @@ const MainPage = () => {
         <section className={styles.section}>
           <p className={styles.sectionTitle}>NEW ARRIVALS</p>
           <CardCarousel>
-            {[...products, ...products].map((p, i) => (
-              <ProductCard key={`${p.id}-${i}`} product={p} />
+            {products.map((p) => (
+              <ProductCard key={p.id} product={p} />
             ))}
           </CardCarousel>
         </section>
