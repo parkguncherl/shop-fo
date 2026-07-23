@@ -33,22 +33,50 @@ const HeroCell = ({ src, alt, className }: { src?: string; alt: string; classNam
   </div>
 );
 
-// ─── 히어로 모자이크 (상품 3개: 큰 이미지 + 우측 2장, 각각 상세 이동) ──
-const HeroMosaic = ({ heroes }: { heroes: ProductWithSrc[] }) => {
-  const [main, side1, side2] = heroes;
+// ─── 히어로 모자이크 (5초마다 슬롯 하나씩 페이드 전환) ──
+const HeroMosaic = ({ pool }: { pool: ProductWithSrc[] }) => {
+  const [slots, setSlots] = useState([0, 1, 2]);
+  const [fadingSlot, setFadingSlot] = useState<number | null>(null);
+  const nextIdxRef = useRef(3);
+  const slotTurnRef = useRef(0);
+
+  useEffect(() => {
+    if (pool.length <= 3) return;
+    const timer = setInterval(() => {
+      const slot = slotTurnRef.current % 3;
+      const nextProduct = nextIdxRef.current % pool.length;
+      slotTurnRef.current++;
+      nextIdxRef.current++;
+
+      setFadingSlot(slot);
+      setTimeout(() => {
+        setSlots((prev) => {
+          const next = [...prev];
+          next[slot] = nextProduct;
+          return next;
+        });
+        setFadingSlot(null);
+      }, 400);
+    }, 3000);
+    return () => clearInterval(timer);
+  }, [pool.length]);
+
+  const slotStyle = (i: number) => ({
+    opacity: fadingSlot === i ? 0 : 1,
+    transition: 'opacity 0.4s ease',
+  });
 
   return (
     <div className={styles.hero}>
       <div className={styles.heroMosaic}>
-        <Link href={`/products/all/${main?.id}`} className={styles.heroMosaicMain}>
-          <HeroCell src={main?.src} alt={main?.prodNm ?? ''} className={styles.heroImgWrap} />
+        <Link href={`/products/all/${pool[slots[0]]?.id}`} className={styles.heroMosaicMain} style={slotStyle(0)}>
+          <HeroCell src={pool[slots[0]]?.src} alt={pool[slots[0]]?.prodNm ?? ''} className={styles.heroImgWrap} />
         </Link>
-
-        <Link href={`/products/all/${side1?.id}`} className={styles.heroMosaicSide}>
-          <HeroCell src={side1?.src} alt={side1?.prodNm ?? ''} className={styles.heroImgWrap} />
+        <Link href={`/products/all/${pool[slots[1]]?.id}`} className={styles.heroMosaicSide} style={slotStyle(1)}>
+          <HeroCell src={pool[slots[1]]?.src} alt={pool[slots[1]]?.prodNm ?? ''} className={styles.heroImgWrap} />
         </Link>
-        <Link href={`/products/all/${side2?.id}`} className={styles.heroMosaicSide}>
-          <HeroCell src={side2?.src} alt={side2?.prodNm ?? ''} className={styles.heroImgWrap} />
+        <Link href={`/products/all/${pool[slots[2]]?.id}`} className={styles.heroMosaicSide} style={slotStyle(2)}>
+          <HeroCell src={pool[slots[2]]?.src} alt={pool[slots[2]]?.prodNm ?? ''} className={styles.heroImgWrap} />
         </Link>
       </div>
     </div>
@@ -214,7 +242,17 @@ const MainPage = () => {
   const [heroes, setHeroes] = useState<ProductWithSrc[]>([]);
   const [categoryGroups, setCategoryGroups] = useState<{ categoryNm: string; categoryId: string; items: ProductWithSrc[] }[]>([]);
 
-  // 카테고리 10000 상품 목록 (히어로 + 캐러셀)
+  // BEST(90000) 상품 목록 → 히어로 모자이크
+  const { data: bestData, isSuccess: bestSuccess } = useQuery({
+    queryKey: ['/frontWeb/product/productInfoListByCategory', 'best'],
+    queryFn: () =>
+      publicApi.get('/frontWeb/product/productInfoListByCategory', {
+        params: { pageRowCount: 40, categoryId: '90000' },
+      }),
+    enabled: categoryReady,
+  });
+
+  // NEW ARRIVALS(10000) 상품 목록 → 캐러셀
   const { data, isSuccess } = useQuery({
     queryKey: ['/frontWeb/product/productInfoListByCategory', 'main'],
     queryFn: () =>
@@ -231,6 +269,26 @@ const MainPage = () => {
     enabled: categoryReady,
   });
 
+  // BEST → 히어로
+  useEffect(() => {
+    if (!bestSuccess) return;
+    const { resultCode, body } = bestData.data;
+    if (resultCode !== 200) return;
+
+    const rows: ProductResponseProductInfo[] = body.rows ?? [];
+
+    (async () => {
+      const withSrc: ProductWithSrc[] = await Promise.all(
+        rows.map(async (p) => {
+          const src = p.sysFileNm ? await getFileUrl(p.sysFileNm as string) : undefined;
+          return { ...p, src };
+        }),
+      );
+      setHeroes([...withSrc].sort(() => Math.random() - 0.5));
+    })();
+  }, [bestSuccess, bestData]);
+
+  // NEW ARRIVALS → 캐러셀
   useEffect(() => {
     if (!isSuccess) return;
     const { resultCode, body } = data.data;
@@ -245,10 +303,7 @@ const MainPage = () => {
           return { ...p, src };
         }),
       );
-
-      const shuffled = [...withSrc].sort(() => Math.random() - 0.5);
-      setHeroes(shuffled.slice(0, 3));
-      setProducts(shuffled.slice(3));
+      setProducts(withSrc);
     })();
   }, [isSuccess, data]);
 
@@ -281,7 +336,7 @@ const MainPage = () => {
 
   return (
     <>
-      {heroes.length > 0 && <HeroMosaic heroes={heroes} />}
+      {heroes.length >= 3 && <HeroMosaic pool={heroes} />}
 
       {products.length > 0 && (
         <section className={styles.section}>
