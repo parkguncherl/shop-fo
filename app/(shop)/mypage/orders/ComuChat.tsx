@@ -32,7 +32,8 @@ function MessageBubble({
   socialAccountId: number;
   onDelete: (id: number) => void;
 }) {
-  const { selectFileList, getFileUrl } = useWebCommonStore();
+  const selectFileList = useWebCommonStore((s) => s.selectFileList);
+  const getFileUrl = useWebCommonStore((s) => s.getFileUrl);
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [lightbox, setLightbox] = useState<string | null>(null);
 
@@ -90,7 +91,8 @@ export default function ComuChat({ orderId, orderNo, socialAccountId, paymentSta
   const confirm = useConfirm();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
-  const { selectFileList, getFileUrl } = useWebCommonStore();
+  const selectFileList = useWebCommonStore((s) => s.selectFileList);
+  const getFileUrl = useWebCommonStore((s) => s.getFileUrl);
 
   // step: 'list' | 'type-select' | 'chat'
   const [step, setStep] = useState<'list' | 'type-select' | 'chat'>('list');

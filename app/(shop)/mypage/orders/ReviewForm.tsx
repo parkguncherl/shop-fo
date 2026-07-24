@@ -36,7 +36,8 @@ export default function ReviewForm({ socialAccountId, orderItemId, productId, pr
   const queryClient = useQueryClient();
   const isEdit = Boolean(existingReview);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { selectFileList, getFileUrl } = useWebCommonStore();
+  const selectFileList = useWebCommonStore((s) => s.selectFileList);
+  const getFileUrl = useWebCommonStore((s) => s.getFileUrl);
 
   const [rating, setRating] = useState(existingReview?.rating ?? 5);
   const [hoverRating, setHoverRating] = useState(0);

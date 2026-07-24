@@ -7,7 +7,7 @@ import { usePartnerCodeStore } from '@/stores/usePartnerCodeStore';
 const CATEGORY_CODE = 'P0001';
 
 export function usePartnerCode(partnerUpperCode: string): UseQueryResult<PartnerCodeResponseLowerSelect[], Error> {
-  const { guestReady } = useUiStore();
+  const guestReady = useUiStore((s) => s.guestReady);
   const setCategories = usePartnerCodeStore((s) => s.setCategories);
 
   return useQuery({

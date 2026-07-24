@@ -108,7 +108,8 @@ const StarDisplay = ({ rating, size = 16 }: { rating: number; size?: number }) =
 );
 
 export default function ReviewSection({ productId }: { productId: number }) {
-  const { selectFileList, getFileUrl } = useWebCommonStore();
+  const selectFileList = useWebCommonStore((s) => s.selectFileList);
+  const getFileUrl = useWebCommonStore((s) => s.getFileUrl);
   const [imageMap, setImageMap] = useState<Record<number, string[]>>({});
 
   const { data, isLoading } = useQuery<ReviewResponseProductList>({

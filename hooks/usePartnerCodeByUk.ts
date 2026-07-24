@@ -4,7 +4,7 @@ import { PartnerCode, WebCommonRequestPartnerCodeByUkFilter } from '@/generated'
 import { useUiStore } from '@/stores/uiStore';
 
 export function usePartnerCodeByUk(webCommonRequestPartnerCodeByUkFilter: WebCommonRequestPartnerCodeByUkFilter): UseQueryResult<PartnerCode, Error> {
-  const { guestReady } = useUiStore();
+  const guestReady = useUiStore((s) => s.guestReady);
   return useQuery({
     queryKey: ['partnerCodeByUk', webCommonRequestPartnerCodeByUkFilter],
     queryFn: async () => {

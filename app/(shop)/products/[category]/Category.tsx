@@ -6,7 +6,8 @@ import { usePartnerCodeStore } from '@/stores/usePartnerCodeStore';
 
 /** 상품 - 카테고리 (조건부) 페이지 */
 const Category = ({ codeCd }: { codeCd: string }) => {
-  const { categories, categoryReady } = usePartnerCodeStore();
+  const categories = usePartnerCodeStore((s) => s.categories);
+  const categoryReady = usePartnerCodeStore((s) => s.categoryReady);
 
   if (!categoryReady) return <></>;
 
