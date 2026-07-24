@@ -56,6 +56,9 @@ importers:
       date-fns:
         specifier: ^4.4.0
         version: 4.4.0
+      immer:
+        specifier: ^11.1.15
+        version: 11.1.15
       next:
         specifier: 16.2.10
         version: 16.2.10(@babel/core@7.29.7)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(sass@1.101.7)
@@ -82,7 +85,7 @@ importers:
         version: 11.1.0(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       zustand:
         specifier: ^5.0.14
-        version: 5.0.14(@types/react@18.0.26)(react@19.2.8)
+        version: 5.0.14(@types/react@18.0.26)(immer@11.1.15)(react@19.2.8)
     devDependencies:
       '@eslint/eslintrc':
         specifier: ^3.3.5
@@ -1922,6 +1925,9 @@ packages:
   ignore@7.0.6:
     resolution: {integrity: sha512-BAg6QkE8W+TuQLrrw0Ugr7HegXduRuuj8/ti2kSOc+jz1dmx8/WNcjr6XGnq5YpDWxFwwaavqD0+jIUOKelTsw==}
     engines: {node: '>= 4'}
+
+  immer@11.1.15:
+    resolution: {integrity: sha512-VrNANlmnWQnh5COXIIOQXM9oOJw7naGKlBT74ZOOR6lpVXc3gFEu9FJLDFcpCJ2j+NWr8TIwtWD//T6ZX6TKiQ==}
 
   immutable@5.1.9:
     resolution: {integrity: sha512-m8nVez3rwrgmWxtLMt1ZYXB2Lv7OKYn/disyxAlSDYAlKSlFoPPfIAmAM/M5xqL4m4C/wAPw7S2/CNaUii1Hxg==}
@@ -5114,6 +5120,8 @@ snapshots:
 
   ignore@7.0.6: {}
 
+  immer@11.1.15: {}
+
   immutable@5.1.9: {}
 
   import-fresh@3.3.1:
@@ -6360,7 +6368,8 @@ snapshots:
 
   zod@4.4.3: {}
 
-  zustand@5.0.14(@types/react@18.0.26)(react@19.2.8):
+  zustand@5.0.14(@types/react@18.0.26)(immer@11.1.15)(react@19.2.8):
     optionalDependencies:
       '@types/react': 18.0.26
+      immer: 11.1.15
       react: 19.2.8

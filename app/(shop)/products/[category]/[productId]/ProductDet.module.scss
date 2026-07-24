@@ -46,7 +46,7 @@
 
   @include desktop {
     display: grid;
-    grid-template-columns: 70fr 30fr;
+    grid-template-columns: 60fr 40fr;
     align-items: start;
     max-width: $max-width;
     margin: 0 auto;
