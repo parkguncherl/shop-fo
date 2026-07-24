@@ -207,6 +207,11 @@ export default function CartPage() {
                     {(item.productDetColor || item.productDetSize) && (
                       <p className={styles.itemOption}>{[item.productDetColor, item.productDetSize].filter(Boolean).join(' / ')}</p>
                     )}
+                    {item.creTm && (
+                      <p className={styles.itemDate}>
+                        담은 날짜: {new Date(item.creTm).toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' })}
+                      </p>
+                    )}
 
                     {/* 수량 조절 */}
                     <div className={styles.qtyWrap}>

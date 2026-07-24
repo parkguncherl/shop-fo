@@ -17,6 +17,7 @@ export interface CartItemInfo {
   cartId:          number;   // TB_CART.id (구 cartItemId)
   productDetId:    number;
   productId:       number;
+  creTm:           string | null;
   productName:     string;
   productImage:    string | null;
   productDetSize:  string | null;
