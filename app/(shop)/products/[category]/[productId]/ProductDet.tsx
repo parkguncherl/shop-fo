@@ -419,30 +419,17 @@ const ProductDet = ({ productId }: { productId: number }) => {
                       return (
                         <button
                           key={color}
-                          className={`${styles.skuChip} ${selectedColor === color ? styles.skuChipSelected : ''} ${soldOut ? styles.skuChipSoldOut : ''}`}
+                          className={`${styles.skuChip} ${styles.colorChip} ${selectedColor === color ? styles.skuChipSelected : ''} ${
+                            soldOut ? styles.skuChipSoldOut : ''
+                          }`}
                           onClick={() => (soldOut ? toastError(`[${color}] 품절입니다.`) : handleColorSelect(color))}
                           disabled={false}
                           title={color}
                           aria-label={color}
                         >
-                          <span style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 3 }}>
-                            {hex ? (
-                              <span
-                                style={{
-                                  display: 'inline-block',
-                                  width: 22,
-                                  height: 22,
-                                  borderRadius: '50%',
-                                  border: '1px solid rgba(0,0,0,0.2)',
-                                  boxShadow: 'inset 0 0 0 1px rgba(0,0,0,0.12)',
-                                  background: `#${hex}`,
-                                }}
-                              />
-                            ) : (
-                              color
-                            )}
-                            {soldOut && <span style={{ fontSize: 11, color: '#000', fontWeight: 600, lineHeight: 1 }}>품절</span>}
-                          </span>
+                          {hex && <span className={styles.colorSwatch} style={{ background: `#${hex}` }} aria-hidden="true" />}
+                          <span className={styles.colorName}>{color}</span>
+                          {soldOut && <span className={styles.soldOutBadge}>품절</span>}
                         </button>
                       );
                     })}

@@ -46,7 +46,7 @@
 
   @include desktop {
     display: grid;
-    grid-template-columns: 60fr 40fr;
+    grid-template-columns: 55fr 45fr;
     align-items: start;
     max-width: $max-width;
     margin: 0 auto;
@@ -295,13 +295,104 @@
   color: $color-gray-600;
 }
 
+// ── 색상 칩 ───────────────────────────────────────────
+.colorChip {
+  gap: 8px;
+  padding: 5px 12px 5px 6px;
+  background: $color-white;
+
+  // 색상 칩은 선택돼도 배경을 채우지 않는다(스와치 색이 묻히지 않도록)
+  &.skuChipSelected {
+    background: $color-white;
+    color: $color-black;
+    border-color: $color-black;
+    box-shadow: 0 0 0 1px $color-black;
+
+    &:hover { background: $color-gray-50; }
+
+    .colorSwatch {
+      box-shadow:
+        inset 0 0 0 1px rgba(0, 0, 0, 0.12),
+        0 0 0 2px $color-white,
+        0 0 0 4px $color-black;
+    }
+  }
+
+  // 품절 색상 칩
+  &.skuChipSoldOut {
+    border-color: $color-gray-200;
+    background: $color-gray-50;
+    color: $color-gray-400;
+
+    &:hover {
+      border-color: $color-gray-200;
+      background: $color-gray-50;
+    }
+
+    .colorName { text-decoration: line-through; }
+
+    // 색상은 그대로 보이되 살짝만 흐리고, 대각선으로 품절 표시
+    .colorSwatch {
+      position: relative;
+      opacity: 0.65;
+      box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12);
+
+      &::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        background: linear-gradient(
+          to top right,
+          transparent calc(50% - 1px),
+          rgba(0, 0, 0, 0.55) calc(50% - 1px),
+          rgba(0, 0, 0, 0.55) calc(50% + 1px),
+          transparent calc(50% + 1px)
+        );
+      }
+    }
+  }
+
+  // 선택 + 품절이 겹치는 경우(색상이 1개뿐일 때 자동선택)는 강조를 낮춘다
+  &.skuChipSelected.skuChipSoldOut {
+    border-color: $color-gray-200;
+    box-shadow: none;
+    background: $color-gray-50;
+    color: $color-gray-400;
+
+    .colorSwatch {
+      box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12);
+    }
+  }
+}
+
+.colorSwatch {
+  display: inline-block;
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  // 흰색 계열도 형태가 보이도록 내부 테두리
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12);
+  transition: box-shadow $transition-fast;
+}
+
+.colorName {
+  font-size: $font-size-sm;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
 .skuChipSoldOut {
   cursor: not-allowed !important;
   position: relative;
+  border-color: $color-gray-200;
+  background: $color-gray-50;
+  color: $color-gray-400;
 
-  span[style] {
-    filter: grayscale(1);
-    opacity: 0.5;
+  &:hover {
+    border-color: $color-gray-200;
+    background: $color-gray-50;
   }
 }
 
