@@ -146,3 +146,64 @@
   font-size: $font-size-base;
   line-height: 1.7;
 }
+
+// 번호형 절차 안내 (반품·교환·환불 신청 단계 등)
+.steps {
+  list-style: none;
+  counter-reset: step;
+  display: grid;
+  gap: $spacing-sm;
+  margin: $spacing-md 0 0;
+  padding: 0;
+
+  li {
+    position: relative;
+    counter-increment: step;
+    padding: 2px 0 2px 40px;
+    min-height: 28px;
+    display: flex;
+    align-items: center;
+    color: $color-gray-700;
+    font-size: $font-size-base;
+    line-height: 1.6;
+
+    &::before {
+      content: counter(step);
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: $color-black;
+      color: #fff;
+      font-size: $font-size-sm;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+
+  strong {
+    color: $color-black;
+  }
+}
+
+// 문의 유형 태그 목록
+.tagRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-xs;
+  margin: $spacing-md 0 0;
+
+  span {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    border: 1px solid $color-gray-300;
+    border-radius: 999px;
+    font-size: $font-size-sm;
+    color: $color-gray-700;
+  }
+}
