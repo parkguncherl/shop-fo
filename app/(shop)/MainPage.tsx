@@ -15,6 +15,17 @@ interface ProductWithSrc extends ProductResponseProductInfo {
   heroImages?: string[];
 }
 
+// 카테고리 다중 소속 등으로 목록에 동일 상품 id 가 중복될 수 있어 id 기준 1건만 유지
+const uniqueById = <T extends { id?: number }>(list: T[]): T[] => {
+  const seen = new Set<number>();
+  return list.filter((item) => {
+    if (item.id == null) return true;
+    if (seen.has(item.id)) return false;
+    seen.add(item.id);
+    return true;
+  });
+};
+
 const calcFinalPrice = (sellAmt?: number | null, discountRate?: number | null) => {
   if (!sellAmt) return 0;
   return sellAmt - Math.floor(sellAmt * ((discountRate || 0) / 100));
@@ -235,7 +246,7 @@ const CategorySection = ({ categoryNm, categoryId, items }: { categoryNm: string
 // (히어로: 카테고리 10000 첫 상품 3분할 · 하단: 나머지 그리드)
 const MainPage = () => {
   usePageViewLog({ pageType: 'Main', categoryCd: 'all' });
-  const getFileUrl = useWebCommonStore((s) => s.getFileUrl);
+  const getFileUrls = useWebCommonStore((s) => s.getFileUrls);
   const categoryReady = usePartnerCodeStore((s) => s.categoryReady);
 
   const [products, setProducts] = useState<ProductWithSrc[]>([]);
@@ -278,12 +289,8 @@ const MainPage = () => {
     const rows: ProductResponseProductInfo[] = body.rows ?? [];
 
     (async () => {
-      const withSrc: ProductWithSrc[] = await Promise.all(
-        rows.map(async (p) => {
-          const src = p.sysFileNm ? await getFileUrl(p.sysFileNm as string) : undefined;
-          return { ...p, src };
-        }),
-      );
+      const urlMap = await getFileUrls(rows.map((p) => p.sysFileNm as string).filter(Boolean));
+      const withSrc: ProductWithSrc[] = uniqueById(rows).map((p) => ({ ...p, src: p.sysFileNm ? urlMap[p.sysFileNm as string] : undefined }));
       setHeroes([...withSrc].sort(() => Math.random() - 0.5));
     })();
   }, [bestSuccess, bestData]);
@@ -297,12 +304,8 @@ const MainPage = () => {
     const rows: ProductResponseProductInfo[] = body.rows ?? [];
 
     (async () => {
-      const withSrc: ProductWithSrc[] = await Promise.all(
-        rows.map(async (p) => {
-          const src = p.sysFileNm ? await getFileUrl(p.sysFileNm as string) : undefined;
-          return { ...p, src };
-        }),
-      );
+      const urlMap = await getFileUrls(rows.map((p) => p.sysFileNm as string).filter(Boolean));
+      const withSrc: ProductWithSrc[] = uniqueById(rows).map((p) => ({ ...p, src: p.sysFileNm ? urlMap[p.sysFileNm as string] : undefined }));
       setProducts(withSrc);
     })();
   }, [isSuccess, data]);
@@ -315,12 +318,8 @@ const MainPage = () => {
     const rows: ProductResponseProductInfo[] = body ?? [];
 
     (async () => {
-      const withSrc: ProductWithSrc[] = await Promise.all(
-        rows.map(async (p) => {
-          const src = p.sysFileNm ? await getFileUrl(p.sysFileNm as string) : undefined;
-          return { ...p, src };
-        }),
-      );
+      const urlMap = await getFileUrls(rows.map((p) => p.sysFileNm as string).filter(Boolean));
+      const withSrc: ProductWithSrc[] = uniqueById(rows).map((p) => ({ ...p, src: p.sysFileNm ? urlMap[p.sysFileNm as string] : undefined }));
 
       // categoryNm 기준으로 그룹핑 (쿼리 ORDER BY 순서 유지)
       const groupMap = new Map<string, { categoryId: string; items: ProductWithSrc[] }>();

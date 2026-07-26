@@ -17,6 +17,8 @@ interface WebCommonState {
 
 interface WebCommonApiState {
   getFileUrl: (fileKey: string) => Promise<string>;
+  /** 목록 화면용: 여러 파일키의 presigned url 을 한 번의 요청으로 조회 */
+  getFileUrls: (fileKeys: string[]) => Promise<Record<string, string>>;
   selectFileList: (fileId: number) => Promise<FileDet[]>;
 }
 
@@ -55,6 +57,13 @@ const initialStateCreator: StateCreator<WebCommonState & WebCommonApiState, any>
           }
         });
       }
+    },
+    getFileUrls: async (fileKeys: string[]) => {
+      const keys = (fileKeys ?? []).filter((k) => k && k.trim() !== '');
+      if (keys.length === 0) return {};
+      return await publicApi.post('/frontWeb/webCommon/getFileUrls', { fileKeys: [...new Set(keys)] }).then((res) => {
+        return res.data.resultCode === 200 ? (res.data.body as Record<string, string>) ?? {} : {};
+      });
     },
     selectFileList: async (fileId: number) => {
       return publicApi.get(`/frontWeb/webCommon/fileList/${fileId}`).then((res): FileDet[] => {

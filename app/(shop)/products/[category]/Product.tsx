@@ -74,7 +74,7 @@ const Product = (Props: { categoryId: string }) => {
   usePageViewLog({ pageType: 'Product', categoryCd: Props.categoryId });
   const pagingOnProduct = useProductStore((s) => s.paging);
   const setPagingOnProduct = useProductStore((s) => s.setPaging);
-  const getFileUrl = useWebCommonStore((s) => s.getFileUrl);
+  const getFileUrls = useWebCommonStore((s) => s.getFileUrls);
   const isBlocked = useBlockStore((s) => s.isBlocked);
   const timeLeft = useBlockStore((s) => s.timeLeft);
   const categoryReady = usePartnerCodeStore((s) => s.categoryReady);
@@ -130,15 +130,11 @@ const Product = (Props: { categoryId: string }) => {
 
   // 컨텐츠 각각에 img src 첨부
   const attachImgSrcForEachContents = async (productInfos: ExtendedProductResponseProductInfo[]) => {
-    const extendedProductResponseProductInfoList: ExtendedProductResponseProductInfo[] = [];
-    for (let i = 0; i < productInfos.length; i++) {
-      extendedProductResponseProductInfoList.push({
-        ...productInfos[i],
-        src: productInfos[i].sysFileNm ? await getFileUrl(productInfos[i].sysFileNm as string) : undefined,
-      });
-    }
-
-    return extendedProductResponseProductInfoList;
+    const urlMap = await getFileUrls(productInfos.map((p) => p.sysFileNm as string).filter(Boolean));
+    return productInfos.map((p) => ({
+      ...p,
+      src: p.sysFileNm ? urlMap[p.sysFileNm as string] : undefined,
+    }));
   };
 
   useUpdateEffect(() => {

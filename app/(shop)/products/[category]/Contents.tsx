@@ -92,7 +92,7 @@ const numberStyle: React.CSSProperties = {
 const Contents = () => {
   /** 홈페이지 전역 스토어 - State */
   const pagingOnContents = useContentsStore((s) => s.paging);
-  const getFileUrl = useWebCommonStore((s) => s.getFileUrl);
+  const getFileUrls = useWebCommonStore((s) => s.getFileUrls);
   const isBlocked = useBlockStore((s) => s.isBlocked);
   const timeLeft = useBlockStore((s) => s.timeLeft);
   const startBlock = useBlockStore((s) => s.startBlock);
@@ -149,15 +149,11 @@ const Contents = () => {
 
   // 컨텐츠 각각에 img src 첨부
   const attachImgSrcForEachContents = async (contentInfos: ContentsResponseContentsInfo[]) => {
-    const extendedContentsResponseContentsInfoList: ExtendedContentsResponseContentsInfo[] = [];
-    for (let i = 0; i < contentInfos.length; i++) {
-      extendedContentsResponseContentsInfoList.push({
-        ...contentInfos[i],
-        src: contentInfos[i].sysFileNm ? await getFileUrl(contentInfos[i].sysFileNm as string) : undefined,
-      });
-    }
-
-    return extendedContentsResponseContentsInfoList;
+    const urlMap = await getFileUrls(contentInfos.map((c) => c.sysFileNm as string).filter(Boolean));
+    return contentInfos.map((c) => ({
+      ...c,
+      src: c.sysFileNm ? urlMap[c.sysFileNm as string] : undefined,
+    })) as ExtendedContentsResponseContentsInfo[];
   };
 
   useUpdateEffect(() => {
