@@ -15,17 +15,6 @@ interface ProductWithSrc extends ProductResponseProductInfo {
   heroImages?: string[];
 }
 
-// 카테고리 다중 소속 등으로 목록에 동일 상품 id 가 중복될 수 있어 id 기준 1건만 유지
-const uniqueById = <T extends { id?: number }>(list: T[]): T[] => {
-  const seen = new Set<number>();
-  return list.filter((item) => {
-    if (item.id == null) return true;
-    if (seen.has(item.id)) return false;
-    seen.add(item.id);
-    return true;
-  });
-};
-
 const calcFinalPrice = (sellAmt?: number | null, discountRate?: number | null) => {
   if (!sellAmt) return 0;
   return sellAmt - Math.floor(sellAmt * ((discountRate || 0) / 100));
@@ -237,7 +226,7 @@ const CategorySection = ({ categoryNm, categoryId, items }: { categoryNm: string
     </Link>
     <div className={styles.categoryGrid}>
       {items.slice(0, 4).map((p) => (
-        <ProductCard key={p.id} product={p} />
+        <ProductCard key={`${categoryId}-${p.id}`} product={p} />
       ))}
     </div>
   </section>
@@ -290,7 +279,7 @@ const MainPage = () => {
 
     (async () => {
       const urlMap = await getFileUrls(rows.map((p) => p.sysFileNm as string).filter(Boolean));
-      const withSrc: ProductWithSrc[] = uniqueById(rows).map((p) => ({ ...p, src: p.sysFileNm ? urlMap[p.sysFileNm as string] : undefined }));
+      const withSrc: ProductWithSrc[] = rows.map((p) => ({ ...p, src: p.sysFileNm ? urlMap[p.sysFileNm as string] : undefined }));
       setHeroes([...withSrc].sort(() => Math.random() - 0.5));
     })();
   }, [bestSuccess, bestData]);
@@ -305,7 +294,7 @@ const MainPage = () => {
 
     (async () => {
       const urlMap = await getFileUrls(rows.map((p) => p.sysFileNm as string).filter(Boolean));
-      const withSrc: ProductWithSrc[] = uniqueById(rows).map((p) => ({ ...p, src: p.sysFileNm ? urlMap[p.sysFileNm as string] : undefined }));
+      const withSrc: ProductWithSrc[] = rows.map((p) => ({ ...p, src: p.sysFileNm ? urlMap[p.sysFileNm as string] : undefined }));
       setProducts(withSrc);
     })();
   }, [isSuccess, data]);
@@ -319,7 +308,7 @@ const MainPage = () => {
 
     (async () => {
       const urlMap = await getFileUrls(rows.map((p) => p.sysFileNm as string).filter(Boolean));
-      const withSrc: ProductWithSrc[] = uniqueById(rows).map((p) => ({ ...p, src: p.sysFileNm ? urlMap[p.sysFileNm as string] : undefined }));
+      const withSrc: ProductWithSrc[] = rows.map((p) => ({ ...p, src: p.sysFileNm ? urlMap[p.sysFileNm as string] : undefined }));
 
       // categoryNm 기준으로 그룹핑 (쿼리 ORDER BY 순서 유지)
       const groupMap = new Map<string, { categoryId: string; items: ProductWithSrc[] }>();
@@ -339,10 +328,14 @@ const MainPage = () => {
 
       {products.length > 0 && (
         <section className={styles.section}>
-          <p className={styles.sectionTitle}>NEW ARRIVALS</p>
+          <Link href={`/products/10000`} className={styles.sectionTitleLink}>
+            <p className={styles.sectionTitle}>
+              NEW ARRIVALS <span className={styles.sectionTitleArrow}>›</span>
+            </p>
+          </Link>
           <CardCarousel>
-            {products.map((p) => (
-              <ProductCard key={p.id} product={p} />
+            {products.map((p, index) => (
+              <ProductCard key={`${p.id}-${index}`} product={p} />
             ))}
           </CardCarousel>
         </section>

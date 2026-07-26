@@ -125,11 +125,47 @@
 }
 
 // ─── 색상 표시 막대 (이미지와 타이틀 사이, 우측 정렬) ─────────────
+// 계절 태그 + 색상 스와치를 좌우로 배치하는 행 (카드 높이 정렬용 min-height)
+.metaRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+  margin: -2px 2px 2px 0;
+  min-height: 18px;
+}
+
+.seasonTags {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  flex-wrap: wrap;
+}
+
+.seasonTag {
+  display: inline-flex;
+  align-items: center;
+  height: 17px;
+  padding: 0 7px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.2px;
+}
+
+// 계절별 색: 파스텔 배경 + 진한 글자
+.seasonSpring { background: #ffe3ef; color: #e05b8a; } // 봄 - 벚꽃 핑크
+.seasonSummer { background: #dff1fb; color: #2f8fc7; } // 여름 - 청량 블루
+.seasonAutumn { background: #fde8d3; color: #c9762b; } // 가을 - 단풍 오렌지
+.seasonWinter { background: #e6ecf5; color: #46608f; } // 겨울 - 차분한 네이비
+
 .colorBars {
   display: flex;
   justify-content: flex-end;
+  align-items: center;
   gap: 5px;
-  margin: -4px 2px -4px 0;
+  margin: 0;
 }
 
 .colorBar {

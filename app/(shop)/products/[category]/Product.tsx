@@ -216,7 +216,7 @@ const Product = (Props: { categoryId: string }) => {
       {/* 2컬럼 그리드 */}
       <div className={styles.grid}>
         {productInfoListStatus.productInfoList.map((product, index) => (
-          <div key={index} className={styles.card}>
+          <div key={product.id ?? index} className={styles.card}>
             {/* 이미지 + 찜하기 — 이미지 영역만 Link로 감쌈 */}
             <div className={styles.imageWrap}>
               <Link href={`/products/${Props.categoryId}/${product.id}`} className={styles.imageLink}>
@@ -230,12 +230,30 @@ const Product = (Props: { categoryId: string }) => {
             {(() => {
               const colorsStr = (product as any).stndrColors as string | undefined;
               const hexes = colorsStr ? colorsStr.split(',').filter(Boolean) : [];
-              if (hexes.length === 0) return null;
+              // 계절 배지 - 일단 주석 처리 (필요 시 복구)
+              // const seasons = [
+              //   { on: product.isSpring === 'Y', label: '봄', cls: styles.seasonSpring },
+              //   { on: product.isSummer === 'Y', label: '여름', cls: styles.seasonSummer },
+              //   { on: product.isAutumn === 'Y', label: '가을', cls: styles.seasonAutumn },
+              //   { on: product.isWinter === 'Y', label: '겨울', cls: styles.seasonWinter },
+              // ].filter((s) => s.on);
+              // 색상/계절 유무와 무관하게 동일 높이 영역 확보 (카드 높이 정렬)
               return (
-                <div className={styles.colorBars}>
-                  {hexes.slice(0, 6).map((h, i) => (
-                    <span key={i} title={`#${h}`} className={styles.colorBar} style={{ background: `#${h}` }} />
-                  ))}
+                <div className={styles.metaRow}>
+                  {/* 계절 배지 - 일단 주석 처리
+                  <div className={styles.seasonTags}>
+                    {seasons.map((s) => (
+                      <span key={s.label} className={`${styles.seasonTag} ${s.cls}`}>
+                        {s.label}
+                      </span>
+                    ))}
+                  </div>
+                  */}
+                  <div className={styles.colorBars}>
+                    {hexes.slice(0, 6).map((h, i) => (
+                      <span key={i} title={`#${h}`} className={styles.colorBar} style={{ background: `#${h}` }} />
+                    ))}
+                  </div>
                 </div>
               );
             })()}
