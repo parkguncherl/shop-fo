@@ -4,6 +4,9 @@
 .nav {
   border-bottom: 1px solid $color-gray-200;
   background: $color-white;
+  position: sticky;
+  top: $header-height;
+  z-index: $z-header - 1;
 }
 
 .scrollArea {
@@ -13,13 +16,13 @@
   align-items: center;
   gap: 0;
   overflow-x: auto;
-  height: 44px;
+  height: 26px;
 }
 
 .item {
   flex-shrink: 0;
   padding: 0 14px;
-  height: 44px;
+  height: 26px;
   @include flex-center;
   font-size: $font-size-sm;
   font-weight: 400;

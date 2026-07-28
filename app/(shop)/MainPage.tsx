@@ -57,7 +57,7 @@ const HeroMosaic = ({ pool }: { pool: ProductWithSrc[] }) => {
         });
         setFadingSlot(null);
       }, 400);
-    }, 3000);
+    }, 2400);
     return () => clearInterval(timer);
   }, [pool.length]);
 
@@ -150,7 +150,7 @@ const CardCarousel = ({ children }: { children: React.ReactNode }) => {
     timerRef.current = setInterval(() => {
       if (Date.now() < pausedUntil.current || pointerDown.current) return;
       advance();
-    }, 3000);
+    }, 2000);
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
@@ -224,11 +224,11 @@ const CategorySection = ({ categoryNm, categoryId, items }: { categoryNm: string
         {categoryNm} <span className={styles.sectionTitleArrow}>›</span>
       </p>
     </Link>
-    <div className={styles.categoryGrid}>
-      {items.slice(0, 4).map((p) => (
+    <CardCarousel>
+      {items.map((p) => (
         <ProductCard key={`${categoryId}-${p.id}`} product={p} />
       ))}
-    </div>
+    </CardCarousel>
   </section>
 );
 
@@ -238,23 +238,12 @@ const MainPage = () => {
   const getFileUrls = useWebCommonStore((s) => s.getFileUrls);
   const categoryReady = usePartnerCodeStore((s) => s.categoryReady);
 
-  const [products, setProducts] = useState<ProductWithSrc[]>([]);
   const [heroes, setHeroes] = useState<ProductWithSrc[]>([]);
   const [categoryGroups, setCategoryGroups] = useState<{ categoryNm: string; categoryId: string; items: ProductWithSrc[] }[]>([]);
 
   // BEST(90000) 상품 목록 → 히어로 모자이크
   const { data: bestData, isSuccess: bestSuccess } = useQuery({
     queryKey: ['/frontWeb/product/productInfoListByCategory', 'best'],
-    queryFn: () =>
-      publicApi.get('/frontWeb/product/productInfoListByCategory', {
-        params: { pageRowCount: 40, categoryId: '90000' },
-      }),
-    enabled: categoryReady,
-  });
-
-  // NEW ARRIVALS(10000) 상품 목록 → 캐러셀
-  const { data, isSuccess } = useQuery({
-    queryKey: ['/frontWeb/product/productInfoListByCategory', 'main'],
     queryFn: () =>
       publicApi.get('/frontWeb/product/productInfoListByCategory', {
         params: { pageRowCount: 40, categoryId: '10000' },
@@ -284,21 +273,6 @@ const MainPage = () => {
     })();
   }, [bestSuccess, bestData]);
 
-  // NEW ARRIVALS → 캐러셀
-  useEffect(() => {
-    if (!isSuccess) return;
-    const { resultCode, body } = data.data;
-    if (resultCode !== 200) return;
-
-    const rows: ProductResponseProductInfo[] = body.rows ?? [];
-
-    (async () => {
-      const urlMap = await getFileUrls(rows.map((p) => p.sysFileNm as string).filter(Boolean));
-      const withSrc: ProductWithSrc[] = rows.map((p) => ({ ...p, src: p.sysFileNm ? urlMap[p.sysFileNm as string] : undefined }));
-      setProducts(withSrc);
-    })();
-  }, [isSuccess, data]);
-
   useEffect(() => {
     if (!mainListSuccess) return;
     const { resultCode, body } = mainListData.data;
@@ -325,21 +299,6 @@ const MainPage = () => {
   return (
     <>
       {heroes.length >= 3 && <HeroMosaic pool={heroes} />}
-
-      {products.length > 0 && (
-        <section className={styles.section}>
-          <Link href={`/products/10000`} className={styles.sectionTitleLink}>
-            <p className={styles.sectionTitle}>
-              NEW ARRIVALS <span className={styles.sectionTitleArrow}>›</span>
-            </p>
-          </Link>
-          <CardCarousel>
-            {products.map((p, index) => (
-              <ProductCard key={`${p.id}-${index}`} product={p} />
-            ))}
-          </CardCarousel>
-        </section>
-      )}
 
       {categoryGroups.length > 0 && (
         <div className={styles.categorySections}>
