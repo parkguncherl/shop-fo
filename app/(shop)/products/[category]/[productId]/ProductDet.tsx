@@ -171,24 +171,22 @@ const ProductDet = ({ productId }: { productId: number }) => {
     return [...images.rep, ...images.detail, ...images.size, ...images.etc];
   }, [images]);
 
-  /* ── 캐러셀 자동재생 (전체 1회 순환 후 정지) ────────────── */
+  /* ── 캐러셀 자동재생 (무한 순환) ─────────────────────────── */
   useEffect(() => {
     if (allImages.length <= 1) return;
 
     setSlideIdx(0);
 
-    let current = 0;
     const timer = setInterval(() => {
-      current++;
-      if (current >= allImages.length) {
-        clearInterval(timer);
-        // 애니메이션 없이 첫 슬라이드로 복귀
-        setNoTransition(true);
-        setSlideIdx(0);
-        requestAnimationFrame(() => requestAnimationFrame(() => setNoTransition(false)));
-      } else {
-        setSlideIdx(current);
-      }
+      setSlideIdx((prev) => {
+        if (prev >= allImages.length - 1) {
+          // 마지막 → 첫 슬라이드로 애니메이션 없이 복귀 후 계속 순환
+          setNoTransition(true);
+          requestAnimationFrame(() => requestAnimationFrame(() => setNoTransition(false)));
+          return 0;
+        }
+        return prev + 1;
+      });
     }, 2500);
     intervalRef.current = timer;
 

@@ -577,20 +577,17 @@
 }
 
 .relatedTrack {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  // 한 화면에 4개가 보이도록 가로 스크롤(수동 스와이프, 자동재생 없음)
+  display: flex;
   gap: $spacing-sm;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  @include hidden-scrollbar;
 
-  &:has(> :nth-child(3)) {
-    display: flex;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    @include hidden-scrollbar;
-
-    > * {
-      flex: 0 0 calc(50% - #{$spacing-xs});
-      scroll-snap-align: start;
-    }
+  > * {
+    // 4개 노출: gap 3개 분량을 균등 분배
+    flex: 0 0 calc((100% - #{$spacing-sm} * 3) / 4);
+    scroll-snap-align: start;
   }
 }
 
