@@ -215,30 +215,57 @@
   text-decoration: line-through;
 }
 
-.attrList {
-  list-style: none;
-  margin: $spacing-sm 0 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-
-  li {
-    display: flex;
-    align-items: center;
-    gap: $spacing-sm;
-    font-size: $font-size-sm;
-  }
-}
-
-.attrLabel {
-  min-width: 40px;
-  color: $color-gray-500;
-  flex-shrink: 0;
-}
-
-.attrVal {
+// ── 소재 정보 (표 형식) ─────────────────────────────────
+.specHeading {
+  font-size: $font-size-base;
+  font-weight: 700;
   color: $color-black;
+  margin-bottom: 10px;
+}
+
+.specTable {
+  width: 100%;
+  border-top: 2px solid $color-black;
+  font-size: $font-size-sm;
+}
+
+.specRow {
+  display: flex;
+  align-items: center;
+  padding: 7px 4px;
+  border-bottom: 1px solid $color-gray-100;
+}
+
+.specRowLabel {
+  flex: 0 0 84px;
+  color: $color-black;
+  font-weight: 700;
+}
+
+.specScale {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.specCell {
+  flex: 1;
+  text-align: center;
+  color: $color-gray-500;
+  line-height: 1.3;
+}
+
+// 선택된 옵션만 강조 (배경 없이 텍스트만 진하게)
+.specCellOn {
+  color: $color-black;
+  font-weight: 700;
+}
+
+.specDescCell {
+  flex: 1;
+  color: $color-black;
+  white-space: pre-wrap;
+  line-height: 1.5;
 }
 
 // ── SKU 섹션 ───────────────────────────────────────────

@@ -11,9 +11,10 @@ import { usePartnerCodeStore } from '@/stores/usePartnerCodeStore';
 import { useAddCartItem, useCartQuery } from '@/hooks/useCart';
 import { toastSuccess, toastError } from '@/components/common/Others/ToastMessage';
 import ReviewSection from './ReviewSection';
-import ProductAiChat from './ProductAiChat';
+// import ProductAiChat from './ProductAiChat'; // AI 상품 채팅 일시 비활성화
 import styles from './ProductDet.module.scss';
 import { usePageViewLog } from '@/hooks/usePageViewLog';
+import { useCode } from '@/hooks/useCode';
 import { ProductResponseProductDetail, ProductResponseProductDetInfo, ProductResponseRelatedProductInfo } from '@/generated';
 
 interface RelatedProductWithSrc extends ProductResponseRelatedProductInfo {
@@ -52,7 +53,7 @@ const ProductDet = ({ productId }: { productId: number }) => {
   const touchStartX = useRef<number | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
-  const [openSections, setOpenSections] = useState<Record<string, boolean>>({ detInfo: true });
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({ detInfo: true, composition: true });
   const toggleSection = (key: string) => setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
 
   /* ── API 호출 ─────────────────────────────────────────── */
@@ -63,6 +64,13 @@ const ProductDet = ({ productId }: { productId: number }) => {
   });
 
   const product: ProductResponseProductDetail | null = isSuccess && data?.data?.resultCode === 200 ? data.data.body : null;
+
+  /* ── 소재 정보 코드 옵션(정렬순서대로) ─ 선택값 강조용 ─── */
+  const { data: thickCodes } = useCode('90030');
+  const { data: spanCodes } = useCode('90040');
+  const { data: showCodes } = useCode('90050');
+  const { data: transCodes } = useCode('90060');
+  const { data: laundryCodes } = useCode('90070');
 
   /* ── 색상 / 사이즈 목록 파생 ─────────────────────────── */
   const colors = useMemo(() => {
@@ -358,44 +366,6 @@ const ProductDet = ({ productId }: { productId: number }) => {
               <span className={styles.price}>{discountedPrice.toLocaleString()}원</span>
               {(product.discountRate ?? 0) > 0 && product.orgAmt && <span className={styles.orgPrice}>{product.orgAmt.toLocaleString()}원</span>}
             </div>
-            {((product as any).thickTpNm ||
-              (product as any).spanTpNm ||
-              (product as any).showTpNm ||
-              (product as any).laundryTpNm ||
-              (product as any).cleaningTpNm) && (
-              <ul className={styles.attrList}>
-                {(product as any).thickTpNm && (
-                  <li>
-                    <span className={styles.attrLabel}>두께</span>
-                    <span className={styles.attrVal}>{(product as any).thickTpNm}</span>
-                  </li>
-                )}
-                {(product as any).spanTpNm && (
-                  <li>
-                    <span className={styles.attrLabel}>신축성</span>
-                    <span className={styles.attrVal}>{(product as any).spanTpNm}</span>
-                  </li>
-                )}
-                {(product as any).showTpNm && (
-                  <li>
-                    <span className={styles.attrLabel}>비침</span>
-                    <span className={styles.attrVal}>{(product as any).showTpNm}</span>
-                  </li>
-                )}
-                {(product as any).laundryTpNm && (
-                  <li>
-                    <span className={styles.attrLabel}>세탁</span>
-                    <span className={styles.attrVal}>{(product as any).laundryTpNm}</span>
-                  </li>
-                )}
-                {(product as any).transTpNm && (
-                  <li>
-                    <span className={styles.attrLabel}>안감</span>
-                    <span className={styles.attrVal}>{(product as any).transTpNm}</span>
-                  </li>
-                )}
-              </ul>
-            )}
           </section>
 
           {/* 옵션 선택 */}
@@ -501,6 +471,51 @@ const ProductDet = ({ productId }: { productId: number }) => {
             </div>
           )}
 
+          {/* 소재 정보 (전체 옵션 표시 + 선택값 강조) */}
+          {(() => {
+            const p = product as any;
+            const sortByOrder = (arr: any[]) =>
+              [...(arr ?? [])]
+                .filter((c) => c.deleteYn !== 'Y')
+                .sort((a, b) => Number(a.codeOrder ?? a.codeCd ?? 0) - Number(b.codeOrder ?? b.codeCd ?? 0));
+            const rows = [
+              { label: '두께', codes: sortByOrder(thickCodes as any[]), sel: p.thickTp },
+              { label: '신축성', codes: sortByOrder(spanCodes as any[]), sel: p.spanTp },
+              { label: '비침', codes: sortByOrder(showCodes as any[]), sel: p.showTp },
+              { label: '안감', codes: sortByOrder(transCodes as any[]), sel: p.transTp },
+              { label: '세탁', codes: sortByOrder(laundryCodes as any[]), sel: p.laundryTp },
+            ].filter((r) => r.codes.length > 0);
+            if (rows.length === 0 && !p.laundryDesc) return null;
+            return (
+              <div className={styles.extraSection}>
+                <div className={styles.specHeading}>옷감정보</div>
+                <div className={styles.specTable}>
+                  {rows.map((r) => (
+                    <div className={styles.specRow} key={r.label}>
+                      <div className={styles.specRowLabel}>{r.label}</div>
+                      <div className={styles.specScale}>
+                        {r.codes.map((c: any) => {
+                          const on = String(c.codeCd) === String(r.sel);
+                          return (
+                            <span key={c.codeCd} className={`${styles.specCell} ${on ? styles.specCellOn : ''}`}>
+                              {c.codeNm}
+                            </span>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                  {p.laundryDesc && (
+                    <div className={styles.specRow}>
+                      <div className={styles.specRowLabel}>세탁방법</div>
+                      <div className={styles.specDescCell}>{p.laundryDesc}</div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })()}
+
           {/* 혼용율 */}
           {(product as any).composition && (
             <div className={styles.extraSection}>
@@ -555,8 +570,8 @@ const ProductDet = ({ productId }: { productId: number }) => {
         </section>
       )}
 
-      {/* ── AI 상품 채팅 ── */}
-      <ProductAiChat productId={product.id ?? 0} />
+      {/* ── AI 상품 채팅 (일시 비활성화) ── */}
+      {/* <ProductAiChat productId={product.id ?? 0} /> */}
 
       {/* ── 구매 후기 ── */}
       <ReviewSection productId={product.id ?? 0} />
