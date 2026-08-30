@@ -261,12 +261,12 @@ const Product = (Props: { categoryId: string }) => {
             <Link href={`/products/${Props.categoryId}/${product.id}`} className={styles.info}>
               <p className={styles.name}>{product.prodNm}</p>
               <div className={styles.priceRow}>
-                {product.discountRate && product.discountRate != 0 && <span className={styles.discount}>{Math.round(product.discountRate || 0)}%</span>}
+                {(product.discountRate ?? 0) > 0 && <span className={styles.discount}>{Math.round(product.discountRate ?? 0)}%</span>}
                 <span className={styles.price}>
                   {((product.sellAmt || 0) - Math.floor((product.sellAmt || 0) * ((product.discountRate || 0) / 100))).toLocaleString()}원
                 </span>
-                {product.sellAmt && product.discountRate && product.discountRate != 0 && (
-                  <span className={styles.originalPrice}>{product.sellAmt.toLocaleString()}원</span>
+                {(product.discountRate ?? 0) > 0 && (product.sellAmt ?? 0) > 0 && (
+                  <span className={styles.originalPrice}>{product.sellAmt!.toLocaleString()}원</span>
                 )}
               </div>
             </Link>
