@@ -371,8 +371,36 @@ const ProductDet = ({ productId }: { productId: number }) => {
           {/* 옵션 선택 */}
           {hasDet && (
             <section className={styles.skuSection}>
-              {hasColor && (
+              {hasSize && (
                 <>
+                  <p className={styles.skuLabel}>
+                    사이즈
+                    {selectedSize && <span className={styles.skuSelected}> · {selectedSize}</span>}
+                  </p>
+                  <div className={styles.skuList}>
+                    {sizes.map((size) => {
+                      const sizeStock = (product?.detList ?? [])
+                        .filter((d) => d.productDetSize === size)
+                        .reduce((sum, d) => sum + (d.id != null ? stockMap[d.id] ?? 0 : 0), 0);
+                      const soldOut = sizeStock <= 0;
+                      return (
+                        <button
+                          key={size}
+                          className={`${styles.skuChip} ${selectedSize === size ? styles.skuChipSelected : ''} ${soldOut ? styles.skuChipSoldOut : ''}`}
+                          onClick={() => (soldOut ? toastError(`[${size}] 품절입니다.`) : setSelectedSize((prev) => (prev === size ? null : size)))}
+                          disabled={false}
+                        >
+                          {size}
+                          {soldOut && <span className={styles.soldOutBadge}>품절</span>}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
+
+              {hasColor && (
+                <div className={styles.skuSizeWrap}>
                   <p className={styles.skuLabel}>
                     색상
                     {selectedColor && <span className={styles.skuSelected}> · {selectedColor}</span>}
@@ -402,41 +430,13 @@ const ProductDet = ({ productId }: { productId: number }) => {
                       );
                     })}
                   </div>
-                </>
+                </div>
               )}
 
-              {hasSize && (!hasColor || selectedColor) && (
-                <div className={styles.skuSizeWrap}>
-                  <p className={styles.skuLabel}>
-                    사이즈
-                    {selectedSize && <span className={styles.skuSelected}> · {selectedSize}</span>}
-                  </p>
-                  <div className={styles.skuList}>
-                    {sizes.map((size) => {
-                      const det =
-                        (product?.detList ?? []).find((d) => d.productDetColor === selectedColor && d.productDetSize === size) ??
-                        (product?.detList ?? []).find((d) => d.productDetSize === size);
-                      const sizeStock = det?.id != null ? stockMap[det.id] ?? 0 : 0;
-                      const soldOut = sizeStock <= 0;
-                      return (
-                        <button
-                          key={size}
-                          className={`${styles.skuChip} ${selectedSize === size ? styles.skuChipSelected : ''} ${soldOut ? styles.skuChipSoldOut : ''}`}
-                          onClick={() => !soldOut && setSelectedSize((prev) => (prev === size ? null : size))}
-                          disabled={soldOut}
-                        >
-                          {size}
-                          {soldOut && <span className={styles.soldOutBadge}> 품절</span>}
-                        </button>
-                      );
-                    })}
-                  </div>
-                  {matchedDet?.id != null && (
-                    <p className={styles.stockInfo}>
-                      재고: <strong>{Math.max(0, stockMap[matchedDet.id] ?? 0)}</strong>개
-                    </p>
-                  )}
-                </div>
+              {matchedDet?.id != null && (
+                <p className={styles.stockInfo}>
+                  재고: <strong>{Math.max(0, stockMap[matchedDet.id] ?? 0)}</strong>개
+                </p>
               )}
             </section>
           )}
