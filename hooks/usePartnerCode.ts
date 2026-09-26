@@ -13,7 +13,7 @@ export function usePartnerCode(partnerUpperCode: string): UseQueryResult<Partner
   return useQuery({
     queryKey: ['partnerCodeList', partnerUpperCode],
     queryFn: async () => {
-      const res = await publicApi.get(`/frontWeb/webCommon/partnerCode/${partnerUpperCode}`);
+      const res = await publicApi.get(`/frontWeb/webCommon/userCode/${partnerUpperCode}`);
       const list: PartnerCodeResponseLowerSelect[] = res.data.body ?? [];
       if (partnerUpperCode === CATEGORY_CODE) {
         setCategories(list);

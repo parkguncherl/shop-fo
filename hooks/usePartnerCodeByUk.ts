@@ -8,7 +8,7 @@ export function usePartnerCodeByUk(webCommonRequestPartnerCodeByUkFilter: WebCom
   return useQuery({
     queryKey: ['partnerCodeByUk', webCommonRequestPartnerCodeByUkFilter],
     queryFn: async () => {
-      const res = await publicApi.get(`/frontWeb/webCommon/partnerCodeByUk`, {
+      const res = await publicApi.get(`/frontWeb/webCommon/userCodeByUk`, {
         params: {
           ...webCommonRequestPartnerCodeByUkFilter,
         },
