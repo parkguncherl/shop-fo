@@ -1,0 +1,7 @@
+allowBuilds:
+  '@nestjs/core': false
+  '@openapitools/openapi-generator-cli': false
+  '@parcel/watcher': false
+  sharp: false
+  unrs-resolver: false
+storeDir: D:\.pnpm-store
